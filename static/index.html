@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Üniversite Görev Yönetim Sistemi | T.C. İstanbul Üniversitesi</title>
+  <meta name="description" content="Üniversite Akademik Görev, Ödev ve Teslim Yönetim Sistemi">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- Arka Plan Efekti -->
+  <div class="bg-mesh"></div>
+
+  <!-- Toast Bildirim Alanı -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- ========================================== -->
+  <!-- 1. GİRİŞ EKRANI (AUTH VIEW) -->
+  <!-- ========================================== -->
+  <div id="view-login" class="auth-wrapper">
+    <div class="login-card">
+      <div class="login-header">
+        <div class="univ-logo-badge">
+          <!-- Üniversite Arma / Kütüphane İkonu -->
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path>
+            <path d="M6 6h10"></path>
+            <path d="M6 10h10"></path>
+            <path d="M6 14h7"></path>
+          </svg>
+        </div>
+        <h2>İstanbul Üniversitesi</h2>
+        <p>Görev ve Ödev Yönetim Sistemi</p>
+      </div>
+
+      <form id="form-login" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label for="login-email">Kurumsal E-posta Adresi</label>
+          <input type="email" id="login-email" placeholder="ornek@universite.edu.tr" required autocomplete="email">
+        </div>
+
+        <div class="form-group">
+          <label for="login-password">Şifre</label>
+          <input type="password" id="login-password" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+
+        <button type="submit" id="btn-submit-login" class="btn-primary" style="margin-top: 8px;">
+          <span>Giriş Yap</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+            <polyline points="10 17 15 12 10 7"></polyline>
+            <line x1="15" y1="12" x2="3" y2="12"></line>
+          </svg>
+        </button>
+      </form>
+
+      <!-- Hızlı Test Demo Hesapları -->
+      <div class="demo-accounts-box">
+        <div class="demo-title">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+          </svg>
+          Hızlı Demo Girişi (1-Tık)
+        </div>
+        <div class="demo-grid" style="grid-template-columns: repeat(3, 1fr);">
+          <button type="button" class="btn-demo" onclick="fillDemo('superadmin@universite.edu.tr', 'SuperAdmin123!')">
+            <span class="role-dot" style="background: #DC2626;"></span>
+            <div>
+              <strong>Super Admin</strong>
+              <div style="font-size:10px; color:var(--text-muted);">26/26 Tüm Yetkiler</div>
+            </div>
+          </button>
+          <button type="button" class="btn-demo" onclick="fillDemo('yonetici@universite.edu.tr', 'Admin123!')">
+            <span class="role-dot dot-admin"></span>
+            <div>
+              <strong>Admin (Yönetici)</strong>
+              <div style="font-size:10px; color:var(--text-muted);">Sistem Yönetimi</div>
+            </div>
+          </button>
+          <button type="button" class="btn-demo" onclick="fillDemo('egitim.muduru@universite.edu.tr', 'Mudur123!')">
+            <span class="role-dot" style="background: #9333EA;"></span>
+            <div>
+              <strong>Training Manager</strong>
+              <div style="font-size:10px; color:var(--text-muted);">Eğitim Koordinatörü</div>
+            </div>
+          </button>
+          <button type="button" class="btn-demo" onclick="fillDemo('ahmet.yilmaz@universite.edu.tr', 'Egitmen123!')">
+            <span class="role-dot dot-trainer"></span>
+            <div>
+              <strong>Prof. Dr. Ahmet Y.</strong>
+              <div style="font-size:10px; color:var(--text-muted);">Trainer (Eğitmen)</div>
+            </div>
+          </button>
+          <button type="button" class="btn-demo" onclick="fillDemo('asistan.merve@universite.edu.tr', 'Asistan123!')">
+            <span class="role-dot" style="background: #D97706;"></span>
+            <div>
+              <strong>Asistan Merve</strong>
+              <div style="font-size:10px; color:var(--text-muted);">Assistant Trainer</div>
+            </div>
+          </button>
+          <button type="button" class="btn-demo" onclick="fillDemo('mehmet.demir@universite.edu.tr', 'Ogrenci123!')">
+            <span class="role-dot dot-student"></span>
+            <div>
+              <strong>Mehmet Demir</strong>
+              <div style="font-size:10px; color:var(--text-muted);">Student (Öğrenci)</div>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 2. ANA DASHBOARD ALANI (DASHBOARD VIEW) -->
+  <!-- ========================================== -->
+  <div id="view-dashboard" class="app-container" style="display: none;">
+    
+    <!-- Kenar Çubuğu (Sidebar) -->
+    <aside id="main-sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+            <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+          </svg>
+        </div>
+        <div class="sidebar-header-text">
+          <h3>GYS Portal</h3>
+          <span id="sidebar-role-badge">Yönetici Paneli</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">Menü</div>
+        <div id="sidebar-menu-items">
+          <!-- JS tarafından dinamik olarak role göre render edilecek -->
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button type="button" class="nav-item btn-logout" style="width: 100%;" onclick="handleLogout()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          <span>Çıkış Yap</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Ana İçerik Wrapper -->
+    <div class="main-wrapper">
+      <!-- Üst Çubuk (Topbar) -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu-btn" onclick="toggleSidebar()">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+          <div class="page-title" id="page-heading">
+            <span>Yönetici Paneli</span>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <!-- Akademik Dönem Etiketi -->
+          <div class="semester-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            <span>2025-2026 Bahar Dönemi</span>
+          </div>
+
+          <!-- Hızlı Dosya Yükle Butonu (Tüm Roller İçin Aktif) -->
+          <button class="btn-action btn-primary" onclick="openUniversalUploadModal()" id="btn-topbar-upload" style="background: linear-gradient(135deg, #2563EB 0%, #1E3A8A 100%);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            <span>Dosya Yükle</span>
+          </button>
+
+          <!-- Bildirim Çanı & Menüsü (Section 11: Notification System & Center) -->
+          <div class="notification-dropdown-container" style="position: relative;">
+            <button type="button" class="btn-icon" id="btn-notification-bell" onclick="toggleNotificationDropdown()" title="Bildirimler" style="position: relative; background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 8px; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-main);"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+              <span id="notif-unread-count" style="display: none; position: absolute; top: -4px; right: -4px; background: var(--accent-rose); color: #fff; font-size: 10px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: none; align-items: center; justify-content: center; border: 2px solid #fff;">0</span>
+            </button>
+            <div id="notif-dropdown-menu" style="display: none; position: absolute; right: 0; top: 48px; width: 360px; max-height: 460px; background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.12); z-index: 1000; overflow: hidden; flex-direction: column;">
+              <div style="padding: 12px 16px; border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center; background: var(--bg-page);">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <strong style="font-size: 13.5px; color: var(--primary-navy);">🔔 Bildirim Merkezi (11)</strong>
+                  <span id="notif-header-total" class="status-badge badge-submitted" style="font-size: 10px;">0</span>
+                </div>
+                <button type="button" onclick="markAllNotificationsRead()" style="background: none; border: none; color: var(--primary-blue); font-size: 11.5px; cursor: pointer; font-weight: 600;">Tümünü Okundu Say</button>
+              </div>
+
+              <!-- Filtre Sekmeleri (All / Unread) -->
+              <div style="display: flex; background: var(--bg-page); border-bottom: 1px solid var(--border-light); padding: 4px 12px; gap: 8px;">
+                <button type="button" id="notif-filter-all" onclick="filterNotifications('all')" style="background: var(--primary-blue); color: #fff; border: none; border-radius: 4px; padding: 3px 8px; font-size: 11px; font-weight: 600; cursor: pointer;">Tümü</button>
+                <button type="button" id="notif-filter-unread" onclick="filterNotifications('unread')" style="background: transparent; color: var(--text-secondary); border: 1px solid var(--border-light); border-radius: 4px; padding: 3px 8px; font-size: 11px; font-weight: 600; cursor: pointer;">Okunmamış</button>
+              </div>
+
+              <div id="notif-dropdown-list" style="overflow-y: auto; max-height: 360px;">
+                <!-- Dinamik Bildirim Listesi -->
+              </div>
+            </div>
+          </div>
+
+          <div class="user-profile-badge" onclick="openProfileModal()">
+            <div class="avatar-circle" id="user-avatar">Y</div>
+            <div class="user-info-text">
+              <span class="user-info-name" id="user-display-name">Sistem Yöneticisi</span>
+              <span class="user-info-role" id="user-display-role">Yönetici</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Dinamik İçerik Alanı -->
+      <main class="content-body" id="main-content">
+        <!-- JS tarafından ilgili sayfa ve tablolar buraya enjekte edilecek -->
+      </main>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 3. MODALLAR (MODAL DIALOGS) -->
+  <!-- ========================================== -->
+
+  <!-- Modal: Evrensel Dosya Yükleme (Universal File Upload) -->
+  <div id="modal-universal-upload" class="modal-overlay">
+    <div class="modal-box" style="max-width: 620px;">
+      <div class="modal-header">
+        <h3>📤 Sisteme Dosya Yükle / Ödev Teslim Et</h3>
+        <button class="modal-close-btn" onclick="closeModal('modal-universal-upload')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group" id="universal-task-select-group">
+          <label for="universal-task-select">İlişkili Görev / Ödev</label>
+          <select id="universal-task-select">
+            <!-- Dinamik doldurulacak -->
+          </select>
+        </div>
+
+        <div style="margin-top: 14px;">
+          <input type="file" id="universal-file-input" style="display: none;" onchange="handleUniversalFileSelected(event)">
+          
+          <div class="file-dropzone" id="universal-file-dropzone" onclick="document.getElementById('universal-file-input').click()">
+            <svg class="dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <p>Yüklenecek Dosyayı Seçin veya Buraya Bırakın</p>
+            <span>PDF, Word, ZIP, Kod (Python, Java, C++) ve Görsel Dosyaları (Maks. 25 MB)</span>
+            <div class="btn-browse-file" style="margin-top:14px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+              Bilgisayardan Dosya Seç
+            </div>
+          </div>
+
+          <div id="universal-file-preview" style="display: none;" class="selected-file-preview">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--accent-emerald);">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+              </svg>
+              <div>
+                <strong id="universal-filename" style="color:var(--text-main); font-size:14px;">dosya.pdf</strong>
+                <span id="universal-filesize" style="color:var(--text-muted); font-size:11px; margin-left:6px;">(0 KB)</span>
+              </div>
+            </div>
+            <button type="button" style="background:transparent; color:var(--accent-rose); font-size:20px;" onclick="clearUniversalFile()" title="Kaldır">&times;</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-action btn-secondary" onclick="closeModal('modal-universal-upload')">İptal</button>
+        <button type="button" class="btn-action btn-primary" id="btn-submit-universal-file" onclick="handleUploadUniversalFile()" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+          <span>Dosyayı Sisteme Yükle</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Kullanıcı Ekle / Düzenle (Admin) -->
+  <div id="modal-user" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="modal-user-title">Öğrenci Ekle</h3>
+        <button class="modal-close-btn" onclick="closeModal('modal-user')">&times;</button>
+      </div>
+      <form id="form-user" onsubmit="handleSaveUser(event)">
+        <div class="modal-body">
+          <input type="hidden" id="user-id">
+          <div class="form-group">
+            <label for="user-name">Ad Soyad</label>
+            <input type="text" id="user-name" required placeholder="Örn: Ahmet Can Yılmaz">
+          </div>
+          <div class="form-group">
+            <label for="user-email">Kurumsal E-posta</label>
+            <input type="email" id="user-email" required placeholder="ornek@universite.edu.tr">
+          </div>
+          <div class="form-group">
+            <label for="user-role">Rol / Yetki (6 Rol)</label>
+            <select id="user-role" required>
+              <option value="super_admin">👑 Super Admin (Tüm Yetkiler)</option>
+              <option value="admin">🛡️ Admin (Sistem Yöneticisi)</option>
+              <option value="training_manager">🎓 Training Manager (Eğitim Müdürü)</option>
+              <option value="trainer">👨‍🏫 Trainer (Eğitmen)</option>
+              <option value="assistant_trainer">🧑‍💼 Assistant Trainer (Yardımcı Eğitmen)</option>
+              <option value="student">🎒 Student (Öğrenci)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="user-password" id="label-user-password">Şifre</label>
+            <input type="password" id="user-password" placeholder="••••••••">
+            <small style="color:var(--text-muted); font-size:11px;" id="help-user-password">Düzenleme yaparken boş bırakırsanız şifre değişmez.</small>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-action btn-secondary" onclick="closeModal('modal-user')">İptal</button>
+          <button type="submit" class="btn-action btn-primary" id="btn-save-user">Kaydet</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Görev Oluştur / Düzenle (Admin) -->
+  <div id="modal-task" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="modal-task-title">Görev Oluştur</h3>
+        <button class="modal-close-btn" onclick="closeModal('modal-task')">&times;</button>
+      </div>
+      <form id="form-task" onsubmit="handleSaveTask(event)">
+        <div class="modal-body" style="max-height: calc(85vh - 130px); overflow-y: auto; padding: 16px 20px;">
+          <input type="hidden" id="task-id">
+          
+          <!-- 1. Title & Estimated Time -->
+          <div style="display:grid; grid-template-columns: 2fr 1fr; gap:12px;">
+            <div class="form-group">
+              <label for="task-title">Görev Başlığı (Title) *</label>
+              <input type="text" id="task-title" required placeholder="Örn: Algoritmalar: İkili Arama Ağacı Ödevi">
+            </div>
+            <div class="form-group">
+              <label for="task-estimated-time">Tahmini Süre (Estimated Time)</label>
+              <input type="text" id="task-estimated-time" placeholder="Örn: 6 Saat, 3 Gün">
+            </div>
+          </div>
+
+          <!-- 2. Description (Kısa Açıklama) -->
+          <div class="form-group">
+            <label for="task-description">Görev Özeti / Açıklaması (Description) *</label>
+            <textarea id="task-description" rows="2" required placeholder="Görevin temel amacını ve kısa özetini yazınız..."></textarea>
+          </div>
+
+          <!-- 3. Instructions (Detaylı Uygulama Yönergeleri) -->
+          <div class="form-group">
+            <label for="task-instructions">Uygulama ve Teslim Yönergeleri (Instructions)</label>
+            <textarea id="task-instructions" rows="3" placeholder="Adım adım kodlama kuralları, teslim formatı ve değerlendirme kriterleri..."></textarea>
+          </div>
+
+          <!-- 4. Start Date, Due Date, Priority -->
+          <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:12px;">
+            <div class="form-group">
+              <label for="task-start-date">Başlangıç Tarihi (Start Date)</label>
+              <input type="date" id="task-start-date" value="${new Date().toISOString().split('T')[0]}">
+            </div>
+            <div class="form-group">
+              <label for="task-deadline">Son Teslim Tarihi (Due Date) *</label>
+              <input type="date" id="task-deadline" required>
+            </div>
+            <div class="form-group">
+              <label for="task-priority">Öncelik (Priority)</label>
+              <select id="task-priority">
+                <option value="Low">🟢 Low (Düşük)</option>
+                <option value="Medium" selected>🔵 Medium (Normal/Orta)</option>
+                <option value="High">🟠 High (Yüksek)</option>
+                <option value="Urgent">🔴 Urgent (Acil)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 5. Links & Attachments -->
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+            <div class="form-group">
+              <label for="task-url">Kaynak / Doküman Linki (Links)</label>
+              <input type="url" id="task-url" placeholder="Örn: https://github.com/... veya dokümantasyon">
+            </div>
+            <div class="form-group">
+              <label for="task-file">Ek Şablon / Başlangıç Dosyası (Attachments)</label>
+              <input type="text" id="task-file" placeholder="Örn: odev_sablonu.zip veya dataset.csv">
+            </div>
+          </div>
+
+          <!-- 6. Assigned By (Trainer) -->
+          <div class="form-group">
+            <label for="task-trainer">Görevi Atayan Eğitmen (Assigned By) *</label>
+            <select id="task-trainer" required>
+              <!-- Dinamik Eğitmen Listesi -->
+            </select>
+          </div>
+
+          <!-- 7. Assigned To (Single Student / Whole Group) -->
+          <div class="form-group">
+            <label>Atama Hedefi (Assigned To) *</label>
+            <div style="display: flex; gap: 16px; margin-top: 4px; margin-bottom: 8px;">
+              <label style="display: flex; align-items: center; gap: 6px; font-weight: 600; cursor: pointer; font-size: 13.5px;">
+                <input type="radio" name="task-assign-type" value="single" checked onchange="handleTaskAssignTypeChange(this.value)" style="width: auto;">
+                <span>👤 Tek Öğrenciye Ata</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 6px; font-weight: 600; cursor: pointer; font-size: 13.5px;">
+                <input type="radio" name="task-assign-type" value="group" onchange="handleTaskAssignTypeChange(this.value)" style="width: auto;">
+                <span>👥 Tüm Gruba / Şubeye Ata</span>
+              </label>
+            </div>
+          </div>
+          <div class="form-group" id="container-task-student">
+            <label for="task-student">Atanan Öğrenci *</label>
+            <select id="task-student">
+              <!-- Dinamik Öğrenci Listesi -->
+            </select>
+          </div>
+          <div class="form-group" id="container-task-group" style="display: none;">
+            <label for="task-group">Atanan Eğitim Grubu / Şube *</label>
+            <select id="task-group">
+              <!-- Dinamik Grup Listesi -->
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer" style="border-top:1px solid var(--border-light); padding:12px 20px; background:#fff; position:sticky; bottom:0; z-index:10;">
+          <button type="button" class="btn-action btn-secondary" onclick="closeModal('modal-task')">İptal</button>
+          <button type="submit" class="btn-action btn-primary" id="btn-save-task">Görevi Kaydet</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Görev Detayları ve Dosya Yükleme (Öğrenci & Eğitmen) -->
+  <div id="modal-task-detail" class="modal-overlay">
+    <div class="modal-box" style="max-width: 700px; max-height: 88vh; display: flex; flex-direction: column; overflow: hidden;">
+      <div class="modal-header">
+        <h3 id="detail-task-title">Görev Detayları ve Ödev Teslimi</h3>
+        <button class="modal-close-btn" onclick="closeModal('modal-task-detail')">&times;</button>
+      </div>
+      <div class="modal-body" style="overflow-y: auto; max-height: calc(88vh - 130px); padding: 18px 22px;">
+        <div style="margin-bottom: 16px;">
+          <!-- 12 Parametreli Metadata Başlık Kartı -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; padding: 12px; background: var(--bg-page); border-radius: 8px; border: 1px solid var(--border-light); margin-bottom: 14px;">
+            <div>
+              <span style="font-size:11px; color:var(--text-muted); display:block; text-transform:uppercase; font-weight:700;">Atayan Eğitmen</span>
+              <strong id="detail-trainer-name" style="color:var(--accent-gold); font-size:13px;">-</strong>
+            </div>
+            <div>
+              <span style="font-size:11px; color:var(--text-muted); display:block; text-transform:uppercase; font-weight:700;">Başlangıç</span>
+              <span id="detail-start-date" style="color:var(--text-main); font-size:13px; font-weight:600;">-</span>
+            </div>
+            <div>
+              <span style="font-size:11px; color:var(--text-muted); display:block; text-transform:uppercase; font-weight:700;">Son Teslim</span>
+              <strong id="detail-deadline" style="color:var(--accent-rose); font-size:13px;">-</strong>
+            </div>
+            <div>
+              <span style="font-size:11px; color:var(--text-muted); display:block; text-transform:uppercase; font-weight:700;">Öncelik</span>
+              <span id="detail-priority-badge" class="status-badge badge-pending">Normal</span>
+            </div>
+            <div>
+              <span style="font-size:11px; color:var(--text-muted); display:block; text-transform:uppercase; font-weight:700;">Tahmini Süre</span>
+              <span id="detail-estimated-time" style="color:var(--text-main); font-size:13px; font-weight:600;">-</span>
+            </div>
+            <div>
+              <span style="font-size:11px; color:var(--text-muted); display:block; text-transform:uppercase; font-weight:700;">Durum</span>
+              <span id="detail-status-badge" class="status-badge badge-pending">Bekliyor</span>
+            </div>
+          </div>
+
+          <!-- Değerlendirme & Geri Bildirim Alanı (Eğer Tamamlandı, Not Verildiyse veya Düzeltme İstendiyse En Üstte Göster) -->
+          <div id="student-evaluation-box" style="display: none; margin-bottom: 14px;" class="evaluation-card">
+            <div class="eval-header">
+              <div class="eval-title" id="eval-header-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                Eğitmen Değerlendirmesi & Geri Bildirim
+              </div>
+              <div id="student-grade-badge" class="grade-badge">Not: - / 100</div>
+            </div>
+            <div class="eval-feedback-text" id="student-feedback-text">
+              -
+            </div>
+            <!-- 9. Rubrik Kriter Dağılımı Gösterimi (Student Rubric Breakdown) -->
+            <div id="student-rubric-box" style="display: none; margin-top: 12px; padding-top: 10px; border-top: 1px dashed rgba(0,0,0,0.1);">
+              <span style="font-size: 11px; font-weight: 700; color: var(--primary-navy); display: block; margin-bottom: 8px; text-transform: uppercase;">📊 100 PUANLIK KRİTER VE RUBRİK DAĞILIMI</span>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 6px;" id="student-rubric-grid">
+                <!-- Dinamik Rubrik Puanları -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Açıklama (Description) -->
+          <div style="background:var(--bg-page); padding:12px 14px; border-radius:var(--radius-sm); border:1px solid var(--border-light); margin-bottom: 10px;">
+            <span style="font-size:11px; color:var(--text-muted); display:block; margin-bottom:4px; font-weight:700; text-transform:uppercase;">GÖREV ÖZETİ (DESCRIPTION)</span>
+            <p id="detail-description" style="font-size:13.5px; color:var(--text-main); line-height:1.5; white-space:pre-wrap;">-</p>
+          </div>
+
+          <!-- Detaylı Yönergeler (Instructions) -->
+          <div id="detail-instructions-box" style="display:none; background:var(--bg-page); padding:12px 14px; border-radius:var(--radius-sm); border:1px solid var(--border-light); margin-bottom: 10px;">
+            <span style="font-size:11px; color:var(--primary-blue); display:block; margin-bottom:4px; font-weight:700; text-transform:uppercase;">UYGULAMA VE TESLİM YÖNERGELERİ (INSTRUCTIONS)</span>
+            <p id="detail-instructions" style="font-size:13px; color:var(--text-main); line-height:1.5; white-space:pre-wrap;">-</p>
+          </div>
+
+          <!-- Section 9: 100 Puanlık Değerlendirme Modeli (Rubric Breakdown Matrix) -->
+          <div style="background: var(--bg-page); padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); margin-bottom: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-size: 11px; font-weight: 700; color: var(--primary-navy); display: flex; align-items: center; gap: 6px; text-transform: uppercase;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                9. DEĞERLENDİRME KRİTERLERİ VE PUAN DAĞILIMI (100 PUAN)
+              </span>
+              <span id="detail-rubric-status-badge" class="status-badge badge-completed" style="font-size: 11px; font-weight: 700;">Toplam: 100 Puan</span>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(105px, 1fr)); gap: 6px;" id="detail-rubric-criteria-grid">
+              <div style="background: var(--bg-card); padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border-light); text-align: center;">
+                <div style="font-size: 10.5px; font-weight: 700; color: var(--text-muted);">Task Completion</div>
+                <div id="detail-rubric-score-completion" style="font-size: 13px; font-weight: 800; color: var(--primary-navy); margin-top: 2px;">30 Puan</div>
+              </div>
+              <div style="background: var(--bg-card); padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border-light); text-align: center;">
+                <div style="font-size: 10.5px; font-weight: 700; color: var(--text-muted);">Quality</div>
+                <div id="detail-rubric-score-quality" style="font-size: 13px; font-weight: 800; color: var(--primary-navy); margin-top: 2px;">25 Puan</div>
+              </div>
+              <div style="background: var(--bg-card); padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border-light); text-align: center;">
+                <div style="font-size: 10.5px; font-weight: 700; color: var(--text-muted);">Accuracy</div>
+                <div id="detail-rubric-score-accuracy" style="font-size: 13px; font-weight: 800; color: var(--primary-navy); margin-top: 2px;">20 Puan</div>
+              </div>
+              <div style="background: var(--bg-card); padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border-light); text-align: center;">
+                <div style="font-size: 10.5px; font-weight: 700; color: var(--text-muted);">Deadline Comm.</div>
+                <div id="detail-rubric-score-deadline" style="font-size: 13px; font-weight: 800; color: var(--primary-navy); margin-top: 2px;">15 Puan</div>
+              </div>
+              <div style="background: var(--bg-card); padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border-light); text-align: center;">
+                <div style="font-size: 10.5px; font-weight: 700; color: var(--text-muted);">Communication</div>
+                <div id="detail-rubric-score-communication" style="font-size: 13px; font-weight: 800; color: var(--primary-navy); margin-top: 2px;">10 Puan</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dosya Yükleme Alanı (Görevi Teslim Et) -->
+        <div id="student-upload-section" style="margin-top: 10px;">
+          <h4 style="font-size:15px; margin-bottom:8px; color:var(--text-main);">Ödev / Proje Dosyası Yükleme</h4>
+          <input type="file" id="submission-file-input" style="display: none;" onchange="handleFileSelected(event)">
+          
+          <label for="submission-file-input" class="file-dropzone" id="file-dropzone" style="cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none;">
+            <svg class="dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <p>Dosya seçmek için tıklayın veya buraya sürükleyin</p>
+            <span>PDF, Word, ZIP, Kod (Python, Java, C++) ve Görsel Dosyaları (Maks. 25 MB)</span>
+            <div class="btn-browse-file" style="pointer-events: none;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+              Bilgisayardan Dosya Seç
+            </div>
+          </label>
+
+          <div id="file-selected-preview" style="display: none;" class="selected-file-preview">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--accent-emerald);">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+              </svg>
+              <div>
+                <strong id="selected-filename" style="color:var(--text-main); font-size:13.5px;">dosya.pdf</strong>
+                <span id="selected-filesize" style="color:var(--text-muted); font-size:11px; margin-left:6px;">(0 KB)</span>
+              </div>
+            </div>
+            <button type="button" style="background:transparent; color:var(--accent-rose); font-size:18px;" onclick="clearSelectedFile()" title="Kaldır">&times;</button>
+          </div>
+
+          <!-- Daha önce yüklenmiş dosya varsa göster -->
+          <div id="already-submitted-file-box" style="display: none; margin-top: 14px; padding: 12px; background: #F8FAFC; border: 1px solid var(--border-light); border-radius: var(--radius-sm);">
+            <span style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:4px;">Daha Önce Yüklenen Dosya:</span>
+            <div style="display:flex; align-items:center; justify-content:space-between;">
+              <span id="already-submitted-filename" style="font-weight:600; color:var(--primary-blue);">-</span>
+              <a id="already-submitted-download-link" href="#" target="_blank" class="btn-action btn-secondary btn-sm">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Dosyayı İndir
+              </a>
+            </div>
+          </div>
+
+          <!-- Çözüm Linki ve Öğrenci Notu -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px;">
+            <div class="form-group" style="margin-bottom:0;">
+              <label for="submission-link">Öğrenci Proje / Çözüm Linki (URL)</label>
+              <input type="url" id="submission-link" placeholder="Örn: https://github.com/kullanici/proje">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label for="submission-notes">Öğrenci Notu / Açıklaması</label>
+              <input type="text" id="submission-notes" placeholder="Örn: 2. soru ek olarak yapıldı...">
+            </div>
+          </div>
+
+          <!-- Section 7: Teslim Geçmişi & Revizyon Kayıtları (Submission History) -->
+          <div id="detail-submission-history-box" style="display: none; margin-top: 18px; border-top: 1px dashed var(--border-light); padding-top: 14px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+              <span style="font-size: 12px; font-weight: 700; color: var(--primary-navy); display: flex; align-items: center; gap: 6px;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+                TESLİM GEÇMİŞİ VE REVİZYONLAR (SUBMISSION HISTORY)
+              </span>
+              <span id="detail-history-count-badge" class="status-badge badge-submitted" style="font-size: 11px;">0 Deneme</span>
+            </div>
+            <div id="detail-submission-history-list" style="display: flex; flex-direction: column; gap: 8px;">
+              <!-- Dinamik Deneme / Revizyon Kartları -->
+            </div>
+          </div>
+
+          <!-- Section 10: Görev İçi İletişim ve Yorumlar (Task Comments Thread) -->
+          <div id="detail-comments-section" style="margin-top: 20px; border-top: 1px solid var(--border-light); padding-top: 16px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+              <span style="font-size: 12px; font-weight: 700; color: var(--primary-navy); display: flex; align-items: center; gap: 6px; text-transform: uppercase;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                10. GÖREV İÇİ İLETİŞİM VE YORUMLAR (TASK COMMENTS THREAD)
+              </span>
+              <span id="detail-comments-count-badge" class="status-badge badge-submitted" style="font-size: 11px;">0 Yorum</span>
+            </div>
+
+            <!-- Yorumlar Listesi (Discussion Thread) -->
+            <div id="detail-comments-list" style="display: flex; flex-direction: column; gap: 10px; max-height: 280px; overflow-y: auto; padding-right: 4px; margin-bottom: 14px;">
+              <!-- Dinamik Yorum Kartları -->
+            </div>
+
+            <!-- Yeni Yorum / Mesaj Ekleme Kutusu -->
+            <div style="background: var(--bg-page); border: 1px solid var(--border-light); border-radius: 10px; padding: 12px;">
+              <div style="margin-bottom: 8px;">
+                <textarea id="comment-input-text" rows="2" placeholder="Öğrenci veya Eğitmene bu görevle ilgili bir soru, not veya yorum yazınız..." style="width: 100%; padding: 8px 12px; font-size: 13px; border: 1px solid var(--border-light); border-radius: 6px; resize: vertical; box-sizing: border-box;"></textarea>
+              </div>
+              
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                <!-- Link Ekle (Links) -->
+                <div>
+                  <input type="url" id="comment-input-link" placeholder="🔗 İlgili Bağlantı / Link (Opsiyonel)" style="font-size: 12px; padding: 6px 10px; width: 100%; box-sizing: border-box;">
+                </div>
+                <!-- Dosya / Resim Ekle (File Attachments & Images) -->
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <input type="file" id="comment-file-input" style="display: none;" onchange="handleCommentFileSelected(event)">
+                  <label for="comment-file-input" class="btn-action btn-secondary btn-sm" style="cursor: pointer; width: 100%; justify-content: center; font-size: 11.5px; padding: 6px 10px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                    <span id="comment-file-label">📎 Dosya / Resim Ekle</span>
+                  </label>
+                  <button type="button" id="comment-file-clear-btn" onclick="clearCommentFile()" style="display: none; background: transparent; border: none; color: var(--accent-rose); font-size: 16px; cursor: pointer;">&times;</button>
+                </div>
+              </div>
+
+              <div style="display: flex; justify-content: flex-end;">
+                <button type="button" class="btn-action btn-primary btn-sm" id="btn-send-comment" onclick="handleSendComment()" style="background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                  <span>Yorumu Gönder (Send Comment)</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-action btn-secondary" onclick="closeModal('modal-task-detail')">Kapat</button>
+        <button type="button" class="btn-action btn-secondary" id="btn-start-task" onclick="handleStartTask()" style="display:none; width:auto; border-color:#8B5CF6; color:#8B5CF6;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          <span>Çalışmaya Başla (In Progress)</span>
+        </button>
+        <button type="button" class="btn-action btn-primary" id="btn-submit-task-file" onclick="handleUploadTaskSubmission()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span id="btn-submit-text">Görevi Teslim Et</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Teslimi İncele ve Değerlendir (Eğitmen / Admin - Section 8: Task Review) -->
+  <div id="modal-review" class="modal-overlay">
+    <div class="modal-box" style="max-width: 660px; max-height: 88vh; display: flex; flex-direction: column; overflow: hidden;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color:var(--primary-blue);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+          <h3 style="margin:0; font-size:17px;">Eğitmen Değerlendirme & İnceleme Paneli (Task Review)</h3>
+        </div>
+        <button class="modal-close-btn" onclick="closeModal('modal-review')">&times;</button>
+      </div>
+      <form id="form-review" onsubmit="handleSaveReview(event)" style="display:flex; flex-direction:column; flex:1; overflow:hidden;">
+        <div class="modal-body" style="padding: 20px; overflow-y:auto; flex:1;">
+          <input type="hidden" id="review-submission-id">
+          
+          <!-- Öğrenci ve Görev Bilgisi (1. & 2. Baddeler: Öğrenci, Görev, Tarih & Saat) -->
+          <div style="background: var(--bg-page); padding: 14px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); margin-bottom: 14px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px;">
+              <div>
+                <span style="font-size:11px; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Öğrenci</span>
+                <div id="review-student-name" style="font-weight:700; color:var(--text-main); font-size:13.5px;">-</div>
+                <div id="review-student-email" style="font-size:12px; color:var(--text-muted);">-</div>
+              </div>
+              <div>
+                <span style="font-size:11px; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Teslim Tarihi ve Saati</span>
+                <div id="review-submitted-at" style="font-weight:600; color:var(--primary-navy); font-size:13px;">-</div>
+              </div>
+            </div>
+            <div>
+              <span style="font-size:11px; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Görev Başlığı</span>
+              <div id="review-task-title" style="font-weight:600; color:var(--primary-blue); font-size:13.5px;">-</div>
+            </div>
+          </div>
+
+          <!-- Öğrencinin Yüklediği Dosya (Files) -->
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label style="font-weight:700; font-size:12px; text-transform:uppercase; color:var(--text-secondary);">📁 Teslim Edilen Çözüm Dosyası (Files)</label>
+            <div id="review-file-container" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: #F0F9FF; border: 1px solid #BAE6FD; border-radius: var(--radius-sm);">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--primary-blue);">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+                <span id="review-filename" style="font-weight:600; font-size:13px; color:var(--text-main);">dosya_adi.zip</span>
+              </div>
+              <a id="review-file-download-btn" href="#" target="_blank" class="btn-action btn-secondary btn-sm" style="background:#FFFFFF;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <span>Dosyayı İndir</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Öğrencinin Eklediği Link ve Notlar (Links & Notes) -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+            <div id="review-link-box" style="padding: 10px 12px; background: var(--bg-page); border: 1px solid var(--border-light); border-radius: 8px;">
+              <span style="font-size:11px; font-weight:700; color:var(--text-muted); display:block; margin-bottom:4px; text-transform:uppercase;">🔗 Çözüm / Proje Linki (Links)</span>
+              <a id="review-student-link" href="#" target="_blank" style="color:var(--primary-blue); font-size:12.5px; font-weight:600; text-decoration:none; word-break:break-all;">-</a>
+            </div>
+            <div id="review-notes-box" style="padding: 10px 12px; background: var(--bg-page); border: 1px solid var(--border-light); border-radius: 8px;">
+              <span style="font-size:11px; font-weight:700; color:var(--text-muted); display:block; margin-bottom:4px; text-transform:uppercase;">💬 Öğrenci Notu (Notes)</span>
+              <div id="review-student-notes" style="color:var(--text-secondary); font-size:12.5px; line-height:1.4;">-</div>
+            </div>
+          </div>
+
+          <!-- Section 9: 100 Puanlık Rubrik Değerlendirme Modeli (Evaluation Rubric System) -->
+          <div style="background: var(--bg-page); border: 1px solid var(--border-light); border-radius: 8px; padding: 14px; margin-bottom: 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <span style="font-size: 12px; font-weight: 700; color: var(--primary-navy); display: flex; align-items: center; gap: 6px;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                9. 100 PUANLIK RUBRİK DEĞERLENDİRME KRİTERLERİ (RUBRIC BREAKDOWN)
+              </span>
+              <span id="rubric-total-badge" class="status-badge badge-completed" style="font-weight: 700; font-size: 12px;">Toplam: 0 / 100</span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px;">
+              <div style="background: var(--bg-card); padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border-light);">
+                <span style="font-size: 10.5px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 3px;">Task Completion</span>
+                <div style="display: flex; align-items: center; gap: 4px;">
+                  <input type="number" id="rubric-completion" min="0" max="30" step="0.5" placeholder="0-30" oninput="calculateRubricTotal()" style="padding: 4px 6px; font-size: 13px; font-weight: 700; text-align: center;">
+                  <span style="font-size: 11px; color: var(--text-muted);">/30</span>
+                </div>
+              </div>
+
+              <div style="background: var(--bg-card); padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border-light);">
+                <span style="font-size: 10.5px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 3px;">Quality</span>
+                <div style="display: flex; align-items: center; gap: 4px;">
+                  <input type="number" id="rubric-quality" min="0" max="25" step="0.5" placeholder="0-25" oninput="calculateRubricTotal()" style="padding: 4px 6px; font-size: 13px; font-weight: 700; text-align: center;">
+                  <span style="font-size: 11px; color: var(--text-muted);">/25</span>
+                </div>
+              </div>
+
+              <div style="background: var(--bg-card); padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border-light);">
+                <span style="font-size: 10.5px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 3px;">Accuracy</span>
+                <div style="display: flex; align-items: center; gap: 4px;">
+                  <input type="number" id="rubric-accuracy" min="0" max="20" step="0.5" placeholder="0-20" oninput="calculateRubricTotal()" style="padding: 4px 6px; font-size: 13px; font-weight: 700; text-align: center;">
+                  <span style="font-size: 11px; color: var(--text-muted);">/20</span>
+                </div>
+              </div>
+
+              <div style="background: var(--bg-card); padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border-light);">
+                <span style="font-size: 10.5px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 3px;">Deadline Comm.</span>
+                <div style="display: flex; align-items: center; gap: 4px;">
+                  <input type="number" id="rubric-deadline" min="0" max="15" step="0.5" placeholder="0-15" oninput="calculateRubricTotal()" style="padding: 4px 6px; font-size: 13px; font-weight: 700; text-align: center;">
+                  <span style="font-size: 11px; color: var(--text-muted);">/15</span>
+                </div>
+              </div>
+
+              <div style="background: var(--bg-card); padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border-light);">
+                <span style="font-size: 10.5px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 3px;">Communication</span>
+                <div style="display: flex; align-items: center; gap: 4px;">
+                  <input type="number" id="rubric-communication" min="0" max="10" step="0.5" placeholder="0-10" oninput="calculateRubricTotal()" style="padding: 4px 6px; font-size: 13px; font-weight: 700; text-align: center;">
+                  <span style="font-size: 11px; color: var(--text-muted);">/10</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Değerlendirme Kararı & Notlandırma (Approve, Needs Revision, Reject, Score) -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+            <div class="form-group" style="margin-bottom:0;">
+              <label for="review-status" style="font-weight:700;">Değerlendirme Kararı (Decision) *</label>
+              <select id="review-status" required style="font-weight:600;">
+                <option value="Tamamlandı">🟢 Onayla & Kabul Et (Approve)</option>
+                <option value="Düzeltme İstendi">🟡 Düzeltme / Revizyon İste (Needs Revision)</option>
+                <option value="Reddedildi">🔴 Teslimi Reddet (Reject)</option>
+                <option value="İnceleniyor">🟣 İnceleniyor (Under Review)</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label for="review-grade" style="font-weight:700;">Toplam Not (Total Score 0 - 100) *</label>
+              <input type="number" id="review-grade" min="0" max="100" step="0.5" placeholder="Örn: 95" required>
+            </div>
+          </div>
+
+          <!-- Eğitmen Geri Bildirimi (Trainer Feedback) -->
+          <div class="form-group" style="margin-bottom: 10px;">
+            <label for="review-feedback" style="font-weight:700;">Eğitmen Geri Bildirimi (Trainer Feedback)</label>
+            <textarea id="review-feedback" rows="3" placeholder="Öğrenciye iletilecek yapıcı değerlendirme, eksiklikler veya tebrik mesajınızı yazınız..."></textarea>
+          </div>
+
+          <!-- Otomatik Bildirim Bilgilendirmesi (8. Madde: Otomatik Bildirim) -->
+          <div style="display:flex; align-items:center; gap:8px; padding:8px 12px; background: rgba(59, 130, 246, 0.08); border-radius:6px; border:1px solid rgba(59, 130, 246, 0.2);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--primary-blue);"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            <span style="font-size:11.5px; color:var(--primary-navy); font-weight:600;">İnceleme kaydedildiğinde öğrenciye sistem üzerinden anında otomatik bildirim gönderilecektir.</span>
+          </div>
+        </div>
+        <div class="modal-footer" style="padding: 14px 20px; background:var(--bg-card); border-top:1px solid var(--border-light);">
+          <button type="button" class="btn-action btn-secondary" onclick="closeModal('modal-review')">İptal</button>
+          <button type="submit" class="btn-action btn-primary" id="btn-save-review" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span>Değerlendirmeyi Kaydet & Bildir</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Silme Onayı -->
+  <div id="modal-confirm" class="modal-overlay">
+    <div class="modal-box" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3 id="confirm-title">Silme Onayı</h3>
+        <button class="modal-close-btn" onclick="closeModal('modal-confirm')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="confirm-message" style="color:var(--text-secondary); font-size:14px; line-height:1.5;">Bu öğeyi silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-action btn-secondary" onclick="closeModal('modal-confirm')">İptal</button>
+        <button type="button" class="btn-action btn-danger" id="btn-confirm-delete">Sil</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Profil Bilgileri -->
+  <div id="modal-profile" class="modal-overlay">
+    <div class="modal-box" style="max-width: 460px;">
+      <div class="modal-header">
+        <h3>Kullanıcı Profili</h3>
+        <button class="modal-close-btn" onclick="closeModal('modal-profile')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <div class="avatar-circle" id="profile-modal-avatar" style="width: 64px; height: 64px; font-size: 24px; margin: 0 auto 12px auto;">U</div>
+          <h4 id="profile-modal-name" style="font-size: 18px;">-</h4>
+          <span id="profile-modal-role" class="status-badge badge-pending" style="margin-top: 6px;">-</span>
+        </div>
+        <div style="background: rgba(0,0,0,0.2); padding: 16px; border-radius: var(--radius-sm); border: 1px solid var(--border-glass);">
+          <div style="margin-bottom: 10px;">
+            <span style="font-size:11px; color:var(--text-muted); text-transform:uppercase; font-weight:700;">E-posta</span>
+            <div id="profile-modal-email" style="font-size:13.5px; color:var(--text-main);">-</div>
+          </div>
+          <div>
+            <span style="font-size:11px; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Hesap Türü</span>
+            <div id="profile-modal-roletype" style="font-size:13.5px; color:var(--accent-gold);">-</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-action btn-secondary" onclick="closeModal('modal-profile')">Kapat</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Section 14 - Student Profile (Öğrenci Profili) -->
+  <div id="modal-student-profile" class="modal-overlay">
+    <div class="modal-box" style="max-width: 920px; max-height: 92vh; display: flex; flex-direction: column;">
+      <div class="modal-header" style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); color: #fff; padding: 18px 24px;">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <div id="stu-prof-avatar" style="width: 50px; height: 50px; border-radius: 50%; background: var(--primary-blue); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; border: 2px solid rgba(255,255,255,0.25);">U</div>
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <h3 id="stu-prof-name" style="margin: 0; font-size: 18px; color: #fff;">-</h3>
+              <span id="stu-prof-status" class="status-badge badge-completed" style="font-size: 11px;">Active</span>
+            </div>
+            <div style="font-size: 12px; color: #94A3B8; margin-top: 3px;">
+              <span id="stu-prof-no" style="font-weight: 600; color: #38BDF8;">STU-00000</span> • <span id="stu-prof-email">-</span>
+            </div>
+          </div>
+        </div>
+        <button class="modal-close-btn" style="color: #fff;" onclick="closeModal('modal-student-profile')">&times;</button>
+      </div>
+      <div class="modal-body" id="stu-prof-body" style="padding: 20px 24px; overflow-y: auto; flex: 1;">
+        <div style="text-align: center; padding: 40px;"><span style="color: var(--text-muted);">Profil Yükleniyor...</span></div>
+      </div>
+      <div class="modal-footer" style="padding: 12px 24px; background: var(--bg-page); border-top: 1px solid var(--border-light); display: flex; justify-content: flex-end;">
+        <button type="button" class="btn-action btn-secondary" onclick="closeModal('modal-student-profile')">Kapat</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Modülleri -->
+  <script src="/js/app.js"></script>
+  <script src="/js/admin.js"></script>
+  <script src="/js/trainer.js"></script>
+  <script src="/js/student.js"></script>
+</body>
+</html>
