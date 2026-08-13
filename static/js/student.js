@@ -13,7 +13,7 @@ const StudentController = {
       heading.innerHTML = `<span>Student Dashboard - Overview</span>`;
       await this.renderHome(main);
     } else if (tabId === 'my-tasks') {
-      heading.innerHTML = `<span>Görevlerim ve Ödev Teslimi</span>`;
+      heading.innerHTML = `<span>My Tasks & Assignments</span>`;
       await this.renderMyTasks(main);
     } else if (tabId === 'my-submissions') {
       heading.innerHTML = `<span>My Submissions & Academic Grades</span>`;
@@ -23,7 +23,7 @@ const StudentController = {
 
   // ==================== 1. ANA SAYFA & İSTATİSTİKLER ====================
   async renderHome(container) {
-    container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Yükleniyor...</span></div>`;
+    container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Uploading...</span></div>`;
 
     const [statsRes, tasksRes] = await Promise.all([
       apiFetch('/api/stats'),
@@ -38,8 +38,8 @@ const StudentController = {
       <!-- Hoş Geldiniz Hero Bannerı -->
       <div class="welcome-hero">
         <div class="welcome-hero-content">
-          <h2>Hoş Geldin, ${user.name} 👋</h2>
-          <p>İstanbul Üniversitesi Öğrenci Bilgi ve Ödev Portalı. Atanan ders görevlerini inceleyebilir, dosyalarını doğrudan teslim edebilir ve eğitmenlerinin geri bildirimlerini anında görebilirsin.</p>
+          <h2>Welcome, ${user.name} 👋</h2>
+          <p>Student Academic Portal. View assigned coursework, submit assignment files directly, and review instructor feedback and rubric evaluations.</p>
         </div>
         <div class="welcome-hero-actions">
           <button class="btn-hero-action" onclick="openUniversalUploadModal()">
@@ -48,7 +48,7 @@ const StudentController = {
           </button>
           <button class="btn-hero-action" onclick="switchTab('my-submissions')">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            <span>Notlarımı Gör</span>
+            <span>View My Grades</span>
           </button>
         </div>
       </div>
@@ -57,10 +57,10 @@ const StudentController = {
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-info">
-            <span>Toplam Görev</span>
+            <span>Total Tasks</span>
             <h3>${stats.total_tasks}</h3>
             <div class="stat-trend neutral">
-              <span>Bahar Dönemi</span>
+              <span>Spring Term</span>
             </div>
           </div>
           <div class="stat-icon-wrapper icon-blue">
@@ -70,10 +70,10 @@ const StudentController = {
 
         <div class="stat-card">
           <div class="stat-info">
-            <span>Pending Start Ödevler</span>
+            <span>Pending Tasks</span>
             <h3>${stats.pending_tasks}</h3>
             <div class="stat-trend positive" style="color:var(--accent-gold);">
-              <span>Teslim Edilecek</span>
+              <span>To Submit</span>
             </div>
           </div>
           <div class="stat-icon-wrapper icon-gold">
@@ -83,10 +83,10 @@ const StudentController = {
 
         <div class="stat-card">
           <div class="stat-info">
-            <span>Teslim Edilenler</span>
+            <span>Submitted</span>
             <h3>${stats.submitted_tasks}</h3>
             <div class="stat-trend positive">
-              <span>İncelemede</span>
+              <span>Under Review</span>
             </div>
           </div>
           <div class="stat-icon-wrapper icon-blue">
@@ -96,10 +96,10 @@ const StudentController = {
 
         <div class="stat-card">
           <div class="stat-info">
-            <span>Notlanan & Completed</span>
+            <span>Graded & Completed</span>
             <h3>${stats.reviewed_tasks}</h3>
             <div class="stat-trend positive">
-              <span>Sonuçlandı</span>
+              <span>Graded</span>
             </div>
           </div>
           <div class="stat-icon-wrapper icon-emerald">
@@ -116,10 +116,10 @@ const StudentController = {
           <div class="chart-card">
             <div class="chart-header">
               <div class="chart-header-left">
-                <h3>Haftalık Çalışma ve Teslim Yoğunluğu</h3>
-                <p>Son 7 gün içindeki çalışma süren ve teslim edilen ödevlerin</p>
+                <h3>Weekly Activity & Submission Volume</h3>
+                <p>Activity hours and submitted assignments over the last 7 days</p>
               </div>
-              <span class="status-badge badge-submitted">Aktif Hafta</span>
+              <span class="status-badge badge-submitted">Current Week</span>
             </div>
             <div class="bar-chart-container">
               <div class="bar-column">
@@ -158,7 +158,7 @@ const StudentController = {
             <div class="panel-header">
               <div class="panel-header-left">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--primary-navy);"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
-                <h3>Akademik Görevlerim ve Ödevlerim</h3>
+                <h3>Academic Tasks & Assignments</h3>
               </div>
               <button class="btn-action btn-secondary btn-sm" onclick="switchTab('my-tasks')">Tümünü Gör</button>
             </div>
@@ -166,17 +166,17 @@ const StudentController = {
               <table class="custom-table">
                 <thead>
                   <tr>
-                    <th>Görev</th>
-                    <th>Instructor</th>
-                    <th>Due Date Tarihi</th>
-                    <th>Status</th>
-                    <th>Not</th>
+                    <th>TASK</th>
+                    <th>INSTRUCTOR</th>
+                    <th>DUE DATE</th>
+                    <th>STATUS</th>
+                    <th>GRADE</th>
                     <th style="text-align: right;">Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   ${tasks.length === 0 ? `
-                    <tr><td colspan="6" class="empty-state">Henüz size atanmış bir görev bulunmuyor.</td></tr>
+                    <tr><td colspan="6" class="empty-state">No tasks assigned to you yet.</td></tr>
                   ` : tasks.map(t => `
                     <tr>
                       <td class="text-main">
@@ -190,7 +190,7 @@ const StudentController = {
                       <td style="text-align: right;">
                         <button class="btn-action btn-primary btn-sm" onclick="StudentController.openTaskDetailModal(${t.id})" style="width: auto;">
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                          Dosya Yükle / Teslim Et
+                          Upload / Submit Assignment
                         </button>
                       </td>
                     </tr>
@@ -208,7 +208,7 @@ const StudentController = {
             <div class="chart-header" style="margin-bottom: 0;">
               <div class="chart-header-left">
                 <h4 style="font-size: 15px; font-weight: 700;">Dönem Tamamlama Oranı</h4>
-                <p>Teslim ettiğin ödevlerin genel oranı</p>
+                <p>Overall percentage of submitted assignments</p>
               </div>
             </div>
             <div class="donut-center-box">
@@ -240,8 +240,8 @@ const StudentController = {
           <!-- Mini Akademik Takvim Widgetı -->
           <div class="calendar-card">
             <div class="calendar-header">
-              <h4>📅 Akademik Takvim</h4>
-              <span style="font-size:12px; font-weight:600; color:var(--primary-blue);">Ağustos 2026</span>
+              <h4>📅 Academic Calendar</h4>
+              <span style="font-size:12px; font-weight:600; color:var(--primary-blue);">August 2026</span>
             </div>
             <div class="calendar-grid">
               <div class="calendar-day-label">Pt</div>
@@ -294,8 +294,8 @@ const StudentController = {
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
               </div>
               <div class="announcement-content">
-                <h5>Ödev Teslim Formatı</h5>
-                <span>Lütfen Python ve veri analizi ödevlerinizi ZIP veya PY dosyası olarak yükleyiniz.</span>
+                <h5>Submission File Guidelines</h5>
+                <span>Please upload Python and code deliverables as ZIP or individual script files.</span>
               </div>
             </div>
           </div>
@@ -306,7 +306,7 @@ const StudentController = {
 
   // ==================== 2. GÖREVLERİM SAYFASI ====================
   async renderMyTasks(container, activeFilter = 'all') {
-    container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Yükleniyor...</span></div>`;
+    container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Uploading...</span></div>`;
 
     const res = await apiFetch('/api/tasks');
     const allTasks = res.tasks || [];
@@ -331,22 +331,22 @@ const StudentController = {
       <div class="panel-card">
         <div class="panel-header" style="flex-wrap:wrap; gap:12px;">
           <div class="panel-header-left">
-            <h3>Görevlerim ve Dosya Teslimi (${allTasks.length})</h3>
+            <h3>My Tasks & File Submissions (${allTasks.length})</h3>
           </div>
           
           <!-- Filtre Butonları (Bugün, Yaklaşan, Geciken) -->
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             <button class="btn-action ${activeFilter === 'all' ? 'btn-primary' : 'btn-secondary'} btn-sm" onclick="StudentController.renderMyTasks(document.getElementById('main-content'), 'all')">
-              📌 Tümü (${allTasks.length})
+              📌 All Tasks (${allTasks.length})
             </button>
             <button class="btn-action ${activeFilter === 'today' ? 'btn-primary' : 'btn-secondary'} btn-sm" onclick="StudentController.renderMyTasks(document.getElementById('main-content'), 'today')">
-              ⚡ Bugün Teslim (${todayCount})
+              ⚡ Due Today (${todayCount})
             </button>
             <button class="btn-action ${activeFilter === 'upcoming' ? 'btn-primary' : 'btn-secondary'} btn-sm" onclick="StudentController.renderMyTasks(document.getElementById('main-content'), 'upcoming')">
-              📅 Yaklaşanlar (${upcomingCount})
+              📅 Upcoming (${upcomingCount})
             </button>
             <button class="btn-action ${activeFilter === 'overdue' ? 'btn-primary' : 'btn-secondary'} btn-sm" onclick="StudentController.renderMyTasks(document.getElementById('main-content'), 'overdue')" style="${overdueCount > 0 ? 'border-color:var(--accent-rose); color:var(--accent-rose);' : ''}">
-              ⚠️ Gecikenler (${overdueCount})
+              ⚠️ Overdue (${overdueCount})
             </button>
           </div>
         </div>
@@ -354,11 +354,11 @@ const StudentController = {
           <table class="custom-table">
             <thead>
               <tr>
-                <th>Görev</th>
-                <th>Instructor</th>
-                <th>Due Date Tarihi</th>
-                <th>Priority</th>
-                <th>Status</th>
+                <th>TASK</th>
+                <th>INSTRUCTOR</th>
+                <th>DUE DATE</th>
+                <th>PRIORITY</th>
+                <th>STATUS</th>
                 <th style="text-align: right;">Action</th>
               </tr>
             </thead>
@@ -374,7 +374,7 @@ const StudentController = {
                   <td>${t.trainer_name}</td>
                   <td>
                     ${formatDateTr(t.deadline)}
-                    ${t.deadline < todayStr && t.status !== 'Tamamlandı' ? '<span style="color:var(--accent-rose); font-size:11px; font-weight:700; display:block;">Gecikmiş</span>' : ''}
+                    ${t.deadline < todayStr && t.status !== 'Tamamlandı' ? '<span style="color:var(--accent-rose); font-size:11px; font-weight:700; display:block;">Overdue</span>' : ''}
                   </td>
                   <td>
                     <span class="status-badge ${t.priority === 'Acil' ? 'badge-pending' : (t.priority === 'Yüksek' ? 'badge-reviewing' : 'badge-submitted')}">
@@ -385,7 +385,7 @@ const StudentController = {
                   <td style="text-align: right; white-space: nowrap;">
                     <button class="btn-action btn-secondary btn-sm" onclick="StudentController.openTaskDetailModal(${t.id})">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                      Detaylar & Çözüm
+                      View Details & Submit
                     </button>
                   </td>
                 </tr>
@@ -399,7 +399,7 @@ const StudentController = {
 
   // ==================== 3. TESLİMLERİM SAYFASI ====================
   async renderMySubmissions(container) {
-    container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Yükleniyor...</span></div>`;
+    container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Uploading...</span></div>`;
 
     const res = await apiFetch('/api/submissions');
     const submissions = res.submissions || [];
@@ -408,25 +408,25 @@ const StudentController = {
       <div class="panel-card">
         <div class="panel-header">
           <div class="panel-header-left">
-            <h3>Teslim Ettiğim Ödevler ve Notlarım (${submissions.length})</h3>
+            <h3>My Submissions & Graded Work (${submissions.length})</h3>
           </div>
         </div>
         <div class="table-responsive">
           <table class="custom-table">
             <thead>
               <tr>
-                <th>Görev</th>
-                <th>Instructor</th>
-                <th>Teslim Tarihi</th>
-                <th>Yüklenen Dosya</th>
-                <th>Status</th>
-                <th>Not</th>
-                <th>Instructor Trainer Feedbacki</th>
+                <th>TASK</th>
+                <th>INSTRUCTOR</th>
+                <th>SUBMISSION DATE</th>
+                <th>SUBMITTED FILE</th>
+                <th>STATUS</th>
+                <th>GRADE</th>
+                <th>INSTRUCTOR FEEDBACK</th>
               </tr>
             </thead>
             <tbody>
               ${submissions.length === 0 ? `
-                <tr><td colspan="7" class="empty-state">Henüz teslim ettiğiniz bir ödev bulunmuyor.</td></tr>
+                <tr><td colspan="7" class="empty-state">No assignments submitted yet.</td></tr>
               ` : submissions.map(s => `
                 <tr>
                   <td class="text-main">${s.task_title}</td>
@@ -435,11 +435,11 @@ const StudentController = {
                   <td>
                     <a href="/uploads/${encodeURIComponent(s.file_path)}" download="${s.original_filename || s.file_path}" target="_blank" class="btn-action btn-secondary btn-sm">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                      ${s.original_filename || 'Dosya İndir'}
+                      ${s.original_filename || 'Download File'}
                     </a>
                   </td>
                   <td>${getStatusBadgeHtml(s.status)}</td>
-                  <td>${s.grade !== null && s.grade !== undefined ? `<span class="grade-badge">${s.grade} / 100</span>` : '<span style="color:var(--text-muted);">Bekleniyor</span>'}</td>
+                  <td>${s.grade !== null && s.grade !== undefined ? `<span class="grade-badge">${s.grade} / 100</span>` : '<span style="color:var(--text-muted);">Pending</span>'}</td>
                   <td style="max-width: 280px; font-size: 13px; color: var(--text-main);">
                     ${s.feedback ? `
                       <div style="background: var(--bg-page); padding: 8px 12px; border-radius: 6px; border-left: 3px solid var(--accent-emerald); border: 1px solid var(--border-light);">
@@ -464,7 +464,7 @@ const StudentController = {
 
     const res = await apiFetch(`/api/tasks/${taskId}`);
     if (!res.success || !res.task) {
-      showToast("Görev bilgileri alınamadı.", "error");
+      showToast("Could not load task details.", "error");
       return;
     }
 
@@ -484,7 +484,7 @@ const StudentController = {
     }
 
     const estTimeEl = document.getElementById('detail-estimated-time');
-    if (estTimeEl) estTimeEl.textContent = t.estimated_time || 'Belirtilmedi';
+    if (estTimeEl) estTimeEl.textContent = t.estimated_time || 'Not specified';
 
     document.getElementById('detail-description').textContent = t.description;
 
@@ -528,27 +528,27 @@ const StudentController = {
       }
       if (evalHeaderTitle) evalHeaderTitle.innerHTML = `<span style="color:#D97706; font-weight:700;">⚠️ Instructor Düzeltme ve Revizyon Talebi</span>`;
       if (gradeBadge) {
-        gradeBadge.textContent = t.grade !== null && t.grade !== undefined ? `Puan: ${t.grade} / 100` : 'Düzeltme Bekleniyor';
+        gradeBadge.textContent = t.grade !== null && t.grade !== undefined ? `Score: ${t.grade} / 100` : 'Düzeltme Pending';
         gradeBadge.style.background = '#F59E0B';
       }
-      if (feedbackText) feedbackText.textContent = t.feedback || 'Lütfen ödevinizi eğitmenin belirttiği kriterlere göre revize edip yeniden teslim ediniz.';
-      if (btnSubmitText) btnSubmitText.textContent = '🔄 Düzeltilmiş Ödevi Yeniden Teslim Et';
+      if (feedbackText) feedbackText.textContent = t.feedback || 'Please revise your assignment according to instructor guidelines and resubmit.';
+      if (btnSubmitText) btnSubmitText.textContent = '🔄 Resubmit Revised Assignment';
     } else if (t.grade !== null && t.grade !== undefined || t.feedback) {
       if (evalBox) {
         evalBox.style.display = 'block';
         evalBox.style.background = 'var(--bg-page)';
         evalBox.style.border = '1px solid var(--border-light)';
       }
-      if (evalHeaderTitle) evalHeaderTitle.innerHTML = `Instructor Değerlendirmesi & Notu`;
+      if (evalHeaderTitle) evalHeaderTitle.innerHTML = `Instructor Evaluation & Grade`;
       if (gradeBadge) {
-        gradeBadge.textContent = `Not: ${t.grade} / 100`;
+        gradeBadge.textContent = `Grade: ${t.grade} / 100`;
         gradeBadge.style.background = 'var(--accent-gold)';
       }
-      if (feedbackText) feedbackText.textContent = t.feedback || 'Instructoriniz henüz yazılı geri bildirim girmedi.';
-      if (btnSubmitText) btnSubmitText.textContent = 'Submit Solution';
+      if (feedbackText) feedbackText.textContent = t.feedback || 'Instructor has not added written feedback yet.';
+      if (btnSubmitText) btnSubmitText.textContent = 'Submit Assignment';
     } else {
       if (evalBox) evalBox.style.display = 'none';
-      if (btnSubmitText) btnSubmitText.textContent = 'Submit Solution';
+      if (btnSubmitText) btnSubmitText.textContent = 'Submit Assignment';
     }
 
     // Section 9: Rubrik Kriter Dağılımını Göster
@@ -562,19 +562,19 @@ const StudentController = {
 
     if (badgeEl) {
       if (isGraded) {
-        badgeEl.textContent = `Alınan Not: ${t.grade !== null && t.grade !== undefined ? t.grade : 0} / 100`;
+        badgeEl.textContent = `Earned Grade: ${t.grade !== null && t.grade !== undefined ? t.grade : 0} / 100`;
         badgeEl.className = 'status-badge badge-completed';
       } else {
-        badgeEl.textContent = `Toplam: 100 Puan (Rubrik Modeli)`;
+        badgeEl.textContent = `Total: 100 Pts (Rubric Model)`;
         badgeEl.className = 'status-badge badge-pending';
       }
     }
 
-    if (compEl) compEl.innerHTML = isGraded ? `${t.rubric_completion !== null && t.rubric_completion !== undefined ? t.rubric_completion : '-'} <span style="font-size:10px; color:var(--text-muted);">/30</span>` : `30 Puan`;
-    if (qualEl) qualEl.innerHTML = isGraded ? `${t.rubric_quality !== null && t.rubric_quality !== undefined ? t.rubric_quality : '-'} <span style="font-size:10px; color:var(--text-muted);">/25</span>` : `25 Puan`;
-    if (accuEl) accuEl.innerHTML = isGraded ? `${t.rubric_accuracy !== null && t.rubric_accuracy !== undefined ? t.rubric_accuracy : '-'} <span style="font-size:10px; color:var(--text-muted);">/20</span>` : `20 Puan`;
-    if (deadEl) deadEl.innerHTML = isGraded ? `${t.rubric_deadline !== null && t.rubric_deadline !== undefined ? t.rubric_deadline : '-'} <span style="font-size:10px; color:var(--text-muted);">/15</span>` : `15 Puan`;
-    if (commEl) commEl.innerHTML = isGraded ? `${t.rubric_communication !== null && t.rubric_communication !== undefined ? t.rubric_communication : '-'} <span style="font-size:10px; color:var(--text-muted);">/10</span>` : `10 Puan`;
+    if (compEl) compEl.innerHTML = isGraded ? `${t.rubric_completion !== null && t.rubric_completion !== undefined ? t.rubric_completion : '-'} <span style="font-size:10px; color:var(--text-muted);">/30</span>` : `30 Pts`;
+    if (qualEl) qualEl.innerHTML = isGraded ? `${t.rubric_quality !== null && t.rubric_quality !== undefined ? t.rubric_quality : '-'} <span style="font-size:10px; color:var(--text-muted);">/25</span>` : `25 Pts`;
+    if (accuEl) accuEl.innerHTML = isGraded ? `${t.rubric_accuracy !== null && t.rubric_accuracy !== undefined ? t.rubric_accuracy : '-'} <span style="font-size:10px; color:var(--text-muted);">/20</span>` : `20 Pts`;
+    if (deadEl) deadEl.innerHTML = isGraded ? `${t.rubric_deadline !== null && t.rubric_deadline !== undefined ? t.rubric_deadline : '-'} <span style="font-size:10px; color:var(--text-muted);">/15</span>` : `15 Pts`;
+    if (commEl) commEl.innerHTML = isGraded ? `${t.rubric_communication !== null && t.rubric_communication !== undefined ? t.rubric_communication : '-'} <span style="font-size:10px; color:var(--text-muted);">/10</span>` : `10 Pts`;
 
     const alreadyFileBox = document.getElementById('already-submitted-file-box');
     const alreadyFileName = document.getElementById('already-submitted-filename');
@@ -604,17 +604,17 @@ const StudentController = {
           <div style="background: var(--bg-page); border: 1px solid var(--border-light); border-radius: 8px; padding: 10px 14px; font-size: 13px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
               <div style="display: flex; align-items: center; gap: 8px;">
-                <strong style="color: var(--primary-navy);">Teslim Denemesi #${sub.submission_number || (history.length - idx)} (Revizyon ${sub.revision_number || (history.length - idx)}.0)</strong>
+                <strong style="color: var(--primary-navy);">Submission Attempt #${sub.submission_number || (history.length - idx)} (Rev ${sub.revision_number || (history.length - idx)}.0)</strong>
                 <span style="font-size: 11px; color: var(--text-muted);">🕒 ${formatDateTr(sub.submitted_at)}</span>
               </div>
               <div style="display: flex; align-items: center; gap: 6px;">
-                ${sub.is_late ? '<span class="status-badge badge-pending" style="font-size: 10.5px;">⚠️ Gecikmiş (Is Late)</span>' : '<span class="status-badge badge-completed" style="font-size: 10.5px;">⏰ Zamanında</span>'}
+                ${sub.is_late ? '<span class="status-badge badge-pending" style="font-size: 10.5px;">⚠️ Overdue (Is Late)</span>' : '<span class="status-badge badge-completed" style="font-size: 10.5px;">⏰ On Time</span>'}
                 ${getStatusBadgeHtml(sub.status)}
               </div>
             </div>
             ${sub.file_path ? `
               <div style="margin-top: 4px; display: flex; align-items: center; gap: 6px;">
-                <span style="color: var(--text-muted); font-size: 12px;">📁 Dosya:</span>
+                <span style="color: var(--text-muted); font-size: 12px;">📁 File:</span>
                 <a href="/uploads/${encodeURIComponent(sub.file_path)}" download="${sub.original_filename || sub.file_path}" target="_blank" style="color: var(--primary-blue); font-weight: 600; text-decoration: none;">
                   ${sub.original_filename || sub.file_path}
                 </a>
@@ -622,7 +622,7 @@ const StudentController = {
             ` : ''}
             ${sub.student_link ? `
               <div style="margin-top: 4px; display: flex; align-items: center; gap: 6px;">
-                <span style="color: var(--text-muted); font-size: 12px;">🔗 Proje Linki:</span>
+                <span style="color: var(--text-muted); font-size: 12px;">🔗 Project URL:</span>
                 <a href="${sub.student_link}" target="_blank" style="color: var(--primary-blue); font-weight: 600; text-decoration: none;">
                   ${sub.student_link}
                 </a>
@@ -630,7 +630,7 @@ const StudentController = {
             ` : ''}
             ${sub.student_notes ? `
               <div style="margin-top: 4px; color: var(--text-secondary); font-size: 12px; background: rgba(0,0,0,0.02); padding: 4px 8px; border-radius: 4px;">
-                💬 Not: ${sub.student_notes}
+                💬 Note: ${sub.student_notes}
               </div>
             ` : ''}
           </div>
@@ -659,7 +659,7 @@ function handleFileSelected(e) {
   if (!file) return;
 
   if (file.size > 25 * 1024 * 1024) {
-    showToast("Dosya boyutu çok büyük. Maksimum 25 MB yükleyebilirsiniz.", "error");
+    showToast("File size exceeds limit. Maximum upload size is 25 MB.", "error");
     clearSelectedFile();
     return;
   }
@@ -690,11 +690,11 @@ async function handleStartTask() {
 
   const res = await apiFetch(`/api/tasks/${taskId}/start`, { method: 'POST' });
   if (res.success) {
-    showToast("Göreviniz 'Devam Ediyor' (In Progress) durumuna alındı! Başarılar.", "success");
+    showToast("Task marked as In Progress. Good luck!", "success");
     StudentController.openTaskDetailModal(taskId);
     switchTab(AppState.currentTab);
   } else {
-    showToast(res.error || "Action sırasında bir hata oluştu.", "error");
+    showToast(res.error || "An error occurred during this action.", "error");
   }
 }
 
@@ -702,7 +702,7 @@ async function handleUploadTaskSubmission() {
   const modalEl = document.getElementById('modal-task-detail');
   const taskId = AppState.activeTaskId || (modalEl ? modalEl.dataset.taskId : null);
   if (!taskId) {
-    showToast("Geçerli bir görev seçilmedi.", "error");
+    showToast("No valid task selected.", "error");
     return;
   }
 
@@ -713,13 +713,13 @@ async function handleUploadTaskSubmission() {
   if (!file) {
     if (studentLink || studentNotes) {
       // Link veya not girildiyse otomatik çözüm raporu belgesi oluştur
-      const content = `ÖĞRENCİ ÖDEV TESLİM VE ÇÖZÜM RAPORU\n=========================================\n\nProje / Kaynak Linki:\n${studentLink || 'Belirtilmedi'}\n\nÖğrenci Notu ve Açıklamaları:\n${studentNotes || 'Belirtilmedi'}\n\nSubmission Date: ${new Date().toLocaleString('tr-TR')}\n`;
+      const content = `ÖĞRENCİ ÖDEV TESLİM VE ÇÖZÜM RAPORU\n=========================================\n\nProje / Kaynak Linki:\n${studentLink || 'Not specified'}\n\nÖğrenci Notu ve Açıklamaları:\n${studentNotes || 'Not specified'}\n\nSubmission Date: ${new Date().toLocaleString('tr-TR')}\n`;
       const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
       file = new File([blob], 'ogrenci_cozum_raporu.txt', { type: 'text/plain' });
     } else {
       const fileInput = document.getElementById('submission-file-input');
       if (fileInput) fileInput.click();
-      showToast("Lütfen bir ödev dosyası seçiniz veya link/not giriniz.", "error");
+      showToast("Please select a file or provide a project URL/note.", "error");
       return;
     }
   }
@@ -727,7 +727,7 @@ async function handleUploadTaskSubmission() {
   const btn = document.getElementById('btn-submit-task-file');
   if (btn) {
     btn.disabled = true;
-    btn.innerHTML = `<span>Yükleniyor...</span>`;
+    btn.innerHTML = `<span>Uploading...</span>`;
   }
 
   const formData = new FormData();
@@ -744,16 +744,16 @@ async function handleUploadTaskSubmission() {
 
   if (btn) {
     btn.disabled = false;
-    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg><span id="btn-submit-text">Submit Solution</span>`;
+    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg><span id="btn-submit-text">Submit Assignment</span>`;
   }
 
   if (res.success) {
     closeModal('modal-task-detail');
-    showToast("Ödeviniz başarıyla teslim edildi!", "success");
+    showToast("Your assignment has been submitted successfully!", "success");
     clearSelectedFile();
     switchTab(AppState.currentTab);
   } else {
-    showToast(res.error || "Dosya yüklenirken bir hata oluştu.", "error");
+    showToast(res.error || "An error occurred while uploading your submission.", "error");
   }
 }
 

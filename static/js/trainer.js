@@ -118,7 +118,7 @@ const TrainerController = {
         <div class="welcome-hero-actions">
           <button class="btn-hero-action" onclick="TrainerController.openAddTaskModal()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            <span>Yeni Görev Tanımla</span>
+            <span>Create New Task</span>
           </button>
           <button class="btn-hero-action" onclick="switchTab('submissions')">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
@@ -422,7 +422,7 @@ const TrainerController = {
                 <th>Atanan Görev</th>
                 <th>Completed</th>
                 <th>Başarı Ortalaması</th>
-                <th>Genel İlerleme (% Progress)</th>
+                <th>Genel Progress (%)</th>
                 <th style="text-align: right;">Action</th>
               </tr>
             </thead>
@@ -475,7 +475,7 @@ const TrainerController = {
       <div class="panel-card">
         <div class="panel-header">
           <div class="panel-header-left">
-            <h3>Sorumlu Olduğum Görevler ve Statusları (${tasks.length})</h3>
+            <h3>Assigned Tasks & Status Roster (${tasks.length})</h3>
           </div>
           <button class="btn-action btn-primary" onclick="TrainerController.openAddTaskModal()" style="width: auto;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
@@ -499,14 +499,14 @@ const TrainerController = {
               ${tasks.length === 0 ? `
                 <tr><td colspan="7" class="empty-state">Henüz tanımlanmış bir göreviniz bulunmuyor.</td></tr>
               ` : tasks.map(t => {
-                let prioColor = t.priority === 'Acil' ? 'var(--accent-rose)' : (t.priority === 'Yüksek' ? 'var(--accent-gold)' : 'var(--text-muted)');
+                let prioColor = t.priority === 'Urgent' ? 'var(--accent-rose)' : (t.priority === 'High' ? 'var(--accent-gold)' : 'var(--text-muted)');
                 return `
                   <tr>
                     <td class="text-main">
                       <div style="font-weight:700;">${t.title}</div>
                       <div style="font-size:12px; color:var(--text-secondary); max-width: 260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${t.description}</div>
                     </td>
-                    <td><span style="font-weight:700; color:${prioColor}; font-size:12px;">${t.priority || 'Normal'}</span></td>
+                    <td><span style="font-weight:700; color:${prioColor}; font-size:12px;">${t.priority || 'Medium'}</span></td>
                     <td>${t.student_name}</td>
                     <td>${formatDateTr(t.deadline)}</td>
                     <td>${getStatusBadgeHtml(t.status)}</td>

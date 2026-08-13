@@ -608,7 +608,7 @@ async function openUniversalUploadModal() {
   clearUniversalFile();
 
   const taskSelect = document.getElementById('universal-task-select');
-  taskSelect.innerHTML = '<option value="">Görevler yükleniyor...</option>';
+  taskSelect.innerHTML = '<option value="">Loading tasks...</option>';
 
   const res = await apiFetch('/api/tasks');
   const tasks = res.tasks || [];
@@ -1295,7 +1295,7 @@ const TodayTasksController = {
           <div class="stat-info">
             <span style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Total Tasks</span>
             <h3 style="font-size: 24px; font-weight: 800; color: var(--primary-navy); margin: 3px 0;">${kpi.total_tasks}</h3>
-            <div class="stat-trend neutral"><span style="font-size: 10.5px;">Tüm Günlük Görevler</span></div>
+            <div class="stat-trend neutral"><span style="font-size: 10.5px;">All Daily Tasks</span></div>
           </div>
         </div>
 
@@ -1891,7 +1891,7 @@ const CalendarController = {
   activeView: 'month', // 'month' or 'agenda'
 
   categoryConfig: {
-    tasks: { label: 'Tasks (Görevler)', color: '#2563EB', bg: 'rgba(37, 99, 235, 0.12)', border: '#93C5FD', icon: '📋' },
+    tasks: { label: 'Tasks & Assignments', color: '#2563EB', bg: 'rgba(37, 99, 235, 0.12)', border: '#93C5FD', icon: '📋' },
     deadlines: { label: 'Deadlines (Due Dateler)', color: '#DC2626', bg: 'rgba(220, 38, 38, 0.12)', border: '#FCA5A5', icon: '⏰' },
     training_sessions: { label: 'Training Sessions (Oturumlar)', color: '#9333EA', bg: 'rgba(147, 51, 234, 0.12)', border: '#D8B4FE', icon: '🎓' },
     events: { label: 'Events (Etkinlikler)', color: '#059669', bg: 'rgba(5, 150, 105, 0.12)', border: '#6EE7B7', icon: '🎪' },
@@ -2440,8 +2440,8 @@ const ReportsController = {
     { id: 'student_performance', title: '1. Öğrenci Performansı', icon: '🎓', desc: 'Student Performance Report' },
     { id: 'trainer_performance', title: '2. Eğitmen Performansı', icon: '👨‍🏫', desc: 'Trainer Performance Report' },
     { id: 'group_performance', title: '3. Grup Performansı', icon: '🏢', desc: 'Group Performance Report' },
-    { id: 'tasks_report', title: '4. Görevler ve Teslimat', icon: '📋', desc: 'Tasks Report' },
-    { id: 'late_tasks_report', title: '5. Overdue Görevler', icon: '⏰', desc: 'Late Tasks Report' },
+    { id: 'tasks_report', title: '4. Tasks & Submissions', icon: '📋', desc: 'Tasks Distribution Report' },
+    { id: 'late_tasks_report', title: '5. Overdue Tasks', icon: '⏰', desc: 'Overdue & Risk Analysis Report' },
     { id: 'activity_attendance_report', title: '6. Aktivite & Katılım', icon: '⚡', desc: 'Activity / Attendance Report' }
   ],
 
@@ -2579,14 +2579,14 @@ const ReportsController = {
         { label: 'Toplam Görev Sayısı', val: kpis.total_tasks || 0, icon: '📋', color: '#2563EB' },
         { label: 'Ortalama Teslim Oranı', val: `%${kpis.average_turnin_rate || 0}`, icon: '📈', color: '#059669' },
         { label: 'Ortalama Görev Gradeu', val: `${kpis.average_task_grade || 0} / 100`, icon: '🎯', color: '#7C3AED' },
-        { label: 'Acil Priorityli Görevler', val: kpis.urgent_tasks_count || 0, icon: '🚨', color: '#DC2626' }
+        { label: 'Urgent Priority Tasks', val: kpis.urgent_tasks_count || 0, icon: '🚨', color: '#DC2626' }
       ];
     } else if (type === 'late_tasks_report') {
       items = [
         { label: 'Toplam Overdue Görev', val: kpis.total_late_tasks || 0, icon: '⏰', color: '#DC2626' },
         { label: 'Kritik Gecikme (>7 Gün)', val: kpis.critical_overdue_count || 0, icon: '🔴', color: '#B91C1C' },
         { label: 'Orta Düzey Gecikme', val: kpis.moderate_overdue_count || 0, icon: '🟠', color: '#EA580C' },
-        { label: 'Bekleyen Acil Görevler', val: kpis.pending_urgent_count || 0, icon: '⚠️', color: '#D97706' }
+        { label: 'Pending Urgent Tasks', val: kpis.pending_urgent_count || 0, icon: '⚠️', color: '#D97706' }
       ];
     } else if (type === 'activity_attendance_report') {
       items = [
@@ -2746,7 +2746,7 @@ const ReportsController = {
               <th style="padding: 12px 16px;">Bölüm / Program</th>
               <th style="padding: 12px 16px;">Sorumlu Eğitmen</th>
               <th style="padding: 12px 16px; text-align: center;">Kayıtlı Kursiyer</th>
-              <th style="padding: 12px 16px; text-align: center;">Grup Görevleri</th>
+              <th style="padding: 12px 16px; text-align: center;">Group Tasks</th>
               <th style="padding: 12px 16px;">Başarı Oranı</th>
               <th style="padding: 12px 16px; text-align: center;">Grup Grade Ortalaması</th>
             </tr>
@@ -3577,7 +3577,7 @@ const DatabaseSchemaController = {
 
           <!-- Section C: Tasks & Reviews -->
           <div style="padding: 14px; background: var(--bg-page); border-radius: 8px; border-left: 4px solid #7C3AED; border: 1px solid var(--border-light);">
-            <strong style="color: #7C3AED; font-size: 13px;">3. Görevler, Teslimler ve Değerlendirmeler</strong>
+            <strong style="color: #7C3AED; font-size: 13px;">3. Tasks, Submissions & Evaluations</strong>
             <ul style="font-size: 12px; color: var(--text-secondary); margin: 8px 0 0 16px; padding: 0;">
               <li><code>tasks</code> ──< (1:N) >── <code>task_assignments</code> & <code>task_attachments</code></li>
               <li><code>tasks</code> ──< (1:N) >── <code>task_submissions</code> ──< (1:N) >── <code>task_reviews</code> & <code>task_evaluations</code></li>
