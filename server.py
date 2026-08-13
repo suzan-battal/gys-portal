@@ -119,7 +119,7 @@ class TaskAppRequestHandler(http.server.BaseHTTPRequestHandler):
                 token = create_session(user)
                 db.update_user_last_login(user["id"])
                 self.send_response(302)
-                self.send_header("Location", f"/?token={token}&role={user['role']}")
+                self.send_header("Location", f"http://127.0.0.1:8080/?token={token}&role={user['role']}")
                 self.send_header("Set-Cookie", f"auth_token={token}; Path=/; Max-Age=86400")
                 self.end_headers()
                 return
