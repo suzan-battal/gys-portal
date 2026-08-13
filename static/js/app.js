@@ -829,8 +829,6 @@ function formatDateTr(dateStr) {
     return dateStr;
   }
 }
-}
-}
 
 function escapeHtml(str) {
   if (!str) return '';
