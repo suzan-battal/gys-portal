@@ -1,12 +1,14 @@
-/**
- * Üniversite Görev Yönetim Sistemi - Çekirdek Uygulama Mantığı (app.js)
- * Kimlik doğrulama, yönlendirme, UI yöneticisi, modal ve toast bildirimleri, evrensel dosya yükleme.
- */
+// Extract token from URL immediately on load
+const _urlParams = new URLSearchParams(window.location.search);
+const _urlToken = _urlParams.get('token');
+if (_urlToken) {
+  localStorage.setItem('gys_auth_token', _urlToken);
+}
 
 // Global Uygulama Statusu (State)
 const AppState = {
   currentUser: null,
-  token: localStorage.getItem('gys_auth_token') || null,
+  token: _urlToken || localStorage.getItem('gys_auth_token') || null,
   currentTab: 'home',
   selectedFile: null,
   universalSelectedFile: null,
@@ -1257,11 +1259,19 @@ function renderTaskComments(comments) {
   }).join('');
 }
 
-// Başlangıçta oturumu kontrol et ve drag-drop olaylarını bağla
-document.addEventListener('DOMContentLoaded', () => {
+// Başlangıçta oturumu kontrol et ve olayları bağla
+function initApp() {
   checkAuthSession();
-  setInterval(loadGradeifications, 15000); // 15 saniyede bir bildirimleri kontrol et
+  setInterval(loadGradeifications, 15000);
+}
 
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('click', (e) => {
     const container = document.querySelector('.notification-dropdown-container');
     const menu = document.getElementById('notif-dropdown-menu');
