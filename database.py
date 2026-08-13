@@ -218,7 +218,7 @@ def init_db():
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS submissions (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                task_id INTEGER NOT NULL UNIQUE,
+                task_id INTEGER NOT NULL,
                 student_id INTEGER NOT NULL,
                 file_path TEXT NOT NULL,
                 original_filename TEXT NOT NULL,
