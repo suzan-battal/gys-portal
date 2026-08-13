@@ -112,8 +112,67 @@ function openConfirmModal(title, message, onConfirm) {
   openModal('modal-confirm');
 }
 
-// ==================== DEMO HESAP GİRİŞİ ====================
+// ==================== DIRECT DEMO LOGIN ====================
+const DEMO_USERS = {
+  super_admin: { email: 'superadmin@universite.edu.tr', password: 'SuperAdmin123!' },
+  admin: { email: 'yonetici@universite.edu.tr', password: 'Admin123!' },
+  training_manager: { email: 'egitim.muduru@universite.edu.tr', password: 'Mudur123!' },
+  trainer: { email: 'ahmet.yilmaz@universite.edu.tr', password: 'Egitmen123!' },
+  assistant_trainer: { email: 'asistan.merve@universite.edu.tr', password: 'Asistan123!' },
+  student: { email: 'mehmet.demir@universite.edu.tr', password: 'Ogrenci123!' }
+};
+
+window.directLogin = async function(roleCode) {
+  const creds = DEMO_USERS[roleCode] || DEMO_USERS['admin'];
+  const emailInput = document.getElementById('login-email');
+  const passwordInput = document.getElementById('login-password');
+  if (emailInput) emailInput.value = creds.email;
+  if (passwordInput) passwordInput.value = creds.password;
+
+  const btn = document.getElementById('btn-submit-login');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span>Signing In...</span>';
+  }
+
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(creds)
+    });
+    const data = await res.json();
+    if (data.success && data.token) {
+      AppState.token = data.token;
+      AppState.currentUser = data.user;
+      localStorage.setItem('gys_auth_token', data.token);
+      showToast(`Welcome, ${data.user.name}!`, "success");
+      renderAuthenticatedUI();
+    } else {
+      showToast(data.error || "Login failed.", "error");
+    }
+  } catch (err) {
+    showToast("Server connection error.", "error");
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = `<span>Sign In</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+          <polyline points="10 17 15 12 10 7"></polyline>
+          <line x1="15" y1="12" x2="3" y2="12"></line>
+        </svg>`;
+    }
+  }
+};
+
 function fillDemo(email, password) {
+  for (const [roleKey, u] of Object.entries(DEMO_USERS)) {
+    if (u.email === email) {
+      window.directLogin(roleKey);
+      return;
+    }
+  }
   const emailInput = document.getElementById('login-email');
   const passwordInput = document.getElementById('login-password');
   if (emailInput) emailInput.value = email;
