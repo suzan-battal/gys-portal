@@ -138,6 +138,10 @@ class TaskAppRequestHandler(http.server.BaseHTTPRequestHandler):
         # 3. Statik Dosyalar (HTML, CSS, JS)
         self.serve_static_file(path)
 
+    def do_HEAD(self):
+        """HEAD isteklerini destekle."""
+        self.do_GET()
+
     def handle_api_get(self, path: str, query: dict):
         user, _ = get_current_user_from_request(self.headers)
 
