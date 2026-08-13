@@ -1,6 +1,6 @@
 /**
- * Üniversite Görev Yönetim Sistemi - Eğitmen Paneli Denetleyicisi (trainer.js)
- * Eğitmen istatistikleri, haftalık teslim grafiği, bağlı öğrenciler, görev oluşturma ve notlandırma.
+ * Üniversite Görev Yönetim Sistemi - Trainer Paneli Denetleyicisi (trainer.js)
+ * Trainer istatistikleri, haftalık teslim grafiği, bağlı öğrenciler, görev oluşturma ve notlandırma.
  */
 
 const TrainerController = {
@@ -16,20 +16,20 @@ const TrainerController = {
       heading.innerHTML = `<span>My Training Groups</span>`;
       await this.renderGroups(main);
     } else if (tabId === 'students') {
-      heading.innerHTML = `<span>Bağlı Studentlerim</span>`;
+      heading.innerHTML = `<span>Enrolled Students</span>`;
       await this.renderStudents(main);
     } else if (tabId === 'tasks') {
       heading.innerHTML = `<span>Assignments & Task Management</span>`;
       await this.renderTasks(main);
     } else if (tabId === 'submissions') {
-      heading.innerHTML = `<span>Ödev Teslimleri ve Değerlendirmeler</span>`;
+      heading.innerHTML = `<span>Assignment Submissions & Evaluations</span>`;
       await this.renderSubmissions(main);
     }
   },
 
   // ==================== EĞİTİM GRUPLARI ====================
   async renderGroups(container) {
-    container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Yükleniyor...</span></div>`;
+    container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Loading...</span></div>`;
 
     const res = await apiFetch('/api/groups');
     const groups = res.groups || [];
@@ -38,7 +38,7 @@ const TrainerController = {
       <div class="panel-card">
         <div class="panel-header">
           <div class="panel-header-left">
-            <h3>Sorumlu Olduğum Eğitim Groupları (${groups.length})</h3>
+            <h3>Assigned Training Groups (${groups.length})</h3>
           </div>
           <button class="btn-action btn-primary" onclick="AdminController.openAddGroupModal()" style="width: auto;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
@@ -49,17 +49,17 @@ const TrainerController = {
           <table class="custom-table">
             <thead>
               <tr>
-                <th>Group Adı & Department / Track</th>
-                <th>Kayıtlı Student</th>
-                <th>Tarih Aralığı</th>
+                <th>Group Name & Department / Track</th>
+                <th>Enrolled Students</th>
+                <th>Date Range</th>
                 <th>Status</th>
-                <th>Açıklama</th>
+                <th>Description</th>
                 <th style="text-align: right;">Actionler</th>
               </tr>
             </thead>
             <tbody>
               ${groups.length === 0 ? `
-                <tr><td colspan="6" class="empty-state">Henüz size tanımlanmış bir eğitim grubu bulunmamaktadır.</td></tr>
+                <tr><td colspan="6" class="empty-state">No training groups assigned yet.</td></tr>
               ` : groups.map(g => `
                 <tr>
                   <td class="text-main">
@@ -70,7 +70,7 @@ const TrainerController = {
                   <td style="font-size:12.5px;">${formatDateTr(g.start_date)} - ${formatDateTr(g.end_date)}</td>
                   <td>
                     <span class="status-badge ${g.status === 'Active' ? 'badge-completed' : (g.status === 'Completed' ? 'badge-submitted' : 'badge-pending')}">
-                      ${g.status === 'Active' ? 'Aktif' : (g.status === 'Completed' ? 'Tamamlandı' : 'Arşiv')}
+                      ${g.status === 'Active' ? 'Active' : (g.status === 'Completed' ? 'Completed' : 'Archived')}
                     </span>
                   </td>
                   <td style="font-size:12.5px; color:var(--text-secondary); max-width:240px;">${g.description || '-'}</td>
@@ -95,7 +95,7 @@ const TrainerController = {
 
   // ==================== 1. ANA SAYFA & İSTATİSTİKLER ====================
   async renderHome(container) {
-    container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Yükleniyor...</span></div>`;
+    container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Loading...</span></div>`;
 
     const dashRes = await apiFetch('/api/trainer/dashboard');
     const data = dashRes.data || {
@@ -109,11 +109,11 @@ const TrainerController = {
     const user = AppState.currentUser;
 
     container.innerHTML = `
-      <!-- Hoş Geldiniz Hero Bannerı -->
+      <!-- Welcome Hero Bannerı -->
       <div class="welcome-hero" style="margin-bottom: 24px;">
         <div class="welcome-hero-content">
-          <h2>Hoş Geldiniz, Sn. ${user.name} 👋</h2>
-          <p>15. Trainer Dashboard (Eğitmen Kontrol Paneli). Sorumlu olduğunuz öğrencileri, aktif görevleri, inceleme bekleyen teslimleri ve grup ilerleme oranlarını anlık yönetin.</p>
+          <h2>Welcome, Sn. ${user.name} 👋</h2>
+          <p>15. Trainer Dashboard (Trainer Kontrol Paneli). Sorumlu olduğunuz öğrencileri, aktif görevleri, inceleme bekleyen teslimleri ve grup ilerleme oranlarını anlık yönetin.</p>
         </div>
         <div class="welcome-hero-actions">
           <button class="btn-hero-action" onclick="TrainerController.openAddTaskModal()">
@@ -122,7 +122,7 @@ const TrainerController = {
           </button>
           <button class="btn-hero-action" onclick="switchTab('submissions')">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
-            <span>Teslimleri İncele</span>
+            <span>Submissionsi Review</span>
           </button>
         </div>
       </div>
@@ -158,7 +158,7 @@ const TrainerController = {
           <div class="stat-info">
             <span style="font-size: 11.5px; font-weight: 700; color: var(--accent-gold); text-transform: uppercase;">3. Waiting Review</span>
             <h3 style="font-size: 26px; font-weight: 800; color: var(--accent-gold); margin: 4px 0;">${kpi.waiting_review}</h3>
-            <div class="stat-trend" style="color: var(--accent-gold); font-weight: 600;"><span>İnceleme Bekleyen</span></div>
+            <div class="stat-trend" style="color: var(--accent-gold); font-weight: 600;"><span>Reviewme Bekleyen</span></div>
           </div>
           <div class="stat-icon-wrapper icon-gold">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
@@ -195,14 +195,14 @@ const TrainerController = {
         <!-- SOL SÜTUN: 6. Tasks Waiting for Review & 8. Group Progress -->
         <div style="display: flex; flex-direction: column; gap: 20px;">
           
-          <!-- 6. Tasks Waiting for Review (İnceleme ve Notlandırma Bekleyen Ödevler) -->
+          <!-- 6. Tasks Waiting for Review (Reviewme ve Gradelandırma Bekleyen Ödevler) -->
           <div class="panel-card" style="padding: 0; overflow: hidden; border: 1px solid var(--border-light); border-radius: 12px;">
             <div style="padding: 14px 18px; background: var(--bg-page); border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center;">
               <div style="display: flex; align-items: center; gap: 8px;">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent-gold);"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
                 <strong style="font-size: 14px; color: var(--primary-navy);">6. Tasks Waiting for Review (${tasks_waiting_for_review.length})</strong>
               </div>
-              <button class="btn-action btn-secondary btn-sm" onclick="switchTab('submissions')">Tüm Teslimler</button>
+              <button class="btn-action btn-secondary btn-sm" onclick="switchTab('submissions')">Tüm Submissions</button>
             </div>
             <div class="table-responsive" style="margin: 0;">
               <table class="custom-table" style="margin: 0; width: 100%;">
@@ -237,7 +237,7 @@ const TrainerController = {
                       </td>
                       <td style="padding: 10px 14px; text-align: right;">
                         <button class="btn-action btn-primary btn-sm" onclick="TrainerController.openReviewModal(${s.submission_id})" style="padding: 4px 10px; font-size: 11.5px; font-weight: 600;">
-                          İncele & Notlandır
+                          Review & Gradelandır
                         </button>
                       </td>
                     </tr>
@@ -296,7 +296,7 @@ const TrainerController = {
         <!-- SAĞ SÜTUN: 7. Recent Student Submissions & Hızlı Aksiyonlar -->
         <div style="display: flex; flex-direction: column; gap: 20px;">
           
-          <!-- 7. Recent Student Submissions (Son Student Teslimleri Akışı) -->
+          <!-- 7. Recent Student Submissions (Son Student Submissionsi Akışı) -->
           <div class="card" style="padding: 16px 18px; border: 1px solid var(--border-light); background: var(--bg-card); border-radius: 12px;">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
               <div style="display: flex; align-items: center; gap: 6px;">
@@ -311,7 +311,7 @@ const TrainerController = {
             ` : `
               <div style="display: flex; flex-direction: column; gap: 10px;">
                 ${recent_student_submissions.map(sub => {
-                  const isDone = sub.submission_status === 'Tamamlandı' || sub.submission_status === 'Kabul Edildi';
+                  const isDone = sub.submission_status === 'Completed' || sub.submission_status === 'Approved';
                   return `
                     <div style="padding: 10px 12px; background: var(--bg-page); border-radius: 8px; border: 1px solid var(--border-light); display: flex; flex-direction: column; gap: 4px;">
                       <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -321,8 +321,8 @@ const TrainerController = {
                       <span style="font-size: 11.5px; color: var(--text-secondary);">${sub.task_title}</span>
                       <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
                         <span class="status-badge ${isDone ? 'badge-completed' : 'badge-reviewing'}" style="font-size: 9.5px; padding: 2px 6px;">${sub.submission_status}</span>
-                        ${sub.grade !== null ? `<strong style="font-size: 12px; color: #10B981;">${sub.grade} Puan</strong>` : `
-                          <button class="btn-action btn-secondary btn-sm" style="padding: 2px 8px; font-size: 10.5px;" onclick="TrainerController.openReviewModal(${sub.submission_id})">Notlandır</button>
+                        ${sub.grade !== null ? `<strong style="font-size: 12px; color: #10B981;">${sub.grade} Points</strong>` : `
+                          <button class="btn-action btn-secondary btn-sm" style="padding: 2px 8px; font-size: 10.5px;" onclick="TrainerController.openReviewModal(${sub.submission_id})">Gradelandır</button>
                         `}
                       </div>
                     </div>
@@ -346,7 +346,7 @@ const TrainerController = {
               </button>
               <button class="btn-action btn-secondary" onclick="switchTab('students')" style="justify-content: flex-start; gap: 8px; padding: 8px 12px; font-size: 12.5px;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
-                <span>Bağlı Studentler ve Not Statusu</span>
+                <span>Bağlı Studentler ve Grade Statusu</span>
               </button>
             </div>
           </div>
@@ -357,7 +357,7 @@ const TrainerController = {
 
   // ==================== 2. ÖĞRENCİLER (ÖĞRENCİ PERFORMANS VE İLERLEME TAKİBİ) ====================
   async renderStudents(container) {
-    container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Yükleniyor...</span></div>`;
+    container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Loading...</span></div>`;
 
     const [tasksRes, subsRes, usersRes] = await Promise.all([
       apiFetch('/api/tasks'),
@@ -396,7 +396,7 @@ const TrainerController = {
       }
       const sObj = studentMap.get(t.student_id);
       sObj.total_tasks += 1;
-      if (t.status === 'Tamamlandı') {
+      if (t.status === 'Completed') {
         sObj.completed_tasks += 1;
       }
       if (t.grade !== null && t.grade !== undefined) {
@@ -410,7 +410,7 @@ const TrainerController = {
       <div class="panel-card">
         <div class="panel-header">
           <div class="panel-header-left">
-            <h3>Student Performans ve İlerleme Takibi (${students.length})</h3>
+            <h3>Student Thuformans ve İlerleme Takibi (${students.length})</h3>
             <p style="font-size:13px; color:var(--text-secondary); margin-top:2px;">Studentlerinizin ödev tamamlama oranlarını ve başarı notu ortalamalarını anlık izleyin.</p>
           </div>
         </div>
@@ -421,7 +421,7 @@ const TrainerController = {
                 <th>Student Bilgisi</th>
                 <th>Atanan Görev</th>
                 <th>Completed</th>
-                <th>Başarı Ortalaması</th>
+                <th>Başarı Mediumlaması</th>
                 <th>Genel Progress (%)</th>
                 <th style="text-align: right;">Action</th>
               </tr>
@@ -439,9 +439,9 @@ const TrainerController = {
                       <div style="font-size:12px; color:var(--text-secondary);">${st.email}</div>
                     </td>
                     <td><span class="status-badge badge-submitted">${st.total_tasks} Görev</span></td>
-                    <td><span class="status-badge badge-completed">${st.completed_tasks} Tamamlandı</span></td>
+                    <td><span class="status-badge badge-completed">${st.completed_tasks} Completed</span></td>
                     <td>
-                      ${avgGrade !== '-' ? `<span class="grade-badge">${avgGrade} / 100</span>` : '<span style="color:var(--text-muted); font-size:12.5px;">Henüz Notlanmadı</span>'}
+                      ${avgGrade !== '-' ? `<span class="grade-badge">${avgGrade} / 100</span>` : '<span style="color:var(--text-muted); font-size:12.5px;">Henüz Gradelanmadı</span>'}
                     </td>
                     <td style="min-width: 160px;">
                       <div style="display:flex; align-items:center; gap:10px;">
@@ -466,7 +466,7 @@ const TrainerController = {
 
   // ==================== 3. GÖREVLER ====================
   async renderTasks(container) {
-    container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Yükleniyor...</span></div>`;
+    container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Loading...</span></div>`;
 
     const res = await apiFetch('/api/tasks');
     const tasks = res.tasks || [];
@@ -491,7 +491,7 @@ const TrainerController = {
                 <th>Atanan Student</th>
                 <th>Son Submitted Date</th>
                 <th>Status</th>
-                <th>Not</th>
+                <th>Grade</th>
                 <th style="text-align: right;">Actionler</th>
               </tr>
             </thead>
@@ -516,7 +516,7 @@ const TrainerController = {
                       <button class="btn-action btn-danger btn-sm" style="margin-left: 5px;" onclick="TrainerController.deleteTask(${t.id}, '${t.title.replace(/'/g, "\\'")}')">Delete</button>
                       ${t.submission_id ? `
                         <button class="btn-action btn-primary btn-sm" style="margin-left: 5px;" onclick="TrainerController.openReviewModal(${t.submission_id})">
-                          İncele & Notlandır
+                          Review & Gradelandır
                         </button>
                       ` : ''}
                     </td>
@@ -532,7 +532,7 @@ const TrainerController = {
 
   // ==================== 4. TESLİMLER VE DEĞERLENDİRME ====================
   async renderSubmissions(container) {
-    container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Yükleniyor...</span></div>`;
+    container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Loading...</span></div>`;
 
     const res = await apiFetch('/api/submissions');
     const submissions = res.submissions || [];
@@ -551,11 +551,11 @@ const TrainerController = {
                 <th>Deneme / Revizyon</th>
                 <th>Student</th>
                 <th>Görev</th>
-                <th>Teslim Zamanı</th>
+                <th>Teslim Timestamp (When)ı</th>
                 <th>Timing (Is Late)</th>
                 <th>Status</th>
-                <th>Not</th>
-                <th>Geri Bildirim</th>
+                <th>Grade</th>
+                <th>Feedback</th>
                 <th style="text-align: right;">Action</th>
               </tr>
             </thead>
@@ -577,7 +577,7 @@ const TrainerController = {
                   </td>
                   <td style="font-size:12px; white-space:nowrap;">${formatDateTr(s.submitted_at)}</td>
                   <td>
-                    ${s.is_late ? '<span class="status-badge badge-pending" style="font-size:11px;">⚠️ Gecikmiş (Is Late)</span>' : '<span class="status-badge badge-completed" style="font-size:11px;">⏰ Zamanında</span>'}
+                    ${s.is_late ? '<span class="status-badge badge-pending" style="font-size:11px;">⚠️ Overdue (Is Late)</span>' : '<span class="status-badge badge-completed" style="font-size:11px;">⏰ Timestamp (When)ında</span>'}
                   </td>
                   <td>${getStatusBadgeHtml(s.status)}</td>
                   <td>${s.grade !== null && s.grade !== undefined ? `<span class="grade-badge">${s.grade} / 100</span>` : '<span style="color:var(--text-muted);">-</span>'}</td>
@@ -585,7 +585,7 @@ const TrainerController = {
                   <td style="text-align: right; white-space:nowrap;">
                     <button class="btn-action btn-primary btn-sm" onclick="TrainerController.openReviewModal(${s.id})" style="width: auto;">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
-                      Teslimi İncele
+                      Teslimi Review
                     </button>
                   </td>
                 </tr>
@@ -604,7 +604,7 @@ const TrainerController = {
     document.getElementById('task-title').value = '';
     document.getElementById('task-description').value = '';
     if (document.getElementById('task-instructions')) document.getElementById('task-instructions').value = '';
-    if (document.getElementById('task-estimated-time')) document.getElementById('task-estimated-time').value = '4 Saat';
+    if (document.getElementById('task-estimated-time')) document.getElementById('task-estimated-time').value = '4 Time';
     if (document.getElementById('task-start-date')) document.getElementById('task-start-date').value = new Date().toISOString().split('T')[0];
     if (document.getElementById('task-url')) document.getElementById('task-url').value = '';
     if (document.getElementById('task-file')) document.getElementById('task-file').value = '';
@@ -745,7 +745,7 @@ const TrainerController = {
       if (linkBox) linkBox.style.display = 'none';
     }
 
-    // Notlar Görünümü (Notes)
+    // Gradelar Görünümü (Gradees)
     const notesBox = document.getElementById('review-notes-box');
     const notesEl = document.getElementById('review-student-notes');
     if (s.student_notes) {
@@ -755,7 +755,7 @@ const TrainerController = {
       if (notesBox) notesBox.style.display = 'none';
     }
 
-    // Section 9: Rubrik Kriterleri Değerleri
+    // Section 9: Rubric Criteria Değerleri
     if (document.getElementById('rubric-completion')) {
       document.getElementById('rubric-completion').value = s.rubric_completion !== null && s.rubric_completion !== undefined ? s.rubric_completion : '';
       document.getElementById('rubric-quality').value = s.rubric_quality !== null && s.rubric_quality !== undefined ? s.rubric_quality : '';
@@ -769,20 +769,20 @@ const TrainerController = {
       }
     }
 
-    // Not (Score) & Geri Bildirim (Feedback) & Karar (Decision: Approve, Needs Revision, Reject)
+    // Grade (Score) & Feedback (Feedback) & Karar (Decision: Approve, Needs Revision, Reject)
     document.getElementById('review-grade').value = s.grade !== null && s.grade !== undefined ? s.grade : '';
     document.getElementById('review-feedback').value = s.feedback || '';
     
     const statusSelect = document.getElementById('review-status');
     if (statusSelect) {
-      if (s.status === 'Düzeltme İstendi' || s.status === 'Needs Revision') {
-        statusSelect.value = 'Düzeltme İstendi';
-      } else if (s.status === 'Reddedildi' || s.status === 'Reject') {
-        statusSelect.value = 'Reddedildi';
-      } else if (s.status === 'İnceleniyor' || s.status === 'Under Review') {
-        statusSelect.value = 'İnceleniyor';
+      if (s.status === 'Needs Revision' || s.status === 'Needs Revision') {
+        statusSelect.value = 'Needs Revision';
+      } else if (s.status === 'Rejected' || s.status === 'Reject') {
+        statusSelect.value = 'Rejected';
+      } else if (s.status === 'Under Review' || s.status === 'Under Review') {
+        statusSelect.value = 'Under Review';
       } else {
-        statusSelect.value = 'Tamamlandı';
+        statusSelect.value = 'Completed';
       }
     }
 

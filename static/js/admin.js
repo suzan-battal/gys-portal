@@ -1,6 +1,6 @@
 /**
- * Üniversite Task Management System - Yönetici Paneli Denetleyicisi (admin.js)
- * İstatistikler, Student/Trainer/Kullanıcı CRUD, Eğitim Groupları (Training Groups) ve Tasks Yönetimi.
+ * Üniversite Task Management System - Administrator Paneli Denetleyicisi (admin.js)
+ * İstatistikler, Student/Trainer/User CRUD, Eğitim Groupları (Training Groups) ve Tasks Yönetimi.
  */
 
 const AdminController = {
@@ -13,8 +13,8 @@ const AdminController = {
       heading.innerHTML = `<span>Administrator Dashboard - Overview</span>`;
       await this.renderHome(main);
     } else if (tabId === 'roles-permissions') {
-      heading.innerHTML = `<span>Roles & Permissions Matrix (RBAC Engine)</span>`;
-      await this.renderRolesPermissions(main);
+      heading.innerHTML = `<span>Roles & Thumissions Matrix (RBAC Engine)</span>`;
+      await this.renderRolesThumissions(main);
     } else if (tabId === 'groups') {
       heading.innerHTML = `<span>Training Groups & Cohorts Management</span>`;
       await this.renderGroups(main);
@@ -38,7 +38,7 @@ const AdminController = {
 
   // ==================== 1. ANA SAYFA & İSTATİSTİKLER ====================
   async renderHome(container) {
-    container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Yükleniyor...</span></div>`;
+    container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Loading...</span></div>`;
 
     const dashRes = await apiFetch('/api/admin/dashboard');
     const data = dashRes.data || {
@@ -61,7 +61,7 @@ const AdminController = {
     const user = AppState.currentUser;
 
     container.innerHTML = `
-      <!-- Hoş Geldiniz Bannerı (Hero Banner) -->
+      <!-- Welcome Bannerı (Hero Banner) -->
       <div class="welcome-hero" style="margin-bottom: 24px;">
         <div class="welcome-hero-content">
           <h2>Welcome, ${user.name} 👋</h2>
@@ -150,7 +150,7 @@ const AdminController = {
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
           <div style="display: flex; align-items: center; gap: 8px;">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--primary-blue);"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-            <strong style="font-size: 15px; color: var(--primary-navy);">Student Progress & Performance Overview</strong>
+            <strong style="font-size: 15px; color: var(--primary-navy);">Student Progress & Thuformance Overview</strong>
           </div>
           <span class="status-badge badge-completed">Institution-Wide Tracking</span>
         </div>
@@ -284,28 +284,28 @@ const AdminController = {
         </div>
       </div>
 
-      <!-- 11. Training Groups Performance -->
+      <!-- 11. Training Groups Thuformance -->
       <div class="panel-card" style="padding: 20px; border: 1px solid var(--border-light); border-radius: 12px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
           <div style="display: flex; align-items: center; gap: 8px;">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--primary-blue);"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
-            <strong style="font-size: 15px; color: var(--primary-navy);">11. Training Groups Performance (Eğitim Groupları Başarı ve İlerleme Tablosu)</strong>
+            <strong style="font-size: 15px; color: var(--primary-navy);">11. Training Groups Thuformance (Eğitim Groupları Başarı ve İlerleme Tablosu)</strong>
           </div>
-          <button class="btn-action btn-primary btn-sm" onclick="switchTab('groups')">Tüm Groupları Yönet</button>
+          <button class="btn-action btn-primary btn-sm" onclick="switchTab('groups')">Manage All Groups</button>
         </div>
 
         <div class="table-responsive" style="margin: 0;">
           <table class="custom-table" style="margin: 0; width: 100%;">
             <thead>
               <tr style="background: var(--bg-page); font-size: 11.5px;">
-                <th style="padding: 10px 14px;">Group Adı & Uzmanlık</th>
+                <th style="padding: 10px 14px;">Group Name & Track</th>
                 <th style="padding: 10px 14px;">Sorumlu Trainer</th>
                 <th style="padding: 10px 14px;">Student Mevcudu</th>
                 <th style="padding: 10px 14px;">Total Tasks</th>
                 <th style="padding: 10px 14px;">Biten Tasks</th>
                 <th style="padding: 10px 14px; min-width: 140px;">Progress (%)</th>
                 <th style="padding: 10px 14px;">Average Grade</th>
-                <th style="padding: 10px 14px; text-align: right;">Durum</th>
+                <th style="padding: 10px 14px; text-align: right;">Status</th>
               </tr>
             </thead>
             <tbody>
@@ -348,7 +348,7 @@ const AdminController = {
 
   // ==================== 2. EĞİTİM GRUPLARI (TRAINING GROUPS) ====================
   async renderGroups(container) {
-    container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Yükleniyor...</span></div>`;
+    container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Loading...</span></div>`;
 
     const res = await apiFetch('/api/groups');
     const groups = res.groups || [];
@@ -357,7 +357,7 @@ const AdminController = {
       <div class="panel-card">
         <div class="panel-header">
           <div class="panel-header-left">
-            <h3>Eğitim Groupları ve Şubeler (${groups.length})</h3>
+            <h3>Training Groups & Sections (${groups.length})</h3>
           </div>
           <button class="btn-action btn-primary" onclick="AdminController.openAddGroupModal()" style="width: auto;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
@@ -368,11 +368,11 @@ const AdminController = {
           <table class="custom-table">
             <thead>
               <tr>
-                <th>Group Adı & Uzmanlık</th>
+                <th>Group Name & Track</th>
                 <th>Sorumlu Trainer</th>
                 <th>Enrolled Students</th>
                 <th>Date Range</th>
-                <th>Durum</th>
+                <th>Status</th>
                 <th style="text-align: right;">Actionler</th>
               </tr>
             </thead>
@@ -390,7 +390,7 @@ const AdminController = {
                   <td style="font-size:12.5px;">${formatDateTr(g.start_date)} - ${formatDateTr(g.end_date)}</td>
                   <td>
                     <span class="status-badge ${g.status === 'Active' ? 'badge-completed' : (g.status === 'Completed' ? 'badge-submitted' : 'badge-pending')}">
-                      ${g.status === 'Active' ? 'Active' : (g.status === 'Completed' ? 'Tamamlandı' : 'Archived')}
+                      ${g.status === 'Active' ? 'Active' : (g.status === 'Completed' ? 'Completed' : 'Archived')}
                     </span>
                   </td>
                   <td style="text-align: right; white-space: nowrap;">
@@ -408,7 +408,7 @@ const AdminController = {
 
   // ==================== 3. ÖĞRENCİ / EĞİTMEN LİSTESİ ====================
   async renderUsersByRole(container, role, title) {
-    container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Yükleniyor...</span></div>`;
+    container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Loading...</span></div>`;
 
     const res = await apiFetch(`/api/users?role=${role}`);
     const users = res.users || [];
@@ -431,9 +431,9 @@ const AdminController = {
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Ad Soyad</th>
+                <th>Full Name</th>
                 <th>Kurumsal E-posta</th>
-                <th>Kayıt Tarihi</th>
+                <th>Registration Date</th>
                 <th style="text-align: right;">Actionler</th>
               </tr>
             </thead>
@@ -464,7 +464,7 @@ const AdminController = {
 
   // ==================== 4. SECTION 13: USERS MANAGEMENT (İDARI KULLANICI YÖNETİMİ) ====================
   async renderAllUsers(container) {
-    container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Kullanıcılar Yükleniyor...</span></div>`;
+    container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">All Users Loading...</span></div>`;
 
     const [usersRes, groupsRes] = await Promise.all([
       apiFetch('/api/users'),
@@ -646,7 +646,7 @@ const AdminController = {
 
   // ==================== 5. GÖREVLER ====================
   async renderTasks(container) {
-    container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Yükleniyor...</span></div>`;
+    container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Loading...</span></div>`;
 
     const res = await apiFetch('/api/tasks');
     const tasks = res.tasks || [];
@@ -673,7 +673,7 @@ const AdminController = {
                 <th>Sorumlu Trainer</th>
                 <th>Atanan Student</th>
                 <th>Submission Deadline</th>
-                <th>Durum</th>
+                <th>Status</th>
                 <th style="text-align: right;">Actionler</th>
               </tr>
             </thead>
@@ -709,7 +709,7 @@ const AdminController = {
 
   // ==================== 6. TÜM TESLİMLER ====================
   async renderSubmissions(container) {
-    container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Yükleniyor...</span></div>`;
+    container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Loading...</span></div>`;
 
     const res = await apiFetch('/api/submissions');
     const submissions = res.submissions || [];
@@ -718,7 +718,7 @@ const AdminController = {
       <div class="panel-card">
         <div class="panel-header">
           <div class="panel-header-left">
-            <h3>Student Teslim ve Notlandırma Listesi (${submissions.length})</h3>
+            <h3>Student Teslim ve Gradelandırma Listesi (${submissions.length})</h3>
           </div>
         </div>
         <div class="table-responsive">
@@ -732,8 +732,8 @@ const AdminController = {
                 <th>Submission Date</th>
                 <th>Timing</th>
                 <th>File & URL</th>
-                <th>Durum</th>
-                <th>Not</th>
+                <th>Status</th>
+                <th>Grade</th>
                 <th>Feedback</th>
                 <th style="text-align: right;">Action</th>
               </tr>
@@ -757,7 +757,7 @@ const AdminController = {
                   <td style="font-size:12.5px;">${s.trainer_name}</td>
                   <td style="font-size:12px; white-space:nowrap;">${formatDateTr(s.submitted_at)}</td>
                   <td>
-                    ${s.is_late ? '<span class="status-badge badge-pending" style="font-size:11px;">⚠️ Gecikmiş (Is Late)</span>' : '<span class="status-badge badge-completed" style="font-size:11px;">⏰ Zamanında</span>'}
+                    ${s.is_late ? '<span class="status-badge badge-pending" style="font-size:11px;">⚠️ Overdue (Is Late)</span>' : '<span class="status-badge badge-completed" style="font-size:11px;">⏰ Timestamp (When)ında</span>'}
                   </td>
                   <td>
                     <div style="display:flex; flex-direction:column; gap:4px;">
@@ -781,7 +781,7 @@ const AdminController = {
                   <td style="text-align: right; white-space:nowrap;">
                     <button class="btn-action btn-primary btn-sm" onclick="AdminController.openReviewModal(${s.id})" style="width: auto;">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
-                      İncele & Değerlendir
+                      Review & Değerlendir
                     </button>
                   </td>
                 </tr>
@@ -793,7 +793,7 @@ const AdminController = {
     `;
   },
 
-  // ==================== GRUP MODAL İŞLEMLERİ ====================
+  // ==================== GRUP MODAL ACTIONSİ ====================
   async openAddGroupModal() {
     const [trainersRes, studentsRes] = await Promise.all([
       apiFetch('/api/users?role=trainer'),
@@ -820,23 +820,23 @@ const AdminController = {
                 </div>
               </div>
               <div class="form-group">
-                <label>Group Açıklaması ve Hedefleri</label>
+                <label>Group Descriptionsı ve Hedefleri</label>
                 <textarea id="group-desc" rows="2" placeholder="Group hedefleri, ders kapsamı ve yönergeler..."></textarea>
               </div>
               <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;">
                 <div class="form-group">
-                  <label>Başlangıç Tarihi *</label>
+                  <label>Start Date *</label>
                   <input type="date" id="group-start" value="${new Date().toISOString().split('T')[0]}" required>
                 </div>
                 <div class="form-group">
-                  <label>Bitiş Tarihi *</label>
+                  <label>End Date *</label>
                   <input type="date" id="group-end" value="2026-12-31" required>
                 </div>
                 <div class="form-group">
-                  <label>Group Durumu *</label>
+                  <label>Group Statusu *</label>
                   <select id="group-status" required>
                     <option value="Active" selected>🟢 Active (Active)</option>
-                    <option value="Completed">🔵 Completed (Tamamlandı)</option>
+                    <option value="Completed">🔵 Completed (Completed)</option>
                     <option value="Archived">⚪ Archived (Archivedlendi)</option>
                   </select>
                 </div>
@@ -874,8 +874,8 @@ const AdminController = {
               </div>
             </div>
             <div class="modal-footer" style="border-top:1px solid var(--border-light); padding:12px 20px; background:#fff; position:sticky; bottom:0; z-index:10;">
-              <button type="button" class="btn-action btn-secondary" onclick="document.getElementById('modal-group-custom').remove()">İptal</button>
-              <button type="submit" class="btn-action btn-primary">Grubu Kaydet</button>
+              <button type="button" class="btn-action btn-secondary" onclick="document.getElementById('modal-group-custom').remove()">Cancel</button>
+              <button type="submit" class="btn-action btn-primary">Grubu Save</button>
             </div>
           </form>
         </div>
@@ -920,23 +920,23 @@ const AdminController = {
                 </div>
               </div>
               <div class="form-group">
-                <label>Group Açıklaması ve Hedefleri</label>
+                <label>Group Descriptionsı ve Hedefleri</label>
                 <textarea id="group-desc" rows="2">${g.description || ''}</textarea>
               </div>
               <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;">
                 <div class="form-group">
-                  <label>Başlangıç Tarihi *</label>
+                  <label>Start Date *</label>
                   <input type="date" id="group-start" value="${g.start_date || ''}" required>
                 </div>
                 <div class="form-group">
-                  <label>Bitiş Tarihi *</label>
+                  <label>End Date *</label>
                   <input type="date" id="group-end" value="${g.end_date || ''}" required>
                 </div>
                 <div class="form-group">
-                  <label>Group Durumu *</label>
+                  <label>Group Statusu *</label>
                   <select id="group-status" required>
                     <option value="Active" ${g.status === 'Active' ? 'selected' : ''}>🟢 Active (Active)</option>
-                    <option value="Completed" ${g.status === 'Completed' ? 'selected' : ''}>🔵 Completed (Tamamlandı)</option>
+                    <option value="Completed" ${g.status === 'Completed' ? 'selected' : ''}>🔵 Completed (Completed)</option>
                     <option value="Archived" ${g.status === 'Archived' ? 'selected' : ''}>⚪ Archived (Archivedlendi)</option>
                   </select>
                 </div>
@@ -974,8 +974,8 @@ const AdminController = {
               </div>
             </div>
             <div class="modal-footer" style="border-top:1px solid var(--border-light); padding:12px 20px; background:#fff; position:sticky; bottom:0; z-index:10;">
-              <button type="button" class="btn-action btn-secondary" onclick="document.getElementById('modal-group-custom').remove()">İptal</button>
-              <button type="submit" class="btn-action btn-primary">Değişiklikleri Kaydet</button>
+              <button type="button" class="btn-action btn-secondary" onclick="document.getElementById('modal-group-custom').remove()">Cancel</button>
+              <button type="submit" class="btn-action btn-primary">Değişiklikleri Save</button>
             </div>
           </form>
         </div>
@@ -1036,14 +1036,14 @@ const AdminController = {
 
   // ==================== KULLANICI MODAL VE CRUD ====================
   openAddUserModal(defaultRole = 'student') {
-    document.getElementById('modal-user-title').textContent = defaultRole === 'trainer' ? 'Trainer Ekle' : (defaultRole === 'admin' ? 'Yönetici Ekle' : 'Student Ekle');
+    document.getElementById('modal-user-title').textContent = defaultRole === 'trainer' ? 'Trainer Ekle' : (defaultRole === 'admin' ? 'Administrator Ekle' : 'Student Ekle');
     document.getElementById('user-id').value = '';
     document.getElementById('user-name').value = '';
     document.getElementById('user-email').value = '';
     document.getElementById('user-role').value = defaultRole;
     document.getElementById('user-password').value = '';
     document.getElementById('user-password').required = true;
-    document.getElementById('label-user-password').textContent = 'Şifre *';
+    document.getElementById('label-user-password').textContent = 'Password *';
     document.getElementById('help-user-password').style.display = 'none';
 
     openModal('modal-user');
@@ -1052,19 +1052,19 @@ const AdminController = {
   async openEditUserModal(userId) {
     const res = await apiFetch(`/api/users/${userId}`);
     if (!res.success || !res.user) {
-      showToast(res.error || "Kullanıcı bilgileri alınamadı.", "error");
+      showToast(res.error || "User bilgileri alınamadı.", "error");
       return;
     }
 
     const u = res.user;
-    document.getElementById('modal-user-title').textContent = 'Kullanıcı Edit';
+    document.getElementById('modal-user-title').textContent = 'User Edit';
     document.getElementById('user-id').value = u.id;
     document.getElementById('user-name').value = u.name;
     document.getElementById('user-email').value = u.email;
     document.getElementById('user-role').value = u.role;
     document.getElementById('user-password').value = '';
     document.getElementById('user-password').required = false;
-    document.getElementById('label-user-password').textContent = 'Yeni Şifre (İsteğe bağlı)';
+    document.getElementById('label-user-password').textContent = 'Yeni Password (İsteğe bağlı)';
     document.getElementById('help-user-password').style.display = 'block';
 
     openModal('modal-user');
@@ -1072,7 +1072,7 @@ const AdminController = {
 
   deleteUser(userId, userName) {
     openConfirmModal(
-      'Kullanıcıyı Delete',
+      'Useryı Delete',
       `"${userName}" adlı kullanıcıyı silmek istediğinizden emin misiniz?`,
       async () => {
         const res = await apiFetch(`/api/users/${userId}`, { method: 'DELETE' });
@@ -1080,7 +1080,7 @@ const AdminController = {
           showToast("User deleted successfully.", "success");
           switchTab(AppState.currentTab);
         } else {
-          showToast(res.error || "Kullanıcı silinirken bir hata oluştu.", "error");
+          showToast(res.error || "User silinirken bir hata oluştu.", "error");
         }
       }
     );
@@ -1093,7 +1093,7 @@ const AdminController = {
     document.getElementById('task-title').value = '';
     document.getElementById('task-description').value = '';
     if (document.getElementById('task-instructions')) document.getElementById('task-instructions').value = '';
-    if (document.getElementById('task-estimated-time')) document.getElementById('task-estimated-time').value = '4 Saat';
+    if (document.getElementById('task-estimated-time')) document.getElementById('task-estimated-time').value = '4 Time';
     if (document.getElementById('task-start-date')) document.getElementById('task-start-date').value = new Date().toISOString().split('T')[0];
     if (document.getElementById('task-url')) document.getElementById('task-url').value = '';
     if (document.getElementById('task-file')) document.getElementById('task-file').value = '';
@@ -1246,7 +1246,7 @@ async function handleSaveUser(e) {
 
   if (res.success) {
     closeModal('modal-user');
-    showToast(res.message || "Kullanıcı başarıyla kaydedildi.", "success");
+    showToast(res.message || "User başarıyla kaydedildi.", "success");
     switchTab(AppState.currentTab);
   } else {
     showToast(res.error || "Action sırasında bir hata oluştu.", "error");
@@ -1314,8 +1314,8 @@ AdminController.openReviewModal = function(submissionId) {
 
 // ==================== SECTION 12: ROLES & PERMISSIONS (ROLLER VE İZİNLER) ====================
 
-AdminController.renderRolesPermissions = async function(container) {
-  container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Roller ve Yetki Matrisi Yükleniyor...</span></div>`;
+AdminController.renderRolesThumissions = async function(container) {
+  container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Roller ve Yetki Matrisi Loading...</span></div>`;
 
   const res = await apiFetch('/api/roles/permissions');
   if (!res.success) {
@@ -1345,13 +1345,13 @@ AdminController.renderRolesPermissions = async function(container) {
   container.innerHTML = `
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
       <div>
-        <h2 style="font-size: 20px; color: var(--primary-navy); margin: 0 0 4px 0;">12. Roles & Permissions (Roller ve Yetkiler Matrisi)</h2>
+        <h2 style="font-size: 20px; color: var(--primary-navy); margin: 0 0 4px 0;">12. Roles & Thumissions (Roller ve Yetkiler Matrisi)</h2>
         <p style="font-size: 13px; color: var(--text-secondary); margin: 0;">Sistemdeki 6 rol ve 26 modüler iznin canlı kontrol ve denetim tablosu.</p>
       </div>
       <div style="display: flex; gap: 10px;">
-        <button class="btn-action btn-primary" onclick="AdminController.saveAllRolePermissions()" style="display: flex; align-items: center; gap: 6px; padding: 10px 20px; font-size: 13px; font-weight: 600;">
+        <button class="btn-action btn-primary" onclick="AdminController.saveAllRoleThumissions()" style="display: flex; align-items: center; gap: 6px; padding: 10px 20px; font-size: 13px; font-weight: 600;">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
-          <span>Yetki Değişikliklerini Kaydet (Save)</span>
+          <span>Yetki Değişikliklerini Save (Save)</span>
         </button>
       </div>
     </div>
@@ -1380,7 +1380,7 @@ AdminController.renderRolesPermissions = async function(container) {
         <table class="custom-table" style="margin: 0; width: 100%;">
           <thead>
             <tr style="background: var(--bg-page); border-bottom: 2px solid var(--border-light);">
-              <th style="padding: 14px 18px; text-align: left; width: 340px; font-size: 13px;">İzin Kodu & Açıklaması (Permission Code)</th>
+              <th style="padding: 14px 18px; text-align: left; width: 340px; font-size: 13px;">İzin Kodu & Descriptionsı (Thumission Code)</th>
               ${roles.map(r => `
                 <th style="padding: 14px 8px; text-align: center; font-size: 12px; font-weight: 700; color: var(--primary-navy);">
                   <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
@@ -1415,7 +1415,7 @@ AdminController.renderRolesPermissions = async function(container) {
                           id="perm_${r.code}_${p.code.replace('.', '_')}" 
                           ${isChecked ? 'checked' : ''} 
                           ${isSuperAdmin ? 'disabled title="Super Admin tüm izinlere kalıcı sahiptir."' : ''} 
-                          onchange="AdminController.togglePermission('${r.code}', '${p.code}', this.checked)"
+                          onchange="AdminController.toggleThumission('${r.code}', '${p.code}', this.checked)"
                           style="width: 18px; height: 18px; cursor: ${isSuperAdmin ? 'not-allowed' : 'pointer'}; accent-color: var(--primary-blue);"
                         />
                       </td>
@@ -1431,7 +1431,7 @@ AdminController.renderRolesPermissions = async function(container) {
   `;
 };
 
-AdminController.togglePermission = function(roleCode, permCode, isChecked) {
+AdminController.toggleThumission = function(roleCode, permCode, isChecked) {
   if (!window._cachedRolesMatrix) return;
   if (!window._cachedRolesMatrix[roleCode]) window._cachedRolesMatrix[roleCode] = [];
   
@@ -1449,7 +1449,7 @@ AdminController.togglePermission = function(roleCode, permCode, isChecked) {
   }
 };
 
-AdminController.saveAllRolePermissions = async function() {
+AdminController.saveAllRoleThumissions = async function() {
   if (!window._cachedRolesMatrix) return;
   try {
     const roles = Object.keys(window._cachedRolesMatrix);

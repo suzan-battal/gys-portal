@@ -5,8 +5,8 @@ if (_urlToken) {
   localStorage.setItem('gys_auth_token', _urlToken);
 }
 
-// Global Uygulama Statusu (State)
-const AppState = {
+// Global Application State (State)
+window.AppState = window.AppState || {
   currentUser: null,
   token: _urlToken || localStorage.getItem('gys_auth_token') || null,
   currentTab: 'home',
@@ -15,6 +15,10 @@ const AppState = {
   activeTaskId: null,
   deleteCallback: null
 };
+if (_urlToken) {
+  window.AppState.token = _urlToken;
+}
+const AppState = window.AppState;
 
 // ==================== API YARDIMCISI (FETCH CLIENT) ====================
 async function apiFetch(endpoint, options = {}) {
@@ -47,19 +51,19 @@ async function apiFetch(endpoint, options = {}) {
     if (!response.ok) {
       return { 
         success: false, 
-        error: data.error || `Sunucu hatası (${response.status})`,
+        error: data.error || `Server error (${response.status})`,
         status: response.status 
       };
     }
 
     return data;
   } catch (err) {
-    console.error("API Bağlantı Hatası:", err);
+    console.error("API Connection Error:", err);
     return { success: false, error: "Could not connect to server. Please check your connection." };
   }
 }
 
-// ==================== TOAST BİLDİRİMLERİ (NOTIFICATIONS) ====================
+// ==================== TOAST BİLDİRİMLERİ (GRADEIFICATIONS) ====================
 function showToast(message, type = "info") {
   const container = document.getElementById('toast-container');
   if (!container) return;
@@ -85,7 +89,7 @@ function showToast(message, type = "info") {
   }, 4000);
 }
 
-// ==================== MODAL İŞLEMLERİ ====================
+// ==================== MODAL ACTIONSİ ====================
 function openModal(modalId) {
   const modal = document.getElementById(modalId);
   if (modal) {
@@ -321,7 +325,7 @@ function buildSidebarMenu(role) {
       { id: 'calendar', title: 'Academic Calendar', icon: 'calendar' },
       { id: 'reports', title: 'Reports & Analytics', icon: 'bar-chart-2' },
       { id: 'audit-logs', title: 'Audit Logs', icon: 'shield' },
-      { id: 'roles-permissions', title: 'Roles & Permissions', icon: 'key' },
+      { id: 'roles-permissions', title: 'Roles & Thumissions', icon: 'key' },
       { id: 'settings', title: 'System Settings', icon: 'settings' },
       { id: 'groups', title: 'Training Groups', icon: 'layers' },
       { id: 'students', title: 'Students', icon: 'users' },
@@ -399,35 +403,35 @@ function switchTab(tabId) {
   const main = document.getElementById('main-content');
   const heading = document.getElementById('page-heading');
 
-  // Section 17: Bugünün Görevleri (Tüm Roller için ortak merkezi sayfa)
+  // Section 17: Today's Tasks (Tüm Roller için ortak merkezi sayfa)
   if (tabId === 'today-tasks') {
     heading.innerHTML = `<span>Today's Tasks (Today's Tasks Hub)</span>`;
     TodayTasksController.renderTodayTasks(main);
     return;
   }
 
-  // Section 19: Duyurular (Tüm Roller için ortak duyuru panosu)
+  // Section 19: Announcements (Tüm Roller için ortak duyuru panosu)
   if (tabId === 'announcements') {
     heading.innerHTML = `<span>Announcements & Gradeices Hub</span>`;
     AnnouncementsController.renderAnnouncements(main);
     return;
   }
 
-  // Section 20: Akademik Takvim (Tüm Roller için ortak takvim)
+  // Section 20: Academic Calendar (Tüm Roller için ortak takvim)
   if (tabId === 'calendar') {
     heading.innerHTML = `<span>Academic Calendar Hub</span>`;
     CalendarController.renderCalendar(main);
     return;
   }
 
-  // Section 21: Raporlar ve Analitik Merkezi
+  // Section 21: Reports ve Analitik Merkezi
   if (tabId === 'reports') {
     heading.innerHTML = `<span>Reports & Analytics Hub</span>`;
     ReportsController.renderReports(main);
     return;
   }
 
-  // Section 22: Denetim Kayıtları (Audit Logs Hub)
+  // Section 22: Audit Logs (Audit Logs Hub)
   if (tabId === 'audit-logs') {
     heading.innerHTML = `<span>Audit Logs & Security Hub</span>`;
     AuditLogsController.renderAuditLogs(main);
@@ -471,11 +475,11 @@ function openProfileModal() {
   document.getElementById('profile-modal-name').textContent = user.name;
   document.getElementById('profile-modal-email').textContent = user.email;
 
-  let roleTr = "Öğrenci";
+  let roleTr = "Student";
   if (user.role === 'super_admin') roleTr = "Super Admin";
-  else if (user.role === 'admin') roleTr = "Sistem Yöneticisi";
+  else if (user.role === 'admin') roleTr = "Sistem Administratorsi";
   else if (user.role === 'training_manager') roleTr = "Training Manager";
-  else if (user.role === 'trainer') roleTr = "Eğitmen (Trainer)";
+  else if (user.role === 'trainer') roleTr = "Trainer (Trainer)";
   else if (user.role === 'assistant_trainer') roleTr = "Assistant Trainer";
 
   document.getElementById('profile-modal-role').textContent = roleTr;
@@ -493,7 +497,7 @@ async function openStudentProfileModal(studentId) {
 
   const res = await apiFetch(`/api/students/${studentId}/profile`);
   if (!res.success) {
-    body.innerHTML = `<div class="card" style="padding: 24px; color: var(--accent-rose);">Profil yüklenemedi: ${res.error || 'Bilinmeyen hata'}</div>`;
+    body.innerHTML = `<div class="card" style="padding: 24px; color: var(--accent-rose);">Profile could not be loaded: ${res.error || 'Bilinmeyen hata'}</div>`;
     return;
   }
 
@@ -511,11 +515,11 @@ async function openStudentProfileModal(studentId) {
   }
 
   let letterGrade = '-';
-  if (stats.average_score >= 90) letterGrade = 'AA (Mükemmel)';
-  else if (stats.average_score >= 80) letterGrade = 'BA (Çok İyi)';
-  else if (stats.average_score >= 70) letterGrade = 'BB (İyi)';
-  else if (stats.average_score >= 60) letterGrade = 'CB (Orta)';
-  else if (stats.average_score >= 50) letterGrade = 'CC (Geçer)';
+  if (stats.average_score >= 90) letterGrade = 'AA (Excellent)';
+  else if (stats.average_score >= 80) letterGrade = 'BA (Very Good)';
+  else if (stats.average_score >= 70) letterGrade = 'BB (Good)';
+  else if (stats.average_score >= 60) letterGrade = 'CB (Medium)';
+  else if (stats.average_score >= 50) letterGrade = 'CC (Pass)';
   else if (stats.average_score > 0) letterGrade = 'FF (Yetersiz)';
 
   body.innerHTML = `
@@ -550,7 +554,7 @@ async function openStudentProfileModal(studentId) {
       </div>
     </div>
 
-    <!-- 3, 4, 5, 6. KPI Statistics & Performance Gauges -->
+    <!-- 3, 4, 5, 6. KPI Statistics & Thuformance Gauges -->
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(115px, 1fr)); gap: 12px; margin-bottom: 20px;">
       <!-- Total Tasks -->
       <div class="card" style="padding: 12px 14px; text-align: center; border-radius: 10px; background: var(--bg-card); border: 1px solid var(--border-light);">
@@ -577,7 +581,7 @@ async function openStudentProfileModal(studentId) {
       <div class="card" style="padding: 12px 14px; text-align: center; border-radius: 10px; background: rgba(239, 68, 68, 0.06); border: 1px solid rgba(239, 68, 68, 0.2);">
         <span style="font-size: 10.5px; color: var(--accent-rose); font-weight: 700; text-transform: uppercase;">Late</span>
         <div style="font-size: 20px; font-weight: 800; color: var(--accent-rose); margin-top: 3px;">${stats.late}</div>
-        <span style="font-size: 10px; color: var(--accent-rose);">Gecikmiş</span>
+        <span style="font-size: 10px; color: var(--accent-rose);">Overdue</span>
       </div>
 
       <!-- Needs Revision -->
@@ -604,10 +608,10 @@ async function openStudentProfileModal(studentId) {
       </div>
     </div>
 
-    <!-- 7. Task History Table (Görev Geçmişi ve Grade Detayları) -->
+    <!-- 7. Task History Table (Task History ve Grade Detailsları) -->
     <div class="panel-card" style="padding: 0; overflow: hidden; border: 1px solid var(--border-light); border-radius: 10px; margin-bottom: 20px;">
       <div style="padding: 12px 18px; background: var(--bg-page); border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center;">
-        <strong style="font-size: 13.5px; color: var(--primary-navy);">📋 Görev Geçmişi (Task History - ${task_history.length})</strong>
+        <strong style="font-size: 13.5px; color: var(--primary-navy);">📋 Task History (Task History - ${task_history.length})</strong>
       </div>
       <div class="table-responsive" style="margin: 0; max-height: 260px;">
         <table class="custom-table" style="margin: 0; width: 100%;">
@@ -617,21 +621,21 @@ async function openStudentProfileModal(studentId) {
               <th style="padding: 10px 14px;">Due Date</th>
               <th style="padding: 10px 14px;">Status</th>
               <th style="padding: 10px 14px; text-align: center;">Grade (100)</th>
-              <th style="padding: 10px 14px; text-align: right;">İşlem</th>
+              <th style="padding: 10px 14px; text-align: right;">Action</th>
             </tr>
           </thead>
           <tbody>
             ${task_history.length === 0 ? `<tr><td colspan="5" style="text-align: center; padding: 20px; color: var(--text-muted);">No tasks have been assigned yet.</td></tr>` : ''}
             ${task_history.map(t => {
-              let statusBadgeHtml = '<span class="status-badge badge-pending">Bekliyor</span>';
-              if (t.submission_status === 'Completed' || t.submission_status === 'Kabul Edildi') {
+              let statusBadgeHtml = '<span class="status-badge badge-pending">Pending</span>';
+              if (t.submission_status === 'Completed' || t.submission_status === 'Approved') {
                 statusBadgeHtml = '<span class="status-badge badge-completed">Completed</span>';
               } else if (t.submission_status === 'Revizyon İstendi') {
                 statusBadgeHtml = '<span class="status-badge badge-late">Revizyon</span>';
-              } else if (t.submission_status === 'Teslim Edildi' || t.submission_status === 'Viewniyor') {
+              } else if (t.submission_status === 'Submitted' || t.submission_status === 'Viewniyor') {
                 statusBadgeHtml = '<span class="status-badge badge-reviewing">Viewniyor</span>';
               } else if (t.is_late) {
-                statusBadgeHtml = '<span class="status-badge badge-late">Gecikmiş</span>';
+                statusBadgeHtml = '<span class="status-badge badge-late">Overdue</span>';
               }
 
               return `
@@ -656,7 +660,7 @@ async function openStudentProfileModal(studentId) {
       </div>
     </div>
 
-    <!-- 8. Recent Activity (Son Aktiviteler & Zaman Çizelgesi) -->
+    <!-- 8. Recent Activity (Son Aktiviteler & Timestamp (When) Çizelgesi) -->
     <div class="card" style="padding: 16px; border: 1px solid var(--border-light); background: var(--bg-card); border-radius: 10px;">
       <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
         <span style="font-size: 16px;">⏱️</span>
@@ -741,7 +745,7 @@ async function handleUploadUniversalFile() {
 
   const btn = document.getElementById('btn-submit-universal-file');
   btn.disabled = true;
-  btn.innerHTML = `<span>Yükleniyor...</span>`;
+  btn.innerHTML = `<span>Loading...</span>`;
 
   const formData = new FormData();
   formData.append('task_id', taskId);
@@ -753,7 +757,7 @@ async function handleUploadUniversalFile() {
   });
 
   btn.disabled = false;
-  btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg><span>Dosyayı Sisteme Yükle</span>`;
+  btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg><span>Upload File to System</span>`;
 
   if (res.success) {
     closeModal('modal-universal-upload');
@@ -767,7 +771,7 @@ async function handleUploadUniversalFile() {
 
 // ==================== YARDIMCI GÖRSEL FONKSİYONLAR ====================
 function getStatusBadgeHtml(status) {
-  if (status === 'Completed' || status === 'Completed' || status === 'Kabul Edildi') {
+  if (status === 'Completed' || status === 'Completed' || status === 'Approved') {
     return `<span class="status-badge badge-completed">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
       Completed
@@ -779,37 +783,37 @@ function getStatusBadgeHtml(status) {
       Under Review
     </span>`;
   }
-  if (status === 'Yeniden Teslim Edildi' || status === 'Resubmitted') {
+  if (status === 'Yeniden Submitted' || status === 'Resubmitted') {
     return `<span class="status-badge" style="background: rgba(99, 102, 241, 0.15); color: #6366F1; border: 1px solid rgba(99, 102, 241, 0.3);">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"></polyline><polyline points="23 20 23 14 17 14"></polyline><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path></svg>
       Resubmitted
     </span>`;
   }
-  if (status === 'Teslim Edildi' || status === 'Submitted') {
+  if (status === 'Submitted' || status === 'Submitted') {
     return `<span class="status-badge badge-submitted">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
       Submitted
     </span>`;
   }
-  if (status === 'Düzeltme İstendi' || status === 'Needs Revision') {
+  if (status === 'Needs Revision' || status === 'Needs Revision') {
     return `<span class="status-badge" style="background: rgba(245, 158, 11, 0.15); color: var(--accent-gold); border: 1px solid rgba(245, 158, 11, 0.3);">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
       Needs Revision
     </span>`;
   }
-  if (status === 'Devam Ediyor' || status === 'In Progress') {
+  if (status === 'In Progress' || status === 'In Progress') {
     return `<span class="status-badge" style="background: rgba(139, 92, 246, 0.15); color: #8B5CF6; border: 1px solid rgba(139, 92, 246, 0.3);">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
       In Progress
     </span>`;
   }
-  if (status === 'Görüntülendi' || status === 'Viewed') {
+  if (status === 'Viewed' || status === 'Viewed') {
     return `<span class="status-badge" style="background: rgba(6, 182, 212, 0.15); color: #0891B2; border: 1px solid rgba(6, 182, 212, 0.3);">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
       Viewed
     </span>`;
   }
-  if (status === 'Gecikmiş' || status === 'Overdue') {
+  if (status === 'Overdue' || status === 'Overdue') {
     return `<span class="status-badge" style="background: rgba(244, 63, 94, 0.15); color: var(--accent-rose); border: 1px solid rgba(244, 63, 94, 0.3);">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
       Overdue
@@ -1127,7 +1131,7 @@ function clearCommentFile() {
 async function handleSendComment() {
   const taskId = AppState.currentTaskId;
   if (!taskId) {
-    showToast("Aktif görev bulunamadı.", "error");
+    showToast("Active görev bulunamadı.", "error");
     return;
   }
 
@@ -1144,7 +1148,7 @@ async function handleSendComment() {
   const btn = document.getElementById('btn-send-comment');
   if (btn) {
     btn.disabled = true;
-    btn.innerHTML = `<span>Gönderiliyor...</span>`;
+    btn.innerHTML = `<span>Sendiliyor...</span>`;
   }
 
   try {
@@ -1206,9 +1210,9 @@ function renderTaskComments(comments) {
   }
 
   list.innerHTML = comments.map(c => {
-    let roleBadge = '<span class="status-badge badge-pending" style="font-size:10px;">Öğrenci</span>';
-    if (c.user_role === 'trainer') roleBadge = '<span class="status-badge badge-completed" style="font-size:10px;">Eğitmen</span>';
-    if (c.user_role === 'admin') roleBadge = '<span class="status-badge badge-submitted" style="font-size:10px;">Yönetici</span>';
+    let roleBadge = '<span class="status-badge badge-pending" style="font-size:10px;">Student</span>';
+    if (c.user_role === 'trainer') roleBadge = '<span class="status-badge badge-completed" style="font-size:10px;">Trainer</span>';
+    if (c.user_role === 'admin') roleBadge = '<span class="status-badge badge-submitted" style="font-size:10px;">Administrator</span>';
 
     const isImage = c.is_image || (c.attachment_file && /\.(png|jpg|jpeg|gif|webp|svg)$/i.test(c.attachment_file));
 
@@ -1324,7 +1328,7 @@ const TodayTasksController = {
   },
 
   async renderTodayTasks(container) {
-    container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Yükleniyor...</span></div>`;
+    container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Loading...</span></div>`;
 
     const queryParams = new URLSearchParams();
     if (this.currentFilters.trainer_id !== 'all') queryParams.append('trainer_id', this.currentFilters.trainer_id);
@@ -1399,7 +1403,7 @@ const TodayTasksController = {
           <div class="stat-info">
             <span style="font-size: 11px; font-weight: 700; color: var(--primary-blue); text-transform: uppercase;">In Progress</span>
             <h3 style="font-size: 24px; font-weight: 800; color: var(--primary-blue); margin: 3px 0;">${kpi.in_progress}</h3>
-            <div class="stat-trend neutral"><span style="font-size: 10.5px;">Devam Ediyor</span></div>
+            <div class="stat-trend neutral"><span style="font-size: 10.5px;">In Progress</span></div>
           </div>
         </div>
 
@@ -1453,7 +1457,7 @@ const TodayTasksController = {
           <!-- 2. Trainer Filter -->
           <div>
             <select id="filter-today-trainer" class="form-control" onchange="TodayTasksController.setFilter('trainer_id', this.value)" style="font-size: 12px; padding: 6px 8px; height: 36px;">
-              <option value="all" ${this.currentFilters.trainer_id === 'all' ? 'selected' : ''}>👨‍🏫 Trainer: Tümü</option>
+              <option value="all" ${this.currentFilters.trainer_id === 'all' ? 'selected' : ''}>👨‍🏫 Trainer: All</option>
               ${trainers.map(tr => `<option value="${tr.id}" ${String(this.currentFilters.trainer_id) === String(tr.id) ? 'selected' : ''}>${tr.name}</option>`).join('')}
             </select>
           </div>
@@ -1461,7 +1465,7 @@ const TodayTasksController = {
           <!-- 3. Student Filter -->
           <div>
             <select id="filter-today-student" class="form-control" onchange="TodayTasksController.setFilter('student_id', this.value)" style="font-size: 12px; padding: 6px 8px; height: 36px;">
-              <option value="all" ${this.currentFilters.student_id === 'all' ? 'selected' : ''}>👤 Student: Tümü</option>
+              <option value="all" ${this.currentFilters.student_id === 'all' ? 'selected' : ''}>👤 Student: All</option>
               ${students.map(st => `<option value="${st.id}" ${String(this.currentFilters.student_id) === String(st.id) ? 'selected' : ''}>${st.name}</option>`).join('')}
             </select>
           </div>
@@ -1469,7 +1473,7 @@ const TodayTasksController = {
           <!-- 4. Group Filter -->
           <div>
             <select id="filter-today-group" class="form-control" onchange="TodayTasksController.setFilter('group_id', this.value)" style="font-size: 12px; padding: 6px 8px; height: 36px;">
-              <option value="all" ${this.currentFilters.group_id === 'all' ? 'selected' : ''}>🏢 Grup: Tümü</option>
+              <option value="all" ${this.currentFilters.group_id === 'all' ? 'selected' : ''}>🏢 Grup: All</option>
               ${groups.map(g => `<option value="${g.id}" ${String(this.currentFilters.group_id) === String(g.id) ? 'selected' : ''}>${g.name}</option>`).join('')}
             </select>
           </div>
@@ -1477,7 +1481,7 @@ const TodayTasksController = {
           <!-- 5. Status Filter -->
           <div>
             <select id="filter-today-status" class="form-control" onchange="TodayTasksController.setFilter('status', this.value)" style="font-size: 12px; padding: 6px 8px; height: 36px;">
-              <option value="all" ${this.currentFilters.status === 'all' ? 'selected' : ''}>🚦 Status: Tümü</option>
+              <option value="all" ${this.currentFilters.status === 'all' ? 'selected' : ''}>🚦 Status: All</option>
               <option value="completed" ${this.currentFilters.status === 'completed' ? 'selected' : ''}>✅ Completed</option>
               <option value="in_progress" ${this.currentFilters.status === 'in_progress' ? 'selected' : ''}>🔵 In Progress</option>
               <option value="waiting_review" ${this.currentFilters.status === 'waiting_review' ? 'selected' : ''}>⏳ Waiting Review</option>
@@ -1489,8 +1493,8 @@ const TodayTasksController = {
           <!-- 6. Priority Filter -->
           <div>
             <select id="filter-today-priority" class="form-control" onchange="TodayTasksController.setFilter('priority', this.value)" style="font-size: 12px; padding: 6px 8px; height: 36px;">
-              <option value="all" ${this.currentFilters.priority === 'all' ? 'selected' : ''}>⚡ Priority: Tümü</option>
-              <option value="Acil" ${this.currentFilters.priority === 'Acil' ? 'selected' : ''}>🔴 Acil (Urgent)</option>
+              <option value="all" ${this.currentFilters.priority === 'all' ? 'selected' : ''}>⚡ Priority: All</option>
+              <option value="Urgent" ${this.currentFilters.priority === 'Urgent' ? 'selected' : ''}>🔴 Urgent (Urgent)</option>
               <option value="High" ${this.currentFilters.priority === 'High' ? 'selected' : ''}>🟠 High (High)</option>
               <option value="Normal" ${this.currentFilters.priority === 'Normal' ? 'selected' : ''}>🔵 Normal</option>
               <option value="Low" ${this.currentFilters.priority === 'Low' ? 'selected' : ''}>⚪ Low (Low)</option>
@@ -1511,12 +1515,12 @@ const TodayTasksController = {
             <thead>
               <tr style="background: var(--bg-page); font-size: 11.5px;">
                 <th style="padding: 10px 14px;">Görev Bilgisi</th>
-                <th style="padding: 10px 14px;">Grup & Eğitmen</th>
-                <th style="padding: 10px 14px;">Atanan Öğrenci</th>
+                <th style="padding: 10px 14px;">Grup & Trainer</th>
+                <th style="padding: 10px 14px;">Atanan Student</th>
                 <th style="padding: 10px 14px;">Due Date</th>
                 <th style="padding: 10px 14px;">Priority</th>
                 <th style="padding: 10px 14px;">Status</th>
-                <th style="padding: 10px 14px; text-align: right;">İşlem</th>
+                <th style="padding: 10px 14px; text-align: right;">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -1531,7 +1535,7 @@ const TodayTasksController = {
                 else statusBadge = '<span class="status-badge" style="background: #F1F5F9; color: #64748B; border: 1px solid #CBD5E1;">Grade Started</span>';
 
                 let prioBadge = '';
-                if (t.priority === 'Acil') prioBadge = '<span class="status-badge badge-late">🔴 Acil</span>';
+                if (t.priority === 'Urgent') prioBadge = '<span class="status-badge badge-late">🔴 Urgent</span>';
                 else if (t.priority === 'High') prioBadge = '<span class="status-badge" style="background: #FFF7ED; color: #EA580C; border: 1px solid #FFEDD5;">🟠 High</span>';
                 else if (t.priority === 'Low') prioBadge = '<span class="status-badge" style="background: #F8FAFC; color: #64748B;">⚪ Low</span>';
                 else prioBadge = '<span class="status-badge badge-submitted">🔵 Normal</span>';
@@ -1616,7 +1620,7 @@ const AnnouncementsController = {
   },
 
   async renderAnnouncements(container) {
-    container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Yükleniyor...</span></div>`;
+    container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Loading...</span></div>`;
 
     const queryParams = new URLSearchParams();
     if (this.currentFilters.target !== 'all') queryParams.append('target', this.currentFilters.target);
@@ -1657,7 +1661,7 @@ const AnnouncementsController = {
           <!-- 5 Target Scopes Quick Pills -->
           <div style="display: flex; flex-wrap: wrap; gap: 8px;">
             <button type="button" class="btn-action btn-sm ${this.currentFilters.target === 'all' ? 'btn-primary' : 'btn-secondary'}" onclick="AnnouncementsController.setTargetFilter('all')">
-              🌐 Tümü (${announcements.length})
+              🌐 All (${announcements.length})
             </button>
             <button type="button" class="btn-action btn-sm ${this.currentFilters.target === 'all_users' ? 'btn-primary' : 'btn-secondary'}" onclick="AnnouncementsController.setTargetFilter('all_users')">
               👥 All Users
@@ -1680,11 +1684,11 @@ const AnnouncementsController = {
           <div style="display: flex; gap: 10px; align-items: center;">
             <select class="form-control" style="font-size: 12px; padding: 6px 10px; height: 34px;" onchange="AnnouncementsController.setPriorityFilter(this.value)">
               <option value="all" ${this.currentFilters.priority === 'all' ? 'selected' : ''}>Tüm Priorityler</option>
-              <option value="Acil" ${this.currentFilters.priority === 'Acil' ? 'selected' : ''}>🔴 Acil Duyuru</option>
+              <option value="Urgent" ${this.currentFilters.priority === 'Urgent' ? 'selected' : ''}>🔴 Urgent Duyuru</option>
               <option value="Önemli" ${this.currentFilters.priority === 'Önemli' ? 'selected' : ''}>🟠 Önemli</option>
               <option value="Normal" ${this.currentFilters.priority === 'Normal' ? 'selected' : ''}>🔵 Normal</option>
             </select>
-            <input type="text" placeholder="🔍 Duyurularda ara..." value="${this.currentFilters.search || ''}" oninput="AnnouncementsController.handleSearch(this.value)" class="form-control" style="font-size: 12px; padding: 6px 10px; height: 34px; width: 200px;">
+            <input type="text" placeholder="🔍 Announcementsda ara..." value="${this.currentFilters.search || ''}" oninput="AnnouncementsController.handleSearch(this.value)" class="form-control" style="font-size: 12px; padding: 6px 10px; height: 34px; width: 200px;">
           </div>
         </div>
       </div>
@@ -1700,13 +1704,13 @@ const AnnouncementsController = {
         ` : announcements.map(a => {
           let targetBadge = '';
           if (a.target_type === 'all_users') targetBadge = '<span class="status-badge badge-submitted">👥 All Users (Tüm Userlar)</span>';
-          else if (a.target_type === 'all_students') targetBadge = '<span class="status-badge badge-submitted">🎓 All Students (Tüm Öğrenciler)</span>';
-          else if (a.target_type === 'all_trainers') targetBadge = '<span class="status-badge badge-reviewing">👨‍🏫 All Trainers (Tüm Eğitmenler)</span>';
+          else if (a.target_type === 'all_students') targetBadge = '<span class="status-badge badge-submitted">🎓 All Students (Tüm Studentler)</span>';
+          else if (a.target_type === 'all_trainers') targetBadge = '<span class="status-badge badge-reviewing">👨‍🏫 All Trainers (Tüm Trainerler)</span>';
           else if (a.target_type === 'specific_group') targetBadge = `<span class="status-badge badge-completed">🏢 Group: ${escapeHtml(a.target_group_name || 'Eğitim Grubu')}</span>`;
-          else if (a.target_type === 'specific_students') targetBadge = '<span class="status-badge" style="background: #FAF5FF; color: #9333EA; border: 1px solid #E9D5FF;">👤 Specific Students (Özel Öğrenciler)</span>';
+          else if (a.target_type === 'specific_students') targetBadge = '<span class="status-badge" style="background: #FAF5FF; color: #9333EA; border: 1px solid #E9D5FF;">👤 Specific Students (Özel Studentler)</span>';
 
           let prioBadge = '';
-          if (a.priority === 'Acil') prioBadge = '<span class="status-badge badge-late">🔴 Acil Duyuru</span>';
+          if (a.priority === 'Urgent') prioBadge = '<span class="status-badge badge-late">🔴 Urgent Duyuru</span>';
           else if (a.priority === 'Önemli') prioBadge = '<span class="status-badge" style="background: #FFF7ED; color: #EA580C; border: 1px solid #FFEDD5;">🟠 Önemli</span>';
           else prioBadge = '<span class="status-badge badge-submitted">🔵 Normal</span>';
 
@@ -1826,10 +1830,10 @@ const AnnouncementsController = {
           <label class="form-label" style="font-weight: 700;">Target Audience Seçimi (Section 19: 5 Seçenek) <span style="color: var(--accent-rose);">*</span></label>
           <select id="ann-target-type" class="form-control" onchange="AnnouncementsController.handleTargetTypeChange(this.value)" required style="font-weight: 600;">
             <option value="all_users">👥 All Users (Sistemdeki Tüm Userlar)</option>
-            <option value="all_students">🎓 All Students (Tüm Öğrenciler)</option>
-            <option value="all_trainers">👨‍🏫 All Trainers (Tüm Eğitmenler ve Asistanlar)</option>
+            <option value="all_students">🎓 All Students (Tüm Studentler)</option>
+            <option value="all_trainers">👨‍🏫 All Trainers (Tüm Trainerler ve Asistanlar)</option>
             <option value="specific_group">🏢 Specific Group (Belirli Bir Eğitim Grubu)</option>
-            <option value="specific_students">👤 Specific Students (Belirli Öğrenciler)</option>
+            <option value="specific_students">👤 Specific Students (Belirli Studentler)</option>
           </select>
         </div>
 
@@ -1837,15 +1841,15 @@ const AnnouncementsController = {
         <div id="ann-group-container" style="display: none; padding: 12px; background: var(--bg-page); border-radius: 8px; border: 1px solid var(--border-light);">
           <label class="form-label" style="font-weight: 700;">Eğitim Grubu Seçin <span style="color: var(--accent-rose);">*</span></label>
           <select id="ann-target-group-id" class="form-control">
-            <option value="">-- Grup Seçiniz --</option>
+            <option value="">-- Grup Select --</option>
             ${groups.map(g => `<option value="${g.id}">${g.name} (${g.department})</option>`).join('')}
           </select>
         </div>
 
         <!-- Dynamic Sub-Picker: Specific Students Multi-Select -->
         <div id="ann-students-container" style="display: none; padding: 12px; background: var(--bg-page); border-radius: 8px; border: 1px solid var(--border-light);">
-          <label class="form-label" style="font-weight: 700;">Öğrencileri Seçin (Birden Fazla Seçebilirsiniz) <span style="color: var(--accent-rose);">*</span></label>
-          <input type="text" placeholder="🔍 Öğrenci ara..." oninput="AnnouncementsController.filterStudentCheckboxes(this.value)" class="form-control" style="font-size: 11.5px; padding: 5px 8px; margin-bottom: 8px;">
+          <label class="form-label" style="font-weight: 700;">Studentleri Seçin (Birden Fazla Seçebilirsiniz) <span style="color: var(--accent-rose);">*</span></label>
+          <input type="text" placeholder="🔍 Student ara..." oninput="AnnouncementsController.filterStudentCheckboxes(this.value)" class="form-control" style="font-size: 11.5px; padding: 5px 8px; margin-bottom: 8px;">
           <div id="ann-students-list" style="max-height: 160px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; background: #fff; padding: 8px; border-radius: 6px; border: 1px solid var(--border-light);">
             ${students.map(s => `
               <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; padding: 2px 4px;" class="ann-student-item" data-name="${s.name.toLowerCase()}">
@@ -1861,12 +1865,12 @@ const AnnouncementsController = {
           <select id="ann-priority" class="form-control">
             <option value="Normal">🔵 Normal</option>
             <option value="Önemli">🟠 Önemli</option>
-            <option value="Acil">🔴 Acil Duyuru</option>
+            <option value="Urgent">🔴 Urgent Duyuru</option>
           </select>
         </div>
 
         <div>
-          <label class="form-label" style="font-weight: 700;">Duyuru İçeriği ve Enabledlama <span style="color: var(--accent-rose);">*</span></label>
+          <label class="form-label" style="font-weight: 700;">Announcement Content ve Enabledlama <span style="color: var(--accent-rose);">*</span></label>
           <textarea id="ann-message" rows="5" class="form-control" placeholder="Duyuru detaylarını, talimatları ve gerekli bağlantıları buraya yazınız..." required></textarea>
         </div>
 
@@ -1880,7 +1884,7 @@ const AnnouncementsController = {
         <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
           <button type="button" class="btn-action btn-secondary" onclick="closeUniversalModal()">Cancel</button>
           <button type="submit" class="btn-action btn-primary" id="btn-save-announcement">
-            <span>📢 Duyuruyu Yayınla</span>
+            <span>📢 Publish Announcement</span>
           </button>
         </div>
       </form>
@@ -1925,7 +1929,7 @@ const AnnouncementsController = {
       if (!target_group_id) {
         showToast('Lütfen bir eğitim grubu seçin.', 'error');
         btn.disabled = false;
-        btn.innerText = '📢 Duyuruyu Yayınla';
+        btn.innerText = '📢 Publish Announcement';
         return;
       }
     } else if (target_type === 'specific_students') {
@@ -1934,7 +1938,7 @@ const AnnouncementsController = {
       if (target_student_ids.length === 0) {
         showToast('Lütfen en az bir öğrenci seçin.', 'error');
         btn.disabled = false;
-        btn.innerText = '📢 Duyuruyu Yayınla';
+        btn.innerText = '📢 Publish Announcement';
         return;
       }
     }
@@ -1955,7 +1959,7 @@ const AnnouncementsController = {
     });
 
     btn.disabled = false;
-    btn.innerText = '📢 Duyuruyu Yayınla';
+    btn.innerText = '📢 Publish Announcement';
 
     if (res.success) {
       showToast(res.message || 'Duyuru başarıyla yayınlandı!');
@@ -1986,7 +1990,7 @@ const CalendarController = {
   },
 
   async renderCalendar(container) {
-    container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Yükleniyor...</span></div>`;
+    container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Loading...</span></div>`;
 
     const queryParams = new URLSearchParams({
       year: this.currentYear,
@@ -2020,7 +2024,7 @@ const CalendarController = {
           <div>
             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
               <span style="font-size: 24px;">📅</span>
-              <h2 style="font-size: 19px; font-weight: 800; color: #FFFFFF; margin: 0;">20. Calendar (Genel Akademik Takvim)</h2>
+              <h2 style="font-size: 19px; font-weight: 800; color: #FFFFFF; margin: 0;">20. Calendar (Genel Academic Calendar)</h2>
               <span class="status-badge" style="background: rgba(59, 130, 246, 0.2); color: #60A5FA; border: 1px solid rgba(96, 165, 250, 0.3);">6 Category Desteği</span>
             </div>
             <p style="color: #94A3B8; font-size: 12.5px; margin: 0; max-width: 750px;">
@@ -2198,7 +2202,7 @@ const CalendarController = {
       return `
         <div class="panel-card" style="text-align: center; padding: 48px 20px; color: var(--text-muted);">
           <div style="font-size: 36px; margin-bottom: 10px;">📅</div>
-          <strong style="font-size: 14px; color: var(--primary-navy); display: block; margin-bottom: 4px;">Bu Ayda Planlanmış Etkinlik Bulunmuyor</strong>
+          <strong style="font-size: 14px; color: var(--primary-navy); display: block; margin-bottom: 4px;">This Monthda Planlanmış Etkinlik Bulunmuyor</strong>
           <p style="font-size: 12.5px; margin: 0;">Seçilen filtre ve kategorilere uygun takvim öğesi bulunamadı.</p>
         </div>
       `;
@@ -2331,7 +2335,7 @@ const CalendarController = {
     const modalBody = document.getElementById('universal-modal-body');
     const modalTitle = document.getElementById('universal-modal-title');
 
-    modalTitle.innerHTML = `📅 20. Yeni Takvim Öğesi Ekle (Akademik Takvim)`;
+    modalTitle.innerHTML = `📅 20. Yeni Takvim Öğesi Ekle (Academic Calendar)`;
     modalBody.innerHTML = `
       <form id="create-calendar-event-form" onsubmit="CalendarController.handleCreateSubmit(event)" style="display: flex; flex-direction: column; gap: 14px;">
         <div>
@@ -2360,11 +2364,11 @@ const CalendarController = {
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
           <div>
-            <label class="form-label" style="font-weight: 700;">Başlangıç Saati</label>
+            <label class="form-label" style="font-weight: 700;">Başlangıç Timei</label>
             <input type="time" id="cal-start-time" value="10:00" class="form-control">
           </div>
           <div>
-            <label class="form-label" style="font-weight: 700;">Bitiş Saati</label>
+            <label class="form-label" style="font-weight: 700;">Bitiş Timei</label>
             <input type="time" id="cal-end-time" value="11:30" class="form-control">
           </div>
         </div>
@@ -2414,7 +2418,7 @@ const CalendarController = {
     e.preventDefault();
     const btn = document.getElementById('btn-save-cal-event');
     btn.disabled = true;
-    btn.innerText = 'Kaydediliyor...';
+    btn.innerText = 'Saving...';
 
     const title = document.getElementById('cal-title').value.trim();
     const event_type = document.getElementById('cal-event-type').value;
@@ -2473,7 +2477,7 @@ const CalendarController = {
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
         <strong style="font-size: 13.5px; color: var(--primary-navy);">${events.length} Planlı Öğe Bulundu</strong>
         <button class="btn-action btn-primary btn-sm" onclick="closeUniversalModal(); CalendarController.openCreateEventModal('${dateStr}')">
-          + Bu Güne Etkinlik Ekle
+          + Bu Güne Add Event
         </button>
       </div>
 
@@ -2523,16 +2527,16 @@ const ReportsController = {
   lastReportData: null,
 
   reportTabs: [
-    { id: 'student_performance', title: '1. Öğrenci Performansı', icon: '🎓', desc: 'Student Performance Report' },
-    { id: 'trainer_performance', title: '2. Eğitmen Performansı', icon: '👨‍🏫', desc: 'Trainer Performance Report' },
-    { id: 'group_performance', title: '3. Grup Performansı', icon: '🏢', desc: 'Group Performance Report' },
+    { id: 'student_performance', title: '1. Student Thuformansı', icon: '🎓', desc: 'Student Thuformance Report' },
+    { id: 'trainer_performance', title: '2. Trainer Thuformansı', icon: '👨‍🏫', desc: 'Trainer Thuformance Report' },
+    { id: 'group_performance', title: '3. Grup Thuformansı', icon: '🏢', desc: 'Group Thuformance Report' },
     { id: 'tasks_report', title: '4. Tasks & Submissions', icon: '📋', desc: 'Tasks Distribution Report' },
     { id: 'late_tasks_report', title: '5. Overdue Tasks', icon: '⏰', desc: 'Overdue & Risk Analysis Report' },
     { id: 'activity_attendance_report', title: '6. Aktivite & Katılım', icon: '⚡', desc: 'Activity / Attendance Report' }
   ],
 
   async renderReports(container) {
-    container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Yükleniyor...</span></div>`;
+    container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Loading...</span></div>`;
 
     const queryParams = new URLSearchParams({
       type: this.currentReportType,
@@ -2565,12 +2569,12 @@ const ReportsController = {
               <span class="status-badge" style="background: rgba(59, 130, 246, 0.2); color: #60A5FA; border: 1px solid rgba(96, 165, 250, 0.3);">6 Temel Rapor Modülü</span>
             </div>
             <p style="color: #94A3B8; font-size: 12.5px; margin: 0; max-width: 750px;">
-              Student Performance, Trainer Performance, Group Performance, Tasks Report, Late Tasks Report, ve Activity/Attendance Report.
+              Student Thuformance, Trainer Thuformance, Group Thuformance, Tasks Report, Late Tasks Report, ve Activity/Attendance Report.
             </p>
           </div>
           <div style="display: flex; align-items: center; gap: 10px;">
             <button class="btn-action btn-secondary" onclick="ReportsController.exportToCsv()" style="padding: 8px 14px; font-size: 12.5px; background: rgba(255,255,255,0.1); color: #FFF; border: 1px solid rgba(255,255,255,0.2);">
-              📥 CSV Olarak İndir
+              📥 Export CSV
             </button>
             <button class="btn-action btn-primary" onclick="window.print()" style="padding: 8px 14px; font-size: 12.5px;">
               🖨️ Yazdır / PDF
@@ -2610,7 +2614,7 @@ const ReportsController = {
             <!-- Trainer Filter -->
             ${this.currentReportType === 'student_performance' ? `
               <select class="form-control" style="font-size: 12px; padding: 5px 10px; height: 34px; width: 170px;" onchange="ReportsController.setTrainerFilter(this.value)">
-                <option value="all" ${this.currentFilters.trainer === 'all' ? 'selected' : ''}>👨‍🏫 Tüm Eğitmenler</option>
+                <option value="all" ${this.currentFilters.trainer === 'all' ? 'selected' : ''}>👨‍🏫 Tüm Trainerler</option>
                 ${trainers.map(tr => `<option value="${tr.id}" ${String(this.currentFilters.trainer) === String(tr.id) ? 'selected' : ''}>${escapeHtml(tr.name)}</option>`).join('')}
               </select>
             ` : ''}
@@ -2641,44 +2645,44 @@ const ReportsController = {
     let items = [];
     if (type === 'student_performance') {
       items = [
-        { label: 'Toplam Öğrenci', val: kpis.total_students || 0, icon: '🎓', color: '#2563EB' },
-        { label: 'Sınıf Grade Ortalaması', val: `${kpis.class_average_grade || 0} / 100`, icon: '📈', color: '#059669' },
+        { label: 'Toplam Student', val: kpis.total_students || 0, icon: '🎓', color: '#2563EB' },
+        { label: 'Sınıf Grade Mediumlaması', val: `${kpis.class_average_grade || 0} / 100`, icon: '📈', color: '#059669' },
         { label: 'Average Score Oranı', val: `%${kpis.average_completion_rate || 0}`, icon: '🎯', color: '#7C3AED' },
         { label: 'High Başarılı (>85)', val: kpis.high_achievers_count || 0, icon: '⭐', color: '#D97706' }
       ];
     } else if (type === 'trainer_performance') {
       items = [
-        { label: 'Aktif Eğitmen Sayısı', val: kpis.total_trainers || 0, icon: '👨‍🏫', color: '#2563EB' },
-        { label: 'Alınan Toplam Teslim', val: kpis.total_submissions_received || 0, icon: '📥', color: '#059669' },
+        { label: 'Active Trainer Sayısı', val: kpis.total_trainers || 0, icon: '👨‍🏫', color: '#2563EB' },
+        { label: 'Alınan Total Submissions', val: kpis.total_submissions_received || 0, icon: '📥', color: '#059669' },
         { label: 'Tamamlanan Viewmeler', val: kpis.total_reviews_completed || 0, icon: '✅', color: '#7C3AED' },
-        { label: 'Ortalama Viewme Oranı', val: `%${kpis.average_review_rate || 0}`, icon: '⚡', color: '#D97706' }
+        { label: 'Mediumlama Viewme Oranı', val: `%${kpis.average_review_rate || 0}`, icon: '⚡', color: '#D97706' }
       ];
     } else if (type === 'group_performance') {
       items = [
         { label: 'Toplam Eğitim Grubu', val: kpis.total_groups || 0, icon: '🏢', color: '#2563EB' },
         { label: 'Kayıtlı Toplam Kursiyer', val: kpis.total_enrolled_students || 0, icon: '👥', color: '#059669' },
-        { label: 'Genel Grade Ortalaması', val: `${kpis.group_overall_average || 0} / 100`, icon: '📊', color: '#7C3AED' },
+        { label: 'Genel Grade Mediumlaması', val: `${kpis.group_overall_average || 0} / 100`, icon: '📊', color: '#7C3AED' },
         { label: 'En Başarılı Grup', val: kpis.top_group_name || '-', icon: '🏆', color: '#D97706' }
       ];
     } else if (type === 'tasks_report') {
       items = [
-        { label: 'Toplam Görev Sayısı', val: kpis.total_tasks || 0, icon: '📋', color: '#2563EB' },
-        { label: 'Ortalama Teslim Oranı', val: `%${kpis.average_turnin_rate || 0}`, icon: '📈', color: '#059669' },
-        { label: 'Ortalama Görev Gradeu', val: `${kpis.average_task_grade || 0} / 100`, icon: '🎯', color: '#7C3AED' },
+        { label: 'Total Tasks Sayısı', val: kpis.total_tasks || 0, icon: '📋', color: '#2563EB' },
+        { label: 'Mediumlama Teslim Oranı', val: `%${kpis.average_turnin_rate || 0}`, icon: '📈', color: '#059669' },
+        { label: 'Mediumlama Görev Gradeu', val: `${kpis.average_task_grade || 0} / 100`, icon: '🎯', color: '#7C3AED' },
         { label: 'Urgent Priority Tasks', val: kpis.urgent_tasks_count || 0, icon: '🚨', color: '#DC2626' }
       ];
     } else if (type === 'late_tasks_report') {
       items = [
         { label: 'Toplam Overdue Görev', val: kpis.total_late_tasks || 0, icon: '⏰', color: '#DC2626' },
         { label: 'Kritik Gecikme (>7 Gün)', val: kpis.critical_overdue_count || 0, icon: '🔴', color: '#B91C1C' },
-        { label: 'Orta Düzey Gecikme', val: kpis.moderate_overdue_count || 0, icon: '🟠', color: '#EA580C' },
+        { label: 'Medium Düzey Gecikme', val: kpis.moderate_overdue_count || 0, icon: '🟠', color: '#EA580C' },
         { label: 'Pending Urgent Tasks', val: kpis.pending_urgent_count || 0, icon: '⚠️', color: '#D97706' }
       ];
     } else if (type === 'activity_attendance_report') {
       items = [
         { label: 'İzlenen Userlar', val: kpis.total_monitored_users || 0, icon: '👥', color: '#2563EB' },
-        { label: 'High Aktiflik (High)', val: kpis.high_activity_users || 0, icon: '🟢', color: '#059669' },
-        { label: 'Orta Aktiflik (Moderate)', val: kpis.moderate_activity_users || 0, icon: '🟡', color: '#D97706' },
+        { label: 'High Activelik (High)', val: kpis.high_activity_users || 0, icon: '🟢', color: '#059669' },
+        { label: 'Medium Activelik (Moderate)', val: kpis.moderate_activity_users || 0, icon: '🟡', color: '#D97706' },
         { label: 'Low / İnaktif User', val: kpis.low_activity_users || 0, icon: '⚪', color: '#64748B' }
       ];
     }
@@ -2714,13 +2718,13 @@ const ReportsController = {
         <table class="data-table" style="width: 100%; border-collapse: collapse; font-size: 12.5px;">
           <thead>
             <tr style="background: var(--bg-page); border-bottom: 1px solid var(--border-light); text-align: left;">
-              <th style="padding: 12px 16px;">Öğrenci Bilgisi</th>
-              <th style="padding: 12px 16px;">Eğitim Grubu & Eğitmen</th>
-              <th style="padding: 12px 16px; text-align: center;">Toplam Görev</th>
+              <th style="padding: 12px 16px;">Student Bilgisi</th>
+              <th style="padding: 12px 16px;">Eğitim Grubu & Trainer</th>
+              <th style="padding: 12px 16px; text-align: center;">Total Tasks</th>
               <th style="padding: 12px 16px; text-align: center;">Tamamlanan</th>
-              <th style="padding: 12px 16px;">Başarı Oranı</th>
-              <th style="padding: 12px 16px; text-align: center;">Grade Ortalaması</th>
-              <th style="padding: 12px 16px; text-align: center;">İşlem</th>
+              <th style="padding: 12px 16px;">Success Rate</th>
+              <th style="padding: 12px 16px; text-align: center;">Grade Mediumlaması</th>
+              <th style="padding: 12px 16px; text-align: center;">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -2772,9 +2776,9 @@ const ReportsController = {
         <table class="data-table" style="width: 100%; border-collapse: collapse; font-size: 12.5px;">
           <thead>
             <tr style="background: var(--bg-page); border-bottom: 1px solid var(--border-light); text-align: left;">
-              <th style="padding: 12px 16px;">Eğitmen</th>
+              <th style="padding: 12px 16px;">Trainer</th>
               <th style="padding: 12px 16px;">Rol & Gruplar</th>
-              <th style="padding: 12px 16px; text-align: center;">Bağlı Öğrenci</th>
+              <th style="padding: 12px 16px; text-align: center;">Bağlı Student</th>
               <th style="padding: 12px 16px; text-align: center;">Oluşturulan Görev</th>
               <th style="padding: 12px 16px; text-align: center;">Alınan Teslim</th>
               <th style="padding: 12px 16px; text-align: center;">Viewnen</th>
@@ -2803,7 +2807,7 @@ const ReportsController = {
                 <td style="padding: 12px 16px; text-align: center;">${r.submissions_received}</td>
                 <td style="padding: 12px 16px; text-align: center;">
                   <span class="status-badge badge-completed" style="font-size: 11px;">${r.reviewed_submissions}</span>
-                  ${r.pending_reviews > 0 ? `<span class="status-badge badge-late" style="margin-left: 4px; font-size: 10px;">${r.pending_reviews} Bekliyor</span>` : ''}
+                  ${r.pending_reviews > 0 ? `<span class="status-badge badge-late" style="margin-left: 4px; font-size: 10px;">${r.pending_reviews} Pending</span>` : ''}
                 </td>
                 <td style="padding: 12px 16px; min-width: 130px;">
                   <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; margin-bottom: 3px;">
@@ -2830,11 +2834,11 @@ const ReportsController = {
             <tr style="background: var(--bg-page); border-bottom: 1px solid var(--border-light); text-align: left;">
               <th style="padding: 12px 16px;">Grup Adı</th>
               <th style="padding: 12px 16px;">Bölüm / Program</th>
-              <th style="padding: 12px 16px;">Sorumlu Eğitmen</th>
+              <th style="padding: 12px 16px;">Sorumlu Trainer</th>
               <th style="padding: 12px 16px; text-align: center;">Kayıtlı Kursiyer</th>
               <th style="padding: 12px 16px; text-align: center;">Group Tasks</th>
-              <th style="padding: 12px 16px;">Başarı Oranı</th>
-              <th style="padding: 12px 16px; text-align: center;">Grup Grade Ortalaması</th>
+              <th style="padding: 12px 16px;">Success Rate</th>
+              <th style="padding: 12px 16px; text-align: center;">Grup Grade Mediumlaması</th>
             </tr>
           </thead>
           <tbody>
@@ -2874,9 +2878,9 @@ const ReportsController = {
           <thead>
             <tr style="background: var(--bg-page); border-bottom: 1px solid var(--border-light); text-align: left;">
               <th style="padding: 12px 16px;">Task Title</th>
-              <th style="padding: 12px 16px;">Grup & Eğitmen</th>
+              <th style="padding: 12px 16px;">Grup & Trainer</th>
               <th style="padding: 12px 16px;">Due Date</th>
-              <th style="padding: 12px 16px; text-align: center;">Atanan Öğrenci</th>
+              <th style="padding: 12px 16px; text-align: center;">Atanan Student</th>
               <th style="padding: 12px 16px; text-align: center;">Teslim Sayısı</th>
               <th style="padding: 12px 16px;">Teslim Oranı</th>
               <th style="padding: 12px 16px; text-align: center;">Average Grade</th>
@@ -2887,7 +2891,7 @@ const ReportsController = {
               <tr style="border-bottom: 1px solid var(--border-light);">
                 <td style="padding: 12px 16px;">
                   <strong style="color: var(--primary-navy); display: block;">📋 ${escapeHtml(r.task_title)}</strong>
-                  <span class="status-badge" style="font-size: 10px; margin-top: 3px; ${r.priority === 'Acil' ? 'background: #FEE2E2; color: #DC2626;' : 'background: #EFF6FF; color: #2563EB;'}">${r.priority}</span>
+                  <span class="status-badge" style="font-size: 10px; margin-top: 3px; ${r.priority === 'Urgent' ? 'background: #FEE2E2; color: #DC2626;' : 'background: #EFF6FF; color: #2563EB;'}">${r.priority}</span>
                 </td>
                 <td style="padding: 12px 16px;">
                   <span class="status-badge badge-submitted" style="font-size: 11px;">🏢 ${escapeHtml(r.group_name || 'Individual')}</span>
@@ -2922,12 +2926,12 @@ const ReportsController = {
           <thead>
             <tr style="background: var(--bg-page); border-bottom: 1px solid var(--border-light); text-align: left;">
               <th style="padding: 12px 16px;">Overdue Görev</th>
-              <th style="padding: 12px 16px;">Öğrenci Bilgisi</th>
-              <th style="padding: 12px 16px;">Grup & Eğitmen</th>
+              <th style="padding: 12px 16px;">Student Bilgisi</th>
+              <th style="padding: 12px 16px;">Grup & Trainer</th>
               <th style="padding: 12px 16px;">Due Date</th>
               <th style="padding: 12px 16px; text-align: center;">Gecikme Süresi</th>
               <th style="padding: 12px 16px; text-align: center;">Status</th>
-              <th style="padding: 12px 16px; text-align: center;">İşlem</th>
+              <th style="padding: 12px 16px; text-align: center;">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -2975,7 +2979,7 @@ const ReportsController = {
             <tr style="background: var(--bg-page); border-bottom: 1px solid var(--border-light); text-align: left;">
               <th style="padding: 12px 16px;">User</th>
               <th style="padding: 12px 16px;">Rol</th>
-              <th style="padding: 12px 16px; text-align: center;">Teslimler</th>
+              <th style="padding: 12px 16px; text-align: center;">Submissions</th>
               <th style="padding: 12px 16px; text-align: center;">Comment & Mesajlar</th>
               <th style="padding: 12px 16px; text-align: center;">Alınan Bildirimler</th>
               <th style="padding: 12px 16px; text-align: center;">Aktivite Skoru</th>
@@ -2985,7 +2989,7 @@ const ReportsController = {
           <tbody>
             ${records.map(r => {
               let levelBadge = '<span class="status-badge badge-completed">🟢 High</span>';
-              if (r.activity_level.includes('Moderate')) levelBadge = '<span class="status-badge badge-reviewing">🟡 Orta</span>';
+              if (r.activity_level.includes('Moderate')) levelBadge = '<span class="status-badge badge-reviewing">🟡 Medium</span>';
               else if (r.activity_level.includes('Low')) levelBadge = '<span class="status-badge" style="background: #F1F5F9; color: #64748B;">⚪ Low</span>';
 
               return `
@@ -3006,7 +3010,7 @@ const ReportsController = {
                   <td style="padding: 12px 16px; text-align: center; font-weight: 700;">${r.comments_count}</td>
                   <td style="padding: 12px 16px; text-align: center;">${r.notifications_received}</td>
                   <td style="padding: 12px 16px; text-align: center;">
-                    <strong style="font-size: 13.5px; color: var(--primary-navy);">${r.activity_score} Puan</strong>
+                    <strong style="font-size: 13.5px; color: var(--primary-navy);">${r.activity_score} Points</strong>
                   </td>
                   <td style="padding: 12px 16px; text-align: center;">
                     ${levelBadge}
@@ -3108,7 +3112,7 @@ const AuditLogsController = {
     'tasks': '📋 Task Management',
     'submissions': '📝 Teslimat & Gradelandırma',
     'announcements': '📢 Duyuru Yönetimi',
-    'calendar': '📅 Takvim İşlemleri',
+    'calendar': '📅 Takvim Actionsi',
     'auth': '🔐 Oturum & Kimlik'
   },
 
@@ -3144,7 +3148,7 @@ const AuditLogsController = {
           </div>
           <div style="display: flex; align-items: center; gap: 10px;">
             <button class="btn-action btn-secondary" onclick="AuditLogsController.exportLogsCsv()" style="padding: 8px 14px; font-size: 12.5px; background: rgba(255,255,255,0.1); color: #FFF; border: 1px solid rgba(255,255,255,0.2);">
-              📥 CSV Olarak İndir
+              📥 Export CSV
             </button>
             <button class="btn-action btn-primary" onclick="AuditLogsController.refresh()" style="padding: 8px 14px; font-size: 12.5px;">
               🔄 Yenile
@@ -3165,7 +3169,7 @@ const AuditLogsController = {
 
         <div class="panel-card" style="padding: 16px 18px; border-radius: 10px; background: var(--bg-card); border: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between;">
           <div>
-            <div style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px;">Bugünkü İşlemler</div>
+            <div style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px;">Bugünkü Actions</div>
             <div style="font-size: 20px; font-weight: 800; color: #059669;">${auditData.today_count}</div>
           </div>
           <div style="font-size: 24px; padding: 8px; background: var(--bg-page); border-radius: 8px;">⚡</div>
@@ -3181,7 +3185,7 @@ const AuditLogsController = {
 
         <div class="panel-card" style="padding: 16px 18px; border-radius: 10px; background: var(--bg-card); border: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between;">
           <div>
-            <div style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px;">İşlem Yapan User</div>
+            <div style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px;">Action Yapan User</div>
             <div style="font-size: 20px; font-weight: 800; color: #7C3AED;">${auditData.active_users_count}</div>
           </div>
           <div style="font-size: 24px; padding: 8px; background: var(--bg-page); border-radius: 8px;">👥</div>
@@ -3209,10 +3213,10 @@ const AuditLogsController = {
 
             <!-- Date Range Filter -->
             <select class="form-control" style="font-size: 12px; padding: 5px 10px; height: 34px; width: 140px;" onchange="AuditLogsController.setFilter('dateRange', this.value)">
-              <option value="all" ${this.filters.dateRange === 'all' ? 'selected' : ''}>📅 Tüm Zamanlar</option>
+              <option value="all" ${this.filters.dateRange === 'all' ? 'selected' : ''}>📅 All Time</option>
               <option value="today" ${this.filters.dateRange === 'today' ? 'selected' : ''}>Bugün</option>
-              <option value="week" ${this.filters.dateRange === 'week' ? 'selected' : ''}>Son 7 Gün</option>
-              <option value="month" ${this.filters.dateRange === 'month' ? 'selected' : ''}>Son 30 Gün</option>
+              <option value="week" ${this.filters.dateRange === 'week' ? 'selected' : ''}>Last 7 Days</option>
+              <option value="month" ${this.filters.dateRange === 'month' ? 'selected' : ''}>Last 30 Days</option>
             </select>
 
             <!-- Search Input -->
@@ -3252,13 +3256,13 @@ const AuditLogsController = {
       <table class="data-table" style="width: 100%; border-collapse: collapse; font-size: 12px;">
         <thead>
           <tr style="background: var(--bg-page); border-bottom: 1px solid var(--border-light); text-align: left;">
-            <th style="padding: 12px 14px; width: 145px;">⏰ Zaman (When)</th>
+            <th style="padding: 12px 14px; width: 145px;">⏰ Timestamp (When) (When)</th>
             <th style="padding: 12px 14px;">👤 User (Who)</th>
-            <th style="padding: 12px 14px;">⚡ İşlem (What)</th>
-            <th style="padding: 12px 14px;">📝 Detaylı Enabledlama</th>
+            <th style="padding: 12px 14px;">⚡ Action (What)</th>
+            <th style="padding: 12px 14px;">📝 Detailslı Enabledlama</th>
             <th style="padding: 12px 14px; text-align: center;">🌐 IP Address</th>
             <th style="padding: 12px 14px; text-align: center;">🛡️ Düzey</th>
-            <th style="padding: 12px 14px; text-align: center;">İşlem</th>
+            <th style="padding: 12px 14px; text-align: center;">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -3304,7 +3308,7 @@ const AuditLogsController = {
                 </td>
                 <td style="padding: 12px 14px; text-align: center;">
                   <button class="btn-action btn-secondary btn-sm" onclick="AuditLogsController.openDetailModal(${log.id})" style="padding: 3px 8px; font-size: 11px;">
-                    🔍 Detay
+                    🔍 Details
                   </button>
                 </td>
               </tr>
@@ -3362,7 +3366,7 @@ const AuditLogsController = {
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border-light); padding-bottom: 12px;">
           <div style="display: flex; align-items: center; gap: 8px;">
             <span style="font-size: 20px;">🛡️</span>
-            <h3 style="margin: 0; font-size: 16px; color: var(--primary-navy);">Denetim Kaydı Detayı (#${log.id})</h3>
+            <h3 style="margin: 0; font-size: 16px; color: var(--primary-navy);">Denetim Kaydı Detailsı (#${log.id})</h3>
           </div>
           <button type="button" class="btn-action btn-secondary" onclick="closeUniversalModal()" style="padding: 4px 8px; font-size: 12px;">✕</button>
         </div>
@@ -3398,11 +3402,11 @@ const AuditLogsController = {
             <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; margin-bottom: 4px;">🔄 DEĞER DEĞİŞİKLİKLERİ (DIFF / CHANGES)</div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
               <div>
-                <span style="font-size: 10.5px; font-weight: 700; color: var(--accent-rose);">Önceki Değerler (Old):</span>
+                <span style="font-size: 10.5px; font-weight: 700; color: var(--accent-rose);">Old Values (Old):</span>
                 <pre style="background: #FFF1F2; border: 1px solid #FECDD3; color: #9F1239; padding: 8px; border-radius: 6px; font-size: 11px; overflow-x: auto; margin-top: 2px;">${JSON.stringify(log.old_values || {}, null, 2)}</pre>
               </div>
               <div>
-                <span style="font-size: 10.5px; font-weight: 700; color: var(--accent-emerald);">Yeni Değerler (New):</span>
+                <span style="font-size: 10.5px; font-weight: 700; color: var(--accent-emerald);">New Values (New):</span>
                 <pre style="background: #ECFDF5; border: 1px solid #A7F3D0; color: #065F46; padding: 8px; border-radius: 6px; font-size: 11px; overflow-x: auto; margin-top: 2px;">${JSON.stringify(log.new_values || {}, null, 2)}</pre>
               </div>
             </div>
@@ -3424,7 +3428,7 @@ const AuditLogsController = {
       return;
     }
 
-    const headers = ['ID', 'Zaman', 'Kullanici_ID', 'Kullanici_Adi', 'Rol', 'Eposta', 'Islem', 'Category', 'Aciklama', 'IP_Adresi', 'Guvenlik_Duzeyi'];
+    const headers = ['ID', 'Timestamp (When)', 'Kullanici_ID', 'Kullanici_Adi', 'Rol', 'Eposta', 'Islem', 'Category', 'Aciklama', 'IP_Adresi', 'Guvenlik_Duzeyi'];
     let csv = headers.join(',') + '\n';
 
     this.cachedLogs.forEach(l => {
@@ -3550,7 +3554,7 @@ const DatabaseSchemaController = {
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
           <div style="display: flex; gap: 6px; flex-wrap: wrap;">
             <button type="button" class="btn-action ${this.currentCategory === 'all' ? 'btn-primary' : 'btn-secondary'}" onclick="DatabaseSchemaController.setCategory('all')" style="padding: 6px 12px; font-size: 12px; border-radius: 6px;">
-              Tümü (${schema.tables.length})
+              All (${schema.tables.length})
             </button>
             ${schema.categories.map(c => `
               <button type="button" class="btn-action ${this.currentCategory === c.category_name ? 'btn-primary' : 'btn-secondary'}" onclick="DatabaseSchemaController.setCategory('${escapeHtml(c.category_name)}')" style="padding: 6px 12px; font-size: 12px; border-radius: 6px;">
@@ -3673,7 +3677,7 @@ const DatabaseSchemaController = {
 
           <!-- Section D: Communication -->
           <div style="padding: 14px; background: var(--bg-page); border-radius: 8px; border-left: 4px solid #D97706; border: 1px solid var(--border-light);">
-            <strong style="color: #D97706; font-size: 13px;">4. İletişim, Duyurular ve Takvim</strong>
+            <strong style="color: #D97706; font-size: 13px;">4. İletişim, Announcements ve Takvim</strong>
             <ul style="font-size: 12px; color: var(--text-secondary); margin: 8px 0 0 16px; padding: 0;">
               <li><code>notifications</code> ──< (1:N) >── <code>notification_recipients</code></li>
               <li><code>announcements</code> ──< (1:N) >── <code>announcement_recipients</code></li>
@@ -3910,10 +3914,10 @@ const SettingsController = {
   renderUI(container) {
     // Group settings by category
     const categories = {
-      'general': { name: 'Genel & Akademik', icon: '🎓', desc: 'Üniversite, akademik yıl, dönem ve sistem başlık ayarları' },
-      'submission': { name: 'Teslimat & Dosya Politikası', icon: '📁', desc: 'Maksimum dosya boyutu, formatlar ve geç teslimat kuralları' },
-      'notification': { name: 'Bildirimler & E-Posta', icon: '🔔', desc: 'E-posta şablonları, anlık bildirim kanalları ve hatırlatmalar' },
-      'security': { name: 'Güvenlik & Oturum', icon: '🛡️', desc: 'Şifre politikası, oturum zaman aşımı ve denetim log saklama süresi' }
+      'general': { name: 'General & Academic', icon: '🎓', desc: 'Üniversite, akademik yıl, dönem ve sistem başlık ayarları' },
+      'submission': { name: 'Submission & File Policy', icon: '📁', desc: 'Maksimum dosya boyutu, formatlar ve geç teslimat kuralları' },
+      'notification': { name: 'Bildirimler & Email', icon: '🔔', desc: 'E-posta şablonları, anlık bildirim kanalları ve hatırlatmalar' },
+      'security': { name: 'Security & Session', icon: '🛡️', desc: 'Password politikası, oturum zaman aşımı ve denetim log saklama süresi' }
     };
 
     const currentCatSettings = this.settings.filter(s => (s.category || 'general') === this.activeCategory);
@@ -3925,7 +3929,7 @@ const SettingsController = {
             <div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; background: rgba(59,130,246,0.25); border: 1px solid rgba(59,130,246,0.4); border-radius: 20px; font-size: 11px; font-weight: 700; color: #93C5FD; text-transform: uppercase; margin-bottom: 8px;">
               ⚙️ SECTION 26.29 • SİSTEM AYARLARI MERKEZİ
             </div>
-            <h2 style="font-size: 22px; font-weight: 800; margin: 0 0 6px 0; color: #FFFFFF;">Sistem Parametreleri & Konfigürasyon</h2>
+            <h2 style="font-size: 22px; font-weight: 800; margin: 0 0 6px 0; color: #FFFFFF;">System Parameters & Konfigürasyon</h2>
             <p style="font-size: 13px; color: #94A3B8; margin: 0; max-width: 650px;">
               Üniversite akademik takvim parametreleri, dosya yükleme limitleri, geç teslimat politikaları ve güvenlik yapılandırmalarını bu panelden yönetebilirsiniz.
             </p>
@@ -3969,7 +3973,7 @@ const SettingsController = {
           </div>
 
           <div style="margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 12px;">
-            <button type="button" class="btn-action btn-secondary" onclick="SettingsController.resetToDefaults()">Varsayılanlara Dön</button>
+            <button type="button" class="btn-action btn-secondary" onclick="SettingsController.resetToDefaults()">Reset to Defaults</button>
             <button type="submit" class="btn-action btn-primary" style="padding: 9px 24px; font-weight: 700;">💾 Save Settings</button>
           </div>
         </form>
@@ -3987,23 +3991,23 @@ const SettingsController = {
         </div>
 
         <div class="form-group">
-          <label style="font-size: 12.5px; font-weight: 600; color: var(--text-dark); margin-bottom: 6px; display: block;">Aktif Akademik Yıl</label>
+          <label style="font-size: 12.5px; font-weight: 600; color: var(--text-dark); margin-bottom: 6px; display: block;">Active Akademik Yıl</label>
           <input type="text" id="set_academic_year" class="form-control" value="2025-2026" style="font-size: 13px;">
           <small style="color: var(--text-muted); font-size: 11px;">Raporlama ve grup atamalarında varsayılan akademik yıl.</small>
         </div>
 
         <div class="form-group">
-          <label style="font-size: 12.5px; font-weight: 600; color: var(--text-dark); margin-bottom: 6px; display: block;">Aktif Dönem</label>
+          <label style="font-size: 12.5px; font-weight: 600; color: var(--text-dark); margin-bottom: 6px; display: block;">Active Dönem</label>
           <select id="set_active_semester" class="form-control" style="font-size: 13px;">
-            <option value="Güz Dönemi">Güz Dönemi</option>
-            <option value="Bahar Dönemi" selected>Bahar Dönemi</option>
-            <option value="Yaz Okulu">Yaz Okulu</option>
+            <option value="Fall Semester">Fall Semester</option>
+            <option value="Spring Semester" selected>Spring Semester</option>
+            <option value="Summer School">Summer School</option>
           </select>
-          <small style="color: var(--text-muted); font-size: 11px;">Aktif ders ve ödev takviminin işlendiği dönem.</small>
+          <small style="color: var(--text-muted); font-size: 11px;">Active ders ve ödev takviminin işlendiği dönem.</small>
         </div>
 
         <div class="form-group">
-          <label style="font-size: 12.5px; font-weight: 600; color: var(--text-dark); margin-bottom: 6px; display: block;">Kurumsal İletişim E-Postası</label>
+          <label style="font-size: 12.5px; font-weight: 600; color: var(--text-dark); margin-bottom: 6px; display: block;">Kurumsal İletişim Emailsı</label>
           <input type="email" id="set_support_email" class="form-control" value="destek@universite.edu.tr" style="font-size: 13px;">
           <small style="color: var(--text-muted); font-size: 11px;">Yardım ve destek taleplerinin yönlendirileceği e-posta.</small>
         </div>
@@ -4013,7 +4017,7 @@ const SettingsController = {
         <div class="form-group">
           <label style="font-size: 12.5px; font-weight: 600; color: var(--text-dark); margin-bottom: 6px; display: block;">Max Upload File Size (MB)</label>
           <input type="number" id="set_max_upload_size" class="form-control" value="25" min="5" max="100" style="font-size: 13px;">
-          <small style="color: var(--text-muted); font-size: 11px;">Öğrenci teslimatlarında kabul edilecek tekil dosya limiti.</small>
+          <small style="color: var(--text-muted); font-size: 11px;">Student teslimatlarında kabul edilecek tekil dosya limiti.</small>
         </div>
 
         <div class="form-group">
@@ -4023,16 +4027,16 @@ const SettingsController = {
         </div>
 
         <div class="form-group">
-          <label style="font-size: 12.5px; font-weight: 600; color: var(--text-dark); margin-bottom: 6px; display: block;">Geç Teslimat Politikası</label>
+          <label style="font-size: 12.5px; font-weight: 600; color: var(--text-dark); margin-bottom: 6px; display: block;">Late Submissionat Politikası</label>
           <select id="set_allow_late_submission" class="form-control" style="font-size: 13px;">
-            <option value="true" selected>İzin Ver (Ceza Puanı ile)</option>
+            <option value="true" selected>İzin Ver (Ceza Pointsı ile)</option>
             <option value="false">Kesinlikle İzin Verme (Due Datede Kilitlenir)</option>
           </select>
           <small style="color: var(--text-muted); font-size: 11px;">Son teslim tarihinden sonra öğrencinin ödev yükleyebilme durumu.</small>
         </div>
 
         <div class="form-group">
-          <label style="font-size: 12.5px; font-weight: 600; color: var(--text-dark); margin-bottom: 6px; display: block;">Günlük Geç Teslimat Puan Kesintisi (%)</label>
+          <label style="font-size: 12.5px; font-weight: 600; color: var(--text-dark); margin-bottom: 6px; display: block;">Günlük Late Submissionat Points Kesintisi (%)</label>
           <input type="number" id="set_late_penalty_rate" class="form-control" value="5" min="0" max="50" style="font-size: 13px;">
           <small style="color: var(--text-muted); font-size: 11px;">Overdue her 24 saat için toplam puandan düşülecek yüzde.</small>
         </div>
@@ -4040,16 +4044,16 @@ const SettingsController = {
     } else if (cat === 'notification') {
       return `
         <div class="form-group">
-          <label style="font-size: 12.5px; font-weight: 600; color: var(--text-dark); margin-bottom: 6px; display: block;">Yaklaşan Teslimat Hatırlatması (Saat Önce)</label>
+          <label style="font-size: 12.5px; font-weight: 600; color: var(--text-dark); margin-bottom: 6px; display: block;">Yaklaşan Teslimat Hatırlatması (Time Önce)</label>
           <input type="number" id="set_deadline_reminder_hours" class="form-control" value="24" min="1" max="72" style="font-size: 13px;">
           <small style="color: var(--text-muted); font-size: 11px;">Son teslim tarihine belirtilen saat kala otomatik bildirim gönderilir.</small>
         </div>
 
         <div class="form-group">
-          <label style="font-size: 12.5px; font-weight: 600; color: var(--text-dark); margin-bottom: 6px; display: block;">Otomatik E-Posta Bildirimleri</label>
+          <label style="font-size: 12.5px; font-weight: 600; color: var(--text-dark); margin-bottom: 6px; display: block;">Otomatik Email Bildirimleri</label>
           <select id="set_enable_email_notifications" class="form-control" style="font-size: 13px;">
-            <option value="true" selected>Aktif (Ödev ataması ve notlandırmada e-posta gönder)</option>
-            <option value="false">Pasif (Yalnızca web portal içi bildirimler)</option>
+            <option value="true" selected>Active (Ödev ataması ve notlandırmada e-posta gönder)</option>
+            <option value="false">Inactive (Yalnızca web portal içi bildirimler)</option>
           </select>
           <small style="color: var(--text-muted); font-size: 11px;">SMTP e-posta sunucusu üzerinden anlık uyarı iletimi.</small>
         </div>
@@ -4057,7 +4061,7 @@ const SettingsController = {
     } else if (cat === 'security') {
       return `
         <div class="form-group">
-          <label style="font-size: 12.5px; font-weight: 600; color: var(--text-dark); margin-bottom: 6px; display: block;">Oturum Zaman Aşımı (Dakika)</label>
+          <label style="font-size: 12.5px; font-weight: 600; color: var(--text-dark); margin-bottom: 6px; display: block;">Oturum Timestamp (When) Aşımı (Dakika)</label>
           <input type="number" id="set_session_timeout_minutes" class="form-control" value="120" min="15" max="1440" style="font-size: 13px;">
           <small style="color: var(--text-muted); font-size: 11px;">Hareketsiz kalan kullanıcı oturumunun otomatik kapatılma süresi.</small>
         </div>
@@ -4069,10 +4073,10 @@ const SettingsController = {
         </div>
 
         <div class="form-group">
-          <label style="font-size: 12.5px; font-weight: 600; color: var(--text-dark); margin-bottom: 6px; display: block;">Şifre Karmaşıklık Politikası</label>
+          <label style="font-size: 12.5px; font-weight: 600; color: var(--text-dark); margin-bottom: 6px; display: block;">Password Karmaşıklık Politikası</label>
           <select id="set_password_complexity" class="form-control" style="font-size: 13px;">
             <option value="high" selected>High (En az 8 karakter, büyük harf, rakam ve özel karakter)</option>
-            <option value="medium">Orta (En az 6 karakter, harf ve rakam)</option>
+            <option value="medium">Medium (En az 6 karakter, harf ve rakam)</option>
           </select>
           <small style="color: var(--text-muted); font-size: 11px;">User şifre güncellemelerinde uygulanacak güvenlik standardı.</small>
         </div>
@@ -4092,7 +4096,7 @@ const SettingsController = {
         settings: {
           system_name: 'Üniversite Görev ve Eğitim Yönetim Platformu (TTMS)',
           academic_year: '2025-2026',
-          active_semester: 'Bahar Dönemi',
+          active_semester: 'Spring Semester',
           updated_at: new Date().toISOString()
         }
       });

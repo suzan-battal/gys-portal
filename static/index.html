@@ -10,6 +10,16 @@
     if (window.location.protocol.startsWith('http') && window.location.port !== '8080') {
       window.location.href = 'http://localhost:8080' + window.location.pathname + window.location.search;
     }
+    // Global Application State defined immediately on window
+    window.AppState = {
+      currentUser: null,
+      token: localStorage.getItem('gys_auth_token') || null,
+      currentTab: 'home',
+      selectedFile: null,
+      universalSelectedFile: null,
+      activeTaskId: null,
+      deleteCallback: null
+    };
   </script>
   <link rel="stylesheet" href="/css/style.css">
 </head>
@@ -18,7 +28,7 @@
   <!-- Background Mesh Effect -->
   <div class="bg-mesh"></div>
 
-  <!-- Toast Notification Container -->
+  <!-- Toast Gradeification Container -->
   <div id="toast-container" class="toast-container"></div>
 
   <!-- ========================================== -->
@@ -88,7 +98,7 @@
             <span class="role-dot" style="background: #DC2626;"></span>
             <div>
               <strong style="display: block; color: var(--primary-navy);">Super Admin</strong>
-              <div style="font-size:10px; color:var(--text-muted);">26/26 Full Permissions</div>
+              <div style="font-size:10px; color:var(--text-muted);">26/26 Full Thumissions</div>
             </div>
           </a>
           <a href="/auth/demo/admin" onclick="event.preventDefault(); window.directLogin('admin');" class="btn-demo" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px; cursor: pointer;">
@@ -200,29 +210,29 @@
             <span>Upload File</span>
           </button>
 
-          <!-- Notification Bell & Center -->
+          <!-- Gradeification Bell & Center -->
           <div class="notification-dropdown-container" style="position: relative;">
-            <button type="button" class="btn-icon" id="btn-notification-bell" onclick="toggleNotificationDropdown()" title="Notifications" style="position: relative; background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 8px; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+            <button type="button" class="btn-icon" id="btn-notification-bell" onclick="toggleGradeificationDropdown()" title="Gradeifications" style="position: relative; background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 8px; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-main);"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
               <span id="notif-unread-count" style="display: none; position: absolute; top: -4px; right: -4px; background: var(--accent-rose); color: #fff; font-size: 10px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: none; align-items: center; justify-content: center; border: 2px solid #fff;">0</span>
             </button>
             <div id="notif-dropdown-menu" style="display: none; position: absolute; right: 0; top: 48px; width: 360px; max-height: 460px; background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.12); z-index: 1000; overflow: hidden; flex-direction: column;">
               <div style="padding: 12px 16px; border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center; background: var(--bg-page);">
                 <div style="display: flex; align-items: center; gap: 6px;">
-                  <strong style="font-size: 13.5px; color: var(--primary-navy);">🔔 Notification Center</strong>
+                  <strong style="font-size: 13.5px; color: var(--primary-navy);">🔔 Gradeification Center</strong>
                   <span id="notif-header-total" class="status-badge badge-submitted" style="font-size: 10px;">0</span>
                 </div>
-                <button type="button" onclick="markAllNotificationsRead()" style="background: none; border: none; color: var(--primary-blue); font-size: 11.5px; cursor: pointer; font-weight: 600;">Mark All as Read</button>
+                <button type="button" onclick="markAllGradeificationsRead()" style="background: none; border: none; color: var(--primary-blue); font-size: 11.5px; cursor: pointer; font-weight: 600;">Mark All as Read</button>
               </div>
 
               <!-- Filter Tabs (All / Unread) -->
               <div style="display: flex; background: var(--bg-page); border-bottom: 1px solid var(--border-light); padding: 4px 12px; gap: 8px;">
-                <button type="button" id="notif-filter-all" onclick="filterNotifications('all')" style="background: var(--primary-blue); color: #fff; border: none; border-radius: 4px; padding: 3px 8px; font-size: 11px; font-weight: 600; cursor: pointer;">All</button>
-                <button type="button" id="notif-filter-unread" onclick="filterNotifications('unread')" style="background: transparent; color: var(--text-secondary); border: 1px solid var(--border-light); border-radius: 4px; padding: 3px 8px; font-size: 11px; font-weight: 600; cursor: pointer;">Unread</button>
+                <button type="button" id="notif-filter-all" onclick="filterGradeifications('all')" style="background: var(--primary-blue); color: #fff; border: none; border-radius: 4px; padding: 3px 8px; font-size: 11px; font-weight: 600; cursor: pointer;">All</button>
+                <button type="button" id="notif-filter-unread" onclick="filterGradeifications('unread')" style="background: transparent; color: var(--text-secondary); border: 1px solid var(--border-light); border-radius: 4px; padding: 3px 8px; font-size: 11px; font-weight: 600; cursor: pointer;">Unread</button>
               </div>
 
               <div id="notif-dropdown-list" style="overflow-y: auto; max-height: 360px;">
-                <!-- Dynamic Notification List -->
+                <!-- Dynamic Gradeification List -->
               </div>
             </div>
           </div>
@@ -326,7 +336,7 @@
           <div class="form-group">
             <label for="user-role">Role / Authority (6 Roles)</label>
             <select id="user-role" required>
-              <option value="super_admin">👑 Super Admin (Full Permissions)</option>
+              <option value="super_admin">👑 Super Admin (Full Thumissions)</option>
               <option value="admin">🛡️ Administrator (System Admin)</option>
               <option value="training_manager">🎓 Training Manager (Academic Coordinator)</option>
               <option value="trainer">👨‍🏫 Trainer (Faculty Instructor)</option>
@@ -615,14 +625,14 @@
             </div>
           </div>
 
-          <!-- Solution Link & Student Notes -->
+          <!-- Solution Link & Student Gradees -->
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px;">
             <div class="form-group" style="margin-bottom:0;">
               <label for="submission-link">Student Project / Solution Link (URL)</label>
               <input type="url" id="submission-link" placeholder="e.g. https://github.com/username/project">
             </div>
             <div class="form-group" style="margin-bottom:0;">
-              <label for="submission-notes">Student Note / Submission Description</label>
+              <label for="submission-notes">Student Gradee / Submission Description</label>
               <input type="text" id="submission-notes" placeholder="e.g. Bonus question implemented...">
             </div>
           </div>
@@ -759,14 +769,14 @@
             </div>
           </div>
 
-          <!-- Student Solution Link and Notes -->
+          <!-- Student Solution Link and Gradees -->
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
             <div id="review-link-box" style="padding: 10px 12px; background: var(--bg-page); border: 1px solid var(--border-light); border-radius: 8px;">
               <span style="font-size:11px; font-weight:700; color:var(--text-muted); display:block; margin-bottom:4px; text-transform:uppercase;">🔗 Solution / Project Link (URL)</span>
               <a id="review-student-link" href="#" target="_blank" style="color:var(--primary-blue); font-size:12.5px; font-weight:600; text-decoration:none; word-break:break-all;">-</a>
             </div>
             <div id="review-notes-box" style="padding: 10px 12px; background: var(--bg-page); border: 1px solid var(--border-light); border-radius: 8px;">
-              <span style="font-size:11px; font-weight:700; color:var(--text-muted); display:block; margin-bottom:4px; text-transform:uppercase;">💬 Student Note (Notes)</span>
+              <span style="font-size:11px; font-weight:700; color:var(--text-muted); display:block; margin-bottom:4px; text-transform:uppercase;">💬 Student Gradee (Gradees)</span>
               <div id="review-student-notes" style="color:var(--text-secondary); font-size:12.5px; line-height:1.4;">-</div>
             </div>
           </div>
@@ -829,10 +839,10 @@
             <div class="form-group" style="margin-bottom:0;">
               <label for="review-status" style="font-weight:700;">Evaluation Decision *</label>
               <select id="review-status" required style="font-weight:600;">
-                <option value="Tamamlandı">🟢 Approve & Accept Submission</option>
-                <option value="Düzeltme İstendi">🟡 Request Revision (Needs Revision)</option>
-                <option value="Reddedildi">🔴 Reject Submission</option>
-                <option value="İnceleniyor">🟣 Under Review</option>
+                <option value="Completed">🟢 Approve & Accept Submission</option>
+                <option value="Needs Revision">🟡 Request Revision (Needs Revision)</option>
+                <option value="Rejected">🔴 Reject Submission</option>
+                <option value="Under Review">🟣 Under Review</option>
               </select>
             </div>
             <div class="form-group" style="margin-bottom:0;">
@@ -847,7 +857,7 @@
             <textarea id="review-feedback" rows="3" placeholder="Write constructive feedback, areas for improvement, or commendations for the student..."></textarea>
           </div>
 
-          <!-- Automatic Notification Banner -->
+          <!-- Automatic Gradeification Banner -->
           <div style="display:flex; align-items:center; gap:8px; padding:8px 12px; background: rgba(59, 130, 246, 0.08); border-radius:6px; border:1px solid rgba(59, 130, 246, 0.2);">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--primary-blue);"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
             <span style="font-size:11.5px; color:var(--primary-navy); font-weight:600;">An automated notification will be instantly sent to the student upon saving this evaluation.</span>
@@ -857,7 +867,7 @@
           <button type="button" class="btn-action btn-secondary" onclick="closeModal('modal-review')">Cancel</button>
           <button type="submit" class="btn-action btn-primary" id="btn-save-review" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%);">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            <span>Save Evaluation & Notify Student</span>
+            <span>Save Evaluation & Gradeify Student</span>
           </button>
         </div>
       </form>
@@ -964,11 +974,17 @@
       .then(function(r) { return r.json(); })
       .then(function(data) {
         if (data.success && data.token) {
-          AppState.token = data.token;
-          AppState.currentUser = data.user;
+          if (window.AppState) {
+            window.AppState.token = data.token;
+            window.AppState.currentUser = data.user;
+          }
           localStorage.setItem('gys_auth_token', data.token);
           if (typeof showToast === 'function') showToast("Welcome, " + data.user.name + "!", "success");
-          if (typeof renderAuthenticatedUI === 'function') renderAuthenticatedUI();
+          if (typeof renderAuthenticatedUI === 'function') {
+            renderAuthenticatedUI();
+          } else {
+            window.location.href = '/?token=' + data.token + '&role=' + data.user.role;
+          }
         } else {
           alert(data.error || "Login failed");
         }
