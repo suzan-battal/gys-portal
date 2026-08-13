@@ -1,6 +1,6 @@
 /**
  * Üniversite Task Management System - Administrator Paneli Denetleyicisi (admin.js)
- * İstatistikler, Student/Trainer/User CRUD, Eğitim Groupları (Training Groups) ve Tasks Yönetimi.
+ * İstatistikler, Student/Trainer/User CRUD, Training Groupları (Training Groups) ve Tasks Yönetimi.
  */
 
 const AdminController = {
@@ -289,7 +289,7 @@ const AdminController = {
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
           <div style="display: flex; align-items: center; gap: 8px;">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--primary-blue);"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
-            <strong style="font-size: 15px; color: var(--primary-navy);">11. Training Groups Thuformance (Eğitim Groupları Başarı ve İlerleme Tablosu)</strong>
+            <strong style="font-size: 15px; color: var(--primary-navy);">11. Training Groups Thuformance (Training Groupları Başarı ve İlerleme Tablosu)</strong>
           </div>
           <button class="btn-action btn-primary btn-sm" onclick="switchTab('groups')">Manage All Groups</button>
         </div>
@@ -718,7 +718,7 @@ const AdminController = {
       <div class="panel-card">
         <div class="panel-header">
           <div class="panel-header-left">
-            <h3>Student Teslim ve Gradelandırma Listesi (${submissions.length})</h3>
+            <h3>Student Submissions & Grading Registry (${submissions.length})</h3>
           </div>
         </div>
         <div class="table-responsive">
@@ -764,7 +764,7 @@ const AdminController = {
                       ${s.file_path ? `
                         <a href="/uploads/${encodeURIComponent(s.file_path)}" download="${s.original_filename || s.file_path}" target="_blank" class="btn-action btn-secondary btn-sm" style="font-size:11.5px; padding:4px 8px;">
                           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                          ${s.original_filename || 'Dosya İndir'}
+                          ${s.original_filename || 'Dosya Download'}
                         </a>
                       ` : ''}
                       ${s.student_link ? `
@@ -804,15 +804,15 @@ const AdminController = {
       <div id="modal-group-custom" class="modal-overlay active">
         <div class="modal-box" style="max-width: 620px; max-height: 85vh; display: flex; flex-direction: column; overflow: hidden;">
           <div class="modal-header">
-            <h3>Yeni Eğitim Grubu (Training Group) Oluştur</h3>
+            <h3>Yeni Training Group (Training Group) Oluştur</h3>
             <button class="modal-close-btn" onclick="document.getElementById('modal-group-custom').remove()">&times;</button>
           </div>
           <form onsubmit="AdminController.handleSaveGroup(event, null)" style="display: flex; flex-direction: column; overflow: hidden; flex: 1;">
             <div class="modal-body" style="overflow-y: auto; max-height: calc(85vh - 130px); padding: 16px 20px;">
               <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                 <div class="form-group">
-                  <label>Group / Şube Adı *</label>
-                  <input type="text" id="group-name" placeholder="Örn: Yazılım Mühendisliği - Şube A" required>
+                  <label>Group / Section Adı *</label>
+                  <input type="text" id="group-name" placeholder="Örn: Yazılım Mühendisliği - Section A" required>
                 </div>
                 <div class="form-group">
                   <label>Bölüm / Uzmanlık Alanı *</label>
@@ -904,14 +904,14 @@ const AdminController = {
       <div id="modal-group-custom" class="modal-overlay active">
         <div class="modal-box" style="max-width: 620px; max-height: 85vh; display: flex; flex-direction: column; overflow: hidden;">
           <div class="modal-header">
-            <h3>Eğitim Grubunu Edit: ${g.name}</h3>
+            <h3>Training Groupnu Edit: ${g.name}</h3>
             <button class="modal-close-btn" onclick="document.getElementById('modal-group-custom').remove()">&times;</button>
           </div>
           <form onsubmit="AdminController.handleSaveGroup(event, ${g.id})" style="display: flex; flex-direction: column; overflow: hidden; flex: 1;">
             <div class="modal-body" style="overflow-y: auto; max-height: calc(85vh - 130px); padding: 16px 20px;">
               <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                 <div class="form-group">
-                  <label>Group / Şube Adı *</label>
+                  <label>Group / Section Adı *</label>
                   <input type="text" id="group-name" value="${g.name}" required>
                 </div>
                 <div class="form-group">
@@ -960,7 +960,7 @@ const AdminController = {
               </div>
               <div class="form-group" style="margin-bottom:0;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                  <label style="margin-bottom:0;">Gruba Enrolled Studentsler (${enrolledIds.length} Seçili)</label>
+                  <label style="margin-bottom:0;">Gruba Enrolled Studentsler (${enrolledIds.length} Selectili)</label>
                   <span style="font-size:11.5px; color:var(--text-muted);">Student ekleyin veya çıkarın</span>
                 </div>
                 <div style="max-height:110px; overflow-y:auto; border:1px solid var(--border-light); padding:8px 12px; border-radius:8px; background:var(--bg-page);">
@@ -1011,7 +1011,7 @@ const AdminController = {
     if (res.success) {
       const modal = document.getElementById('modal-group-custom');
       if (modal) modal.remove();
-      showToast(groupId ? "Eğitim grubu güncellendi." : "Eğitim grubu başarıyla oluşturuldu.", "success");
+      showToast(groupId ? "Training grubu güncellendi." : "Training grubu başarıyla oluşturuldu.", "success");
       switchTab('groups');
     } else {
       showToast(res.error || "Group kaydedilirken hata oluştu.", "error");
@@ -1021,7 +1021,7 @@ const AdminController = {
   deleteGroup(groupId, groupName) {
     openConfirmModal(
       'Grubu Delete',
-      `"${groupName}" adlı eğitim grubunu silmek istediğinizden emin misiniz?`,
+      `"${groupName}" Are you sure you want to delete this training group?`,
       async () => {
         const res = await apiFetch(`/api/groups/${groupId}`, { method: 'DELETE' });
         if (res.success) {
@@ -1191,7 +1191,7 @@ const AdminController = {
   deleteTask(taskId, taskTitle) {
     openConfirmModal(
       'Tasksi Delete',
-      `"${taskTitle}" başlıklı görevi silmek istediğinizden emin misiniz?`,
+      `"${taskTitle}" Are you sure you want to delete this task?`,
       async () => {
         const res = await apiFetch(`/api/tasks/${taskId}`, { method: 'DELETE' });
         if (res.success) {

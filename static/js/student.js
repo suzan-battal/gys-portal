@@ -1,6 +1,6 @@
 /**
- * Üniversite Görev Yönetim Sistemi - Student Paneli Denetleyicisi (student.js)
- * Görev takibi, haftalık çalışma grafiği, dosya teslimi, not ve geri bildirim görüntüleme.
+ * Üniversite Task Yönetim Sistemi - Student Paneli Denetleyicisi (student.js)
+ * Task takibi, haftalık çalışma grafiği, dosya teslimi, not ve geri bildirim görüntüleme.
  */
 
 const StudentController = {
@@ -110,7 +110,7 @@ const StudentController = {
 
       <!-- 2-Kolonlu Zengin Düzen (2/3 Sol + 1/3 Sağ) -->
       <div class="dashboard-grid-2col">
-        <!-- SOL: Haftalık İlerleme & Görev Tablosu -->
+        <!-- SOL: Haftalık İlerleme & Task Tablosu -->
         <div>
           <!-- Weekly Activity Bar Chart -->
           <div class="chart-card">
@@ -201,7 +201,7 @@ const StudentController = {
           </div>
         </div>
 
-        <!-- SAĞ: Donut Grafik, Mini Takvim, Announcements -->
+        <!-- SAĞ: Donut Grafik, Mini Calendar, Announcements -->
         <div>
           <!-- Academic Achievement Rate Donut Widgetı -->
           <div class="donut-widget">
@@ -223,7 +223,7 @@ const StudentController = {
             </div>
             <div style="display: flex; justify-content: space-around; font-size: 12px; border-top: 1px solid var(--border-subtle); padding-top: 14px;">
               <div>
-                <span style="color:var(--text-muted); display:block;">Teslim Edilen</span>
+                <span style="color:var(--text-muted); display:block;">Submitted</span>
                 <strong style="color:var(--accent-emerald);">${stats.submitted_tasks + stats.reviewed_tasks}</strong>
               </div>
               <div>
@@ -364,7 +364,7 @@ const StudentController = {
             </thead>
             <tbody>
               ${filteredTasks.length === 0 ? `
-                <tr><td colspan="6" class="empty-state">Bu filtreye uygun bir görev bulunmamaktadır.</td></tr>
+                <tr><td colspan="6" class="empty-state">No tasks match the selected filter.</td></tr>
               ` : filteredTasks.map(t => `
                 <tr>
                   <td class="text-main">
@@ -456,7 +456,7 @@ const StudentController = {
     `;
   },
 
-  // ==================== GÖREV DETAY & DOSYA YÜKLEME MODALI ====================
+  // ==================== GÖREV DETAY & FILE YÜKLEME MODALI ====================
   async openTaskDetailModal(taskId) {
     AppState.activeTaskId = taskId;
     AppState.selectedFile = null;
@@ -589,7 +589,7 @@ const StudentController = {
       alreadyFileBox.style.display = 'none';
     }
 
-    // Section 7: Teslim Geçmişi ve Revizyonlar (Submission History)
+    // Section 7: Teslim Latemişi ve Revizyonlar (Submission History)
     const historyBox = document.getElementById('detail-submission-history-box');
     const historyList = document.getElementById('detail-submission-history-list');
     const historyCountBadge = document.getElementById('detail-history-count-badge');
@@ -598,7 +598,7 @@ const StudentController = {
     if (historyBox && historyList) {
       if (history.length > 0) {
         historyBox.style.display = 'block';
-        if (historyCountBadge) historyCountBadge.textContent = `${history.length} Teslim Kaydı`;
+        if (historyCountBadge) historyCountBadge.textContent = `${history.length} Submission Attempts`;
         
         historyList.innerHTML = history.map((sub, idx) => `
           <div style="background: var(--bg-page); border: 1px solid var(--border-light); border-radius: 8px; padding: 10px 14px; font-size: 13px;">
@@ -644,7 +644,7 @@ const StudentController = {
     if (modalEl) modalEl.dataset.taskId = taskId;
     AppState.currentTaskId = taskId;
 
-    // Section 10: Görev İçi Yorumları Listele (Task Comments)
+    // Section 10: Task İçi Commentsı Listele (Task Comments)
     if (typeof renderTaskComments === 'function') {
       renderTaskComments(t.comments || []);
     }
@@ -653,7 +653,7 @@ const StudentController = {
   }
 };
 
-// ==================== ÖĞRENCİ OLAYLARI VE DOSYA ACTIONSİ ====================
+// ==================== ÖĞRENCİ OLAYLARI VE FILE ACTIONSİ ====================
 function handleFileSelected(e) {
   const file = e.target.files[0];
   if (!file) return;
@@ -671,7 +671,7 @@ function handleFileSelected(e) {
   const filesize = document.getElementById('selected-filesize');
 
   if (filename) filename.textContent = file.name;
-  if (filesize) filesize.textContent = `(${formatFileSize(file.size)})`;
+  if (filesize) filesize.textContent = `(${formatFileYoue(file.size)})`;
   if (preview) preview.style.display = 'flex';
 }
 
@@ -713,7 +713,7 @@ async function handleUploadTaskSubmission() {
   if (!file) {
     if (studentLink || studentGradees) {
       // Link veya not girildiyse otomatik çözüm raporu belgesi oluştur
-      const content = `ÖĞRENCİ ÖDEV TESLİM VE ÇÖZÜM RAPORU\n=========================================\n\nProje / Kaynak Linki:\n${studentLink || 'Grade specified'}\n\nStudent Gradeu ve Descriptionları:\n${studentGradees || 'Grade specified'}\n\nSubmission Date: ${new Date().toLocaleString('tr-TR')}\n`;
+      const content = `STUDENT ASSIGNMENT SUBMISSION & SOLUTION REPORT\n=========================================\n\nProject / Repository Link:\n${studentLink || 'Grade specified'}\n\nStudent Gradeu ve Descriptionları:\n${studentGradees || 'Grade specified'}\n\nSubmission Date: ${new Date().toLocaleString('tr-TR')}\n`;
       const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
       file = new File([blob], 'ogrenci_cozum_raporu.txt', { type: 'text/plain' });
     } else {

@@ -1,5 +1,5 @@
 /**
- * Üniversite Görev Yönetim Sistemi - Trainer Paneli Denetleyicisi (trainer.js)
+ * Üniversite Task Yönetim Sistemi - Trainer Paneli Denetleyicisi (trainer.js)
  * Trainer istatistikleri, haftalık teslim grafiği, bağlı öğrenciler, görev oluşturma ve notlandırma.
  */
 
@@ -81,7 +81,7 @@ const TrainerController = {
                     </button>
                     <button class="btn-action btn-primary btn-sm" style="margin-left:6px; width:auto;" onclick="TrainerController.openAddTaskModal()">
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                      Görev Ata
+                      Task Ata
                     </button>
                   </td>
                 </tr>
@@ -113,7 +113,7 @@ const TrainerController = {
       <div class="welcome-hero" style="margin-bottom: 24px;">
         <div class="welcome-hero-content">
           <h2>Welcome, Sn. ${user.name} 👋</h2>
-          <p>15. Trainer Dashboard (Trainer Kontrol Paneli). Sorumlu olduğunuz öğrencileri, aktif görevleri, inceleme bekleyen teslimleri ve grup ilerleme oranlarını anlık yönetin.</p>
+          <p>15. Trainer Dashboard (Trainer Control Hub). Manage your assigned students, active assignments, pending submissions, and group progress rates in real-time.</p>
         </div>
         <div class="welcome-hero-actions">
           <button class="btn-hero-action" onclick="TrainerController.openAddTaskModal()">
@@ -146,7 +146,7 @@ const TrainerController = {
           <div class="stat-info">
             <span style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">2. Active Tasks</span>
             <h3 style="font-size: 26px; font-weight: 800; color: var(--primary-blue); margin: 4px 0;">${kpi.active_tasks}</h3>
-            <div class="stat-trend neutral"><span>Devam Eden Görev</span></div>
+            <div class="stat-trend neutral"><span>Devam Eden Task</span></div>
           </div>
           <div class="stat-icon-wrapper icon-purple">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
@@ -170,7 +170,7 @@ const TrainerController = {
           <div class="stat-info">
             <span style="font-size: 11.5px; font-weight: 700; color: var(--accent-rose); text-transform: uppercase;">4. Late Tasks</span>
             <h3 style="font-size: 26px; font-weight: 800; color: var(--accent-rose); margin: 4px 0;">${kpi.late_tasks}</h3>
-            <div class="stat-trend" style="color: var(--accent-rose); font-weight: 600;"><span>Geciken Görev</span></div>
+            <div class="stat-trend" style="color: var(--accent-rose); font-weight: 600;"><span>Overdue Tasks</span></div>
           </div>
           <div class="stat-icon-wrapper" style="background: rgba(239, 68, 68, 0.1); color: var(--accent-rose);">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
@@ -182,7 +182,7 @@ const TrainerController = {
           <div class="stat-info">
             <span style="font-size: 11.5px; font-weight: 700; color: var(--accent-emerald); text-transform: uppercase;">5. Completed Today</span>
             <h3 style="font-size: 26px; font-weight: 800; color: var(--accent-emerald); margin: 4px 0;">${kpi.completed_today}</h3>
-            <div class="stat-trend positive"><span>Bugün Completed</span></div>
+            <div class="stat-trend positive"><span>Completed Today</span></div>
           </div>
           <div class="stat-icon-wrapper icon-emerald">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
@@ -195,14 +195,14 @@ const TrainerController = {
         <!-- SOL SÜTUN: 6. Tasks Waiting for Review & 8. Group Progress -->
         <div style="display: flex; flex-direction: column; gap: 20px;">
           
-          <!-- 6. Tasks Waiting for Review (Reviewme ve Gradelandırma Bekleyen Ödevler) -->
+          <!-- 6. Tasks Waiting for Review (Reviewme ve Gradema Bekleyen Ödevler) -->
           <div class="panel-card" style="padding: 0; overflow: hidden; border: 1px solid var(--border-light); border-radius: 12px;">
             <div style="padding: 14px 18px; background: var(--bg-page); border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center;">
               <div style="display: flex; align-items: center; gap: 8px;">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent-gold);"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
                 <strong style="font-size: 14px; color: var(--primary-navy);">6. Tasks Waiting for Review (${tasks_waiting_for_review.length})</strong>
               </div>
-              <button class="btn-action btn-secondary btn-sm" onclick="switchTab('submissions')">Tüm Submissions</button>
+              <button class="btn-action btn-secondary btn-sm" onclick="switchTab('submissions')">All Submissions</button>
             </div>
             <div class="table-responsive" style="margin: 0;">
               <table class="custom-table" style="margin: 0; width: 100%;">
@@ -231,13 +231,13 @@ const TrainerController = {
                         ${s.file_path ? `
                           <a href="${s.file_path}" target="_blank" download style="display: flex; align-items: center; gap: 4px; color: var(--primary-blue); font-size: 11.5px; font-weight: 600; text-decoration: none;">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                            <span>İndir</span>
+                            <span>Download</span>
                           </a>
                         ` : '<span style="color: var(--text-muted); font-size: 11px;">-</span>'}
                       </td>
                       <td style="padding: 10px 14px; text-align: right;">
                         <button class="btn-action btn-primary btn-sm" onclick="TrainerController.openReviewModal(${s.submission_id})" style="padding: 4px 10px; font-size: 11.5px; font-weight: 600;">
-                          Review & Gradelandır
+                          Review & Grade
                         </button>
                       </td>
                     </tr>
@@ -247,14 +247,14 @@ const TrainerController = {
             </div>
           </div>
 
-          <!-- 8. Group Progress (Eğitim Groupları İlerleme ve Başarı Oranları) -->
+          <!-- 8. Group Progress (Training Groupları İlerleme ve Başarı Oranları) -->
           <div class="panel-card" style="padding: 18px 20px; border: 1px solid var(--border-light); border-radius: 12px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
               <div style="display: flex; align-items: center; gap: 8px;">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--primary-blue);"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
-                <strong style="font-size: 14px; color: var(--primary-navy);">8. Group Progress (Eğitim Groupları İlerleme Statusu)</strong>
+                <strong style="font-size: 14px; color: var(--primary-navy);">8. Group Progress (Training Groupları İlerleme Statusu)</strong>
               </div>
-              <button class="btn-action btn-secondary btn-sm" onclick="switchTab('groups')">Groupları Yönet</button>
+              <button class="btn-action btn-secondary btn-sm" onclick="switchTab('groups')">Manage Groups</button>
             </div>
 
             ${group_progress.length === 0 ? `
@@ -284,7 +284,7 @@ const TrainerController = {
 
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 11.5px; border-top: 1px solid var(--border-light); padding-top: 6px;">
                       <span style="color: var(--text-muted);">Average Grade:</span>
-                      <strong style="color: #10B981;">${g.avg_grade > 0 ? g.avg_grade + ' / 100' : 'Henüz Yok'}</strong>
+                      <strong style="color: #10B981;">${g.avg_grade > 0 ? g.avg_grade + ' / 100' : 'Grade Available Yet'}</strong>
                     </div>
                   </div>
                 `).join('')}
@@ -303,7 +303,7 @@ const TrainerController = {
                 <span style="font-size: 16px;">⏱️</span>
                 <strong style="font-size: 13.5px; color: var(--primary-navy);">7. Recent Student Submissions</strong>
               </div>
-              <span style="font-size: 11px; font-weight: 700; color: var(--primary-blue);">Canlı Akış</span>
+              <span style="font-size: 11px; font-weight: 700; color: var(--primary-blue);">Live Feed</span>
             </div>
 
             ${recent_student_submissions.length === 0 ? `
@@ -322,7 +322,7 @@ const TrainerController = {
                       <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;">
                         <span class="status-badge ${isDone ? 'badge-completed' : 'badge-reviewing'}" style="font-size: 9.5px; padding: 2px 6px;">${sub.submission_status}</span>
                         ${sub.grade !== null ? `<strong style="font-size: 12px; color: #10B981;">${sub.grade} Points</strong>` : `
-                          <button class="btn-action btn-secondary btn-sm" style="padding: 2px 8px; font-size: 10.5px;" onclick="TrainerController.openReviewModal(${sub.submission_id})">Gradelandır</button>
+                          <button class="btn-action btn-secondary btn-sm" style="padding: 2px 8px; font-size: 10.5px;" onclick="TrainerController.openReviewModal(${sub.submission_id})">Grade</button>
                         `}
                       </div>
                     </div>
@@ -332,21 +332,21 @@ const TrainerController = {
             `}
           </div>
 
-          <!-- Akademisyen Hızlı Araçları -->
+          <!-- Akademisyen Hızlı Searchçları -->
           <div class="card" style="padding: 16px 18px; border: 1px solid var(--border-light); background: var(--bg-card); border-radius: 12px;">
-            <strong style="font-size: 13.5px; color: var(--primary-navy); display: block; margin-bottom: 10px;">⚡ Hızlı Akademik Araçlar</strong>
+            <strong style="font-size: 13.5px; color: var(--primary-navy); display: block; margin-bottom: 10px;">⚡ Quick Academic Tools</strong>
             <div style="display: flex; flex-direction: column; gap: 8px;">
               <button class="btn-action btn-primary" onclick="TrainerController.openAddTaskModal()" style="justify-content: flex-start; gap: 8px; padding: 8px 12px; font-size: 12.5px;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                <span>Yeni Görev / Ödev Tanımla</span>
+                <span>Create New Task / Assignment</span>
               </button>
               <button class="btn-action btn-secondary" onclick="switchTab('groups')" style="justify-content: flex-start; gap: 8px; padding: 8px 12px; font-size: 12.5px;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
-                <span>Eğitim Grouplarını Görüntüle</span>
+                <span>Training Grouplarını Görüntüle</span>
               </button>
               <button class="btn-action btn-secondary" onclick="switchTab('students')" style="justify-content: flex-start; gap: 8px; padding: 8px 12px; font-size: 12.5px;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
-                <span>Bağlı Studentler ve Grade Statusu</span>
+                <span>Assigned Students & Grade Statusu</span>
               </button>
             </div>
           </div>
@@ -419,7 +419,7 @@ const TrainerController = {
             <thead>
               <tr>
                 <th>Student Bilgisi</th>
-                <th>Atanan Görev</th>
+                <th>Atanan Task</th>
                 <th>Completed</th>
                 <th>Başarı Mediumlaması</th>
                 <th>Genel Progress (%)</th>
@@ -428,7 +428,7 @@ const TrainerController = {
             </thead>
             <tbody>
               ${students.length === 0 ? `
-                <tr><td colspan="6" class="empty-state">Henüz size tanımlı bir öğrenci bulunmamaktadır.</td></tr>
+                <tr><td colspan="6" class="empty-state">No students assigned to your groups yet.</td></tr>
               ` : students.map(st => {
                 const percent = st.total_tasks > 0 ? Math.round((st.completed_tasks / st.total_tasks) * 100) : 0;
                 const avgGrade = st.grades.length > 0 ? (st.grades.reduce((a, b) => a + b, 0) / st.grades.length).toFixed(1) : '-';
@@ -438,7 +438,7 @@ const TrainerController = {
                       <div style="font-weight:700; cursor:pointer; color:var(--primary-blue);" onclick="openStudentProfileeModal(${st.id})">${st.name}</div>
                       <div style="font-size:12px; color:var(--text-secondary);">${st.email}</div>
                     </td>
-                    <td><span class="status-badge badge-submitted">${st.total_tasks} Görev</span></td>
+                    <td><span class="status-badge badge-submitted">${st.total_tasks} Task</span></td>
                     <td><span class="status-badge badge-completed">${st.completed_tasks} Completed</span></td>
                     <td>
                       ${avgGrade !== '-' ? `<span class="grade-badge">${avgGrade} / 100</span>` : '<span style="color:var(--text-muted); font-size:12.5px;">Henüz Gradelanmadı</span>'}
@@ -497,7 +497,7 @@ const TrainerController = {
             </thead>
             <tbody>
               ${tasks.length === 0 ? `
-                <tr><td colspan="7" class="empty-state">Henüz tanımlanmış bir göreviniz bulunmuyor.</td></tr>
+                <tr><td colspan="7" class="empty-state">No tasks created yet.</td></tr>
               ` : tasks.map(t => {
                 let prioColor = t.priority === 'Urgent' ? 'var(--accent-rose)' : (t.priority === 'High' ? 'var(--accent-gold)' : 'var(--text-muted)');
                 return `
@@ -516,7 +516,7 @@ const TrainerController = {
                       <button class="btn-action btn-danger btn-sm" style="margin-left: 5px;" onclick="TrainerController.deleteTask(${t.id}, '${t.title.replace(/'/g, "\\'")}')">Delete</button>
                       ${t.submission_id ? `
                         <button class="btn-action btn-primary btn-sm" style="margin-left: 5px;" onclick="TrainerController.openReviewModal(${t.submission_id})">
-                          Review & Gradelandır
+                          Review & Grade
                         </button>
                       ` : ''}
                     </td>
@@ -541,7 +541,7 @@ const TrainerController = {
       <div class="panel-card">
         <div class="panel-header">
           <div class="panel-header-left">
-            <h3>Student Teslim Listesi ve Değerlendirmeler (${submissions.length})</h3>
+            <h3>Student Submissions & Evaluation Registry (${submissions.length})</h3>
           </div>
         </div>
         <div class="table-responsive">
@@ -550,8 +550,8 @@ const TrainerController = {
               <tr>
                 <th>Deneme / Revizyon</th>
                 <th>Student</th>
-                <th>Görev</th>
-                <th>Teslim Timestamp (When)ı</th>
+                <th>Task</th>
+                <th>Submission Timestamp</th>
                 <th>Timing (Is Late)</th>
                 <th>Status</th>
                 <th>Grade</th>
@@ -561,7 +561,7 @@ const TrainerController = {
             </thead>
             <tbody>
               ${submissions.length === 0 ? `
-                <tr><td colspan="9" class="empty-state">Henüz değerlendirilecek bir teslim yapılmamış.</td></tr>
+                <tr><td colspan="9" class="empty-state">No submissions awaiting evaluation.</td></tr>
               ` : submissions.map(s => `
                 <tr>
                   <td>
@@ -585,7 +585,7 @@ const TrainerController = {
                   <td style="text-align: right; white-space:nowrap;">
                     <button class="btn-action btn-primary btn-sm" onclick="TrainerController.openReviewModal(${s.id})" style="width: auto;">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
-                      Teslimi Review
+                      Review Submission
                     </button>
                   </td>
                 </tr>
@@ -599,7 +599,7 @@ const TrainerController = {
 
   // ==================== GÖREV OLUŞTURMA & DÜZENLEME MODALI ====================
   async openAddTaskModal() {
-    document.getElementById('modal-task-title').textContent = 'Yeni Görev / Ödev Oluştur';
+    document.getElementById('modal-task-title').textContent = 'Yeni Task / Ödev Oluştur';
     document.getElementById('task-id').value = '';
     document.getElementById('task-title').value = '';
     document.getElementById('task-description').value = '';
@@ -625,7 +625,7 @@ const TrainerController = {
     }
 
     const trainerSelect = document.getElementById('task-trainer');
-    trainerSelect.innerHTML = `<option value="${AppState.currentUser.id}">${AppState.currentUser.name} (Siz)</option>`;
+    trainerSelect.innerHTML = `<option value="${AppState.currentUser.id}">${AppState.currentUser.name} (You)</option>`;
 
     const [studentsRes, groupsRes] = await Promise.all([
       apiFetch('/api/users?role=student'),
@@ -646,12 +646,12 @@ const TrainerController = {
   async openEditTaskModal(taskId) {
     const res = await apiFetch(`/api/tasks/${taskId}`);
     if (!res.success || !res.task) {
-      showToast("Görev bilgileri alınamadı.", "error");
+      showToast("Task bilgileri alınamadı.", "error");
       return;
     }
 
     const t = res.task;
-    document.getElementById('modal-task-title').textContent = 'Görevi Edit';
+    document.getElementById('modal-task-title').textContent = 'Taski Edit';
     document.getElementById('task-id').value = t.id;
     document.getElementById('task-title').value = t.title;
     document.getElementById('task-description').value = t.description;
@@ -676,7 +676,7 @@ const TrainerController = {
     }
 
     const trainerSelect = document.getElementById('task-trainer');
-    trainerSelect.innerHTML = `<option value="${AppState.currentUser.id}">${AppState.currentUser.name} (Siz)</option>`;
+    trainerSelect.innerHTML = `<option value="${AppState.currentUser.id}">${AppState.currentUser.name} (You)</option>`;
 
     const studentsRes = await apiFetch('/api/users?role=student');
     const studentSelect = document.getElementById('task-student');
@@ -689,15 +689,15 @@ const TrainerController = {
 
   deleteTask(taskId, taskTitle) {
     openConfirmModal(
-      'Görevi Delete',
+      'Taski Delete',
       `"${taskTitle}" başlıklı görevi silmek istediğinizden emin misiniz?`,
       async () => {
         const res = await apiFetch(`/api/tasks/${taskId}`, { method: 'DELETE' });
         if (res.success) {
-          showToast("Görev başarıyla silindi.", "success");
+          showToast("Task başarıyla silindi.", "success");
           switchTab(AppState.currentTab);
         } else {
-          showToast(res.error || "Görev silinirken bir hata oluştu.", "error");
+          showToast(res.error || "Task silinirken bir hata oluştu.", "error");
         }
       }
     );
@@ -707,7 +707,7 @@ const TrainerController = {
   async openReviewModal(submissionId) {
     const res = await apiFetch(`/api/submissions/${submissionId}`);
     if (!res.success || !res.submission) {
-      showToast("Teslim detayları alınamadı.", "error");
+      showToast("Could not fetch submission details.", "error");
       return;
     }
 

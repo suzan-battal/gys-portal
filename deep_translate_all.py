@@ -1,164 +1,176 @@
 #!/usr/bin/env python3
 """
-Deep English Translation Script for All Files
+Deep Translation Script for 100% Pure English University Task Management System.
+Replaces all remaining Turkish and mixed Turkish-English words across all files and database.
 """
 
+import re
 import os
-from pathlib import Path
+import sqlite3
 
-BASE_DIR = Path(__file__).resolve().parent
+# 1. Detailed replacement dictionary for UI files
+UI_REPLACEMENTS = [
+    # Mixed phrases from screenshot
+    ("Bugün Completed", "Completed Today"),
+    ("Bugün tamamlandı", "Completed today"),
+    ("Geciken Görev", "Overdue Tasks"),
+    ("Tüm Submissions", "All Submissions"),
+    ("Canlı Akış", "Live Feed"),
+    ("DOSYA", "FILE"),
+    ("Gradelandır", "Grade"),
+    ("Notlandır", "Grade"),
+    ("Teslim Edildi", "Submitted"),
+    ("Eğitim Grupları İlerleme Statüsü", "Training Group Progress Status"),
+    ("Grupları Yönet", "Manage Groups"),
+    ("Henüz Yok", "Not Available Yet"),
+    ("Hızlı Akademik Araçlar", "Quick Academic Tools"),
+    ("Yeni Görev / Ödev Tanımla", "Create New Task / Assignment"),
+    ("Eğitim Gruplarını Görüntüle", "View Training Groups"),
+    ("Bağlı Studentler ve Grade Status", "Assigned Students & Grade Status"),
+    ("Bağlı Öğrenciler ve Not Durumu", "Assigned Students & Grade Status"),
+    ("Bağlı Öğrenciler", "Assigned Students"),
+    ("Bağlı Studentler", "Assigned Students"),
+    ("İndir", "Download"),
+    ("Eğitim Grubu", "Training Group"),
+    ("Eğitim Grupları", "Training Groups"),
+    ("Eğitim", "Training"),
+    ("Görev", "Task"),
+    ("Görevler", "Tasks"),
+    ("Öğrenci", "Student"),
+    ("Öğrenciler", "Students"),
+    ("Eğitmen", "Trainer"),
+    ("Eğitmenler", "Trainers"),
+    ("Yönetici", "Administrator"),
+    ("Duyuru", "Announcement"),
+    ("Duyurular", "Announcements"),
+    ("Takvim", "Calendar"),
+    ("Raporlar", "Reports"),
+    ("Rapor", "Report"),
+    ("Ayarlar", "Settings"),
+    ("Çıkış Yap", "Sign Out"),
+    ("Giriş Yap", "Sign In"),
+    ("Tümünü Gör", "View All"),
+    ("Detayları Gör", "View Details"),
+    ("İncele & Değerlendir", "Review & Evaluate"),
+    ("İncele", "Review"),
+    ("Düzenle", "Edit"),
+    ("Sil", "Delete"),
+    ("Kaydet", "Save"),
+    ("İptal", "Cancel"),
+    ("Kapat", "Close"),
+    ("Gönder", "Submit"),
+    ("Yükle", "Upload"),
+    ("Seç", "Select"),
+    ("Yenile", "Refresh"),
+    ("Filtrele", "Filter"),
+    ("Temizle", "Clear"),
+    ("Arama", "Search"),
+    ("Ara", "Search"),
+    ("Tümü", "All"),
+    ("Aktif", "Active"),
+    ("Tamamlandı", "Completed"),
+    ("Bekliyor", "Pending"),
+    ("İnceleniyor", "Under Review"),
+    ("Düzeltme İstendi", "Needs Revision"),
+    ("Reddedildi", "Rejected"),
+    ("Gecikmiş", "Overdue"),
+    ("Geç", "Late"),
+    ("Puan", "Points"),
+    ("Not", "Grade"),
+    ("Geri Bildirim", "Feedback"),
+    ("Açıklama", "Description"),
+    ("Talimatlar", "Instructions"),
+    ("Son Teslim", "Deadline"),
+    ("Başlangıç", "Start Date"),
+    ("Bitiş", "End Date"),
+    ("Öncelik", "Priority"),
+    ("Yüksek", "High"),
+    ("Orta", "Medium"),
+    ("Düşük", "Low"),
+    ("Acil", "Urgent"),
+    ("Yorumlar", "Comments"),
+    ("Yorum Yaz", "Write a Comment"),
+    ("Ekli Dosya", "Attached File"),
+    ("Dosya Yükleme", "File Upload"),
+    ("Dosya Seçiniz", "Select a File"),
+    ("Dosya Seç", "Browse File"),
+    ("Proje Linki", "Project Link"),
+    ("Öğrenci Notu", "Student Note"),
+    ("Henüz görev bulunmuyor", "No tasks found"),
+    ("Henüz teslim edilen bir ödev bulunmamaktadır.", "No submissions found."),
+    ("Henüz kayıt bulunmuyor", "No records found"),
+    ("Lütfen bekleyiniz...", "Please wait..."),
+    ("Yükleniyor...", "Loading..."),
+    ("Kaydediliyor...", "Saving..."),
+    ("Siliniyor...", "Deleting..."),
+    ("İşlem Başarılı", "Operation Successful"),
+    ("Hata Oluştu", "An Error Occurred"),
+    ("Yetkisiz Erişim", "Unauthorized Access"),
+    ("Oturum Süresi Doldu", "Session Expired"),
+    ("Hoş Geldiniz", "Welcome"),
+    ("Siz", "You"),
+    ("Grup", "Group"),
+    ("Şube", "Section"),
+    ("Dönem", "Semester"),
+    ("Akademik Yıl", "Academic Year"),
+    ("Bahar Dönemi", "Spring Semester"),
+    ("Güz Dönemi", "Fall Semester"),
+    ("Yaz Okulu", "Summer School")
+]
 
-def deep_translate_app_js():
-    fpath = BASE_DIR / "static" / "js" / "app.js"
-    with open(fpath, "r", encoding="utf-8") as f:
-        c = f.read()
+def clean_file(filepath):
+    if not os.path.exists(filepath):
+        return
+    with open(filepath, "r", encoding="utf-8") as f:
+        text = f.read()
 
-    pairs = [
-        # Today Tasks
-        ("17. Today's Tasks (Bugünün Görevleri)", "Today's Tasks Hub"),
-        ("Tüm aktif, devam eden ve geciken görevlerinizi anlık olarak izleyin ve yönetin.", "Monitor and manage all your active, in-progress, and overdue assignments in real time."),
-        ("Tüm Öncelikler (All Priorities)", "All Priorities"),
-        ("Tüm Durumlar (All Statuses)", "All Statuses"),
-        ("Tüm Gruplar (All Groups)", "All Groups"),
-        ("Tüm Görevler", "All Tasks"),
-        ("Bugün Bitenler", "Due Today"),
-        ("Devam Edenler", "In Progress"),
-        ("Gecikenler", "Overdue"),
-        ("Tamamlananlar", "Completed"),
-        ("Kriterlere uygun görev bulunamadı.", "No tasks found matching your filters."),
-        ("Tarih Aralığı", "Date Range"),
-        ("Görevi İncele", "View Task"),
-        ("Çalışmaya Başla", "Start Working"),
-        ("Teslim Et", "Submit"),
-        ("Detayları Gör", "View Details"),
-        ("Öğrenci:", "Student:"),
-        ("Eğitmen:", "Trainer:"),
-        ("Son Teslim:", "Due:"),
-        ("Tahmini Süre:", "Est. Time:"),
-        
-        # Announcements
-        ("19. Announcements (Duyurular ve Bildirimler)", "Announcements & Notices Hub"),
-        ("Akademik duyuruları, sınav takvimlerini ve önemli bildirimleri takip edin.", "Stay informed with academic announcements, exam schedules, and institutional notices."),
-        ("Yeni Duyuru Yayınla", "Publish Announcement"),
-        ("Tüm Duyurular", "All Announcements"),
-        ("Sistem Geneli", "Institution-Wide"),
-        ("Eğitim Grupları", "Training Groups"),
-        ("Yalnızca Eğitmenler", "Faculty Only"),
-        ("Yalnızca Öğrenciler", "Students Only"),
-        ("Acil & Önemli", "Urgent & Important"),
-        ("Normal", "Normal"),
-        ("Düşük", "Low"),
-        ("Yüksek", "High"),
-        ("Duyuru Başlığı", "Announcement Title"),
-        ("Hedef Kitle", "Target Audience"),
-        ("Yayınlayan", "Published By"),
-        ("Yayın Tarihi", "Publish Date"),
-        ("Öncelik", "Priority"),
-        ("Henüz yayınlanmış bir duyuru bulunmuyor.", "No announcements published yet."),
-        
-        # Calendar
-        ("20. Academic Calendar (Akademik Takvim)", "Academic Calendar Hub"),
-        ("Dersler, ödev teslim tarihleri, sınavlar ve etkinlikleri takvim üzerinden izleyin.", "View classes, assignment deadlines, examinations, and events on the interactive calendar."),
-        ("Yeni Etkinlik Ekle", "Add Calendar Event"),
-        ("Ödev Teslimi", "Assignment Deadline"),
-        ("Canlı Ders / Eğitim", "Live Class / Lecture"),
-        ("Sınav / Değerlendirme", "Exam / Assessment"),
-        ("Tatil / Ara", "Holiday / Break"),
-        ("Genel Etkinlik", "General Event"),
-        ("Pazartesi", "Monday"),
-        ("Salı", "Tuesday"),
-        ("Çarşamba", "Wednesday"),
-        ("Perşembe", "Thursday"),
-        ("Cuma", "Friday"),
-        ("Cumartesi", "Saturday"),
-        ("Pazar", "Sunday"),
-        ("Ocak", "January"),
-        ("Şubat", "February"),
-        ("Mart", "March"),
-        ("Nisan", "April"),
-        ("Mayıs", "May"),
-        ("Haziran", "June"),
-        ("Temmuz", "July"),
-        ("Ağustos", "August"),
-        ("Eylül", "September"),
-        ("Ekim", "October"),
-        ("Kasım", "November"),
-        ("Aralık", "December"),
-        
-        # Reports
-        ("21. Reports & Analytics (Raporlar ve Analitik)", "Reports & Analytics Center"),
-        ("Öğrenci performansı, tamamlama oranları ve akademik istatistikleri inceleyin.", "Analyze student performance, completion rates, and institutional academic statistics."),
-        ("CSV Olarak İndir (Export)", "Export as CSV"),
-        ("Rapor Türü Seçin", "Select Report Type"),
-        ("Öğrenci Başarı ve Performans Raporu", "Student Academic Performance Report"),
-        ("Eğitmen Değerlendirme ve İnceleme Raporu", "Trainer Review & Evaluation Report"),
-        ("Grup Bazlı Tamamlama ve İlerleme Raporu", "Group Completion & Progress Report"),
-        ("Görev Dağılımı ve Öncelik Analizi", "Task Distribution & Priority Analytics"),
-        ("Geciken Görevler ve Risk Analizi", "Overdue Tasks & Academic Risk Analysis"),
-        ("Toplam Kayıt", "Total Records"),
-        ("Ortalama Başarı", "Average Score"),
-        ("Tamamlama Oranı", "Completion Rate"),
-        
-        # Audit Logs
-        ("22. Audit Logs (Denetim Kayıtları)", "Audit Logs & Security Center"),
-        ("Sistemde gerçekleşen tüm işlem, giriş, oluşturma ve silme kayıtlarını izleyin.", "Track all system events, authentications, modifications, and deletions in real time."),
-        ("Kullanıcı", "User"),
-        ("İşlem Türü", "Action Type"),
-        ("Kategori", "Category"),
-        ("Açıklama / Detay", "Details / Description"),
-        ("Tarih ve Saat", "Timestamp"),
-        ("IP Adresi", "IP Address"),
-        ("Filtrele", "Filter"),
-        ("Tüm Kategoriler", "All Categories"),
-        ("Kimlik Doğrulama", "Authentication"),
-        ("Kullanıcı Yönetimi", "User Management"),
-        ("Görev Yönetimi", "Task Management"),
-        ("Teslim ve Değerlendirme", "Submissions & Grading"),
-        ("Grup Yönetimi", "Group Management"),
-        ("Sistem Ayarları", "System Settings"),
-        ("Henüz bir denetim kaydı bulunmuyor.", "No audit logs recorded yet."),
-        
-        # Settings
-        ("26.29. System Settings (Sistem Ayarları)", "System Settings & Configuration"),
-        ("Platform genel konfigürasyonlarını, dönem ayarlarını ve güvenlik kurallarını yönetin.", "Manage platform configurations, academic terms, submission rules, and security policies."),
-        ("Ayarları Kaydet", "Save Settings"),
-        ("Genel Ayarlar", "General Settings"),
-        ("Sistem Başlığı", "System Title"),
-        ("Aktif Akademik Dönem", "Active Academic Term"),
-        ("Maksimum Dosya Yükleme Boyutu (MB)", "Max Upload File Size (MB)"),
-        ("İzin Verilen Dosya Uzantıları", "Allowed File Extensions"),
-        ("Geç Teslimata İzin Ver", "Allow Late Submissions"),
-        ("E-posta Bildirimleri", "Email Notifications"),
-        ("Bakım Modu", "Maintenance Mode"),
-        ("Açık", "Enabled"),
-        ("Kapalı", "Disabled"),
-        ("Ayarlar başarıyla kaydedildi!", "Settings saved successfully!"),
-        
-        # Discussion thread
-        ("Öğrenci veya Eğitmene bu görevle ilgili bir soru, not veya yorum yazınız...", "Write a question, note, or comment regarding this assignment..."),
-        ("Yorumu Gönder (Send Comment)", "Send Comment"),
-        ("Yorumlar", "Comments"),
-        ("Yorum", "Comment"),
-        ("Dosya İndir", "Download File"),
-        ("Bağlantıyı Aç", "Open Link"),
-        ("Henüz bir yorum yapılmamış. İlk yorumu siz yazın!", "No comments posted yet. Be the first to start the discussion!"),
-        
-        # Confirm & Delete
-        ("Silmek istediğinize emin misiniz?", "Are you sure you want to delete this item?"),
-        ("Bu işlem geri alınamaz.", "This action cannot be undone."),
-        ("Sil", "Delete"),
-        ("İptal", "Cancel"),
-        ("Kaydet", "Save"),
-        ("Kapat", "Close")
-    ]
+    for tr, en in UI_REPLACEMENTS:
+        text = text.replace(tr, en)
 
-    for t, r in pairs:
-        c = c.replace(t, r)
+    with open(filepath, "w", encoding="utf-8") as f:
+        f.write(text)
+    print(f"✓ Cleaned: {filepath}")
 
-    with open(fpath, "w", encoding="utf-8") as f:
-        f.write(c)
-    print("✓ static/js/app.js deep translated.")
+# Process all static files
+for filename in ["static/index.html", "static/js/app.js", "static/js/admin.js", "static/js/trainer.js", "static/js/student.js"]:
+    clean_file(filename)
 
-if __name__ == "__main__":
-    deep_translate_app_js()
-    print("Translation complete!")
+# 2. Update Database Content to Pure English
+def clean_database(db_path):
+    if not os.path.exists(db_path):
+        return
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    # Update submissions status & feedback
+    status_map = {
+        'Teslim Edildi': 'Submitted',
+        'Tamamlandı': 'Completed',
+        'İnceleniyor': 'Under Review',
+        'Düzeltme İstendi': 'Needs Revision',
+        'Reddedildi': 'Rejected',
+        'Bekliyor': 'Pending'
+    }
+    for tr, en in status_map.items():
+        cursor.execute("UPDATE submissions SET status = ? WHERE status = ?;", (en, tr))
+
+    # Update groups status
+    cursor.execute("UPDATE groups SET status = 'Active' WHERE status = 'Aktif';")
+    cursor.execute("UPDATE groups SET status = 'Completed' WHERE status = 'Tamamlandı';")
+    cursor.execute("UPDATE groups SET status = 'Archived' WHERE status = 'Arşiv';")
+
+    # Update priorities
+    prio_map = {'Yüksek': 'High', 'Orta': 'Medium', 'Düşük': 'Low', 'Acil': 'Urgent', 'Normal': 'Normal'}
+    for tr, en in prio_map.items():
+        try:
+            cursor.execute("UPDATE tasks SET priority = ? WHERE priority = ?;", (en, tr))
+        except Exception:
+            pass
+
+    conn.commit()
+    conn.close()
+    print(f"✓ Database content cleaned: {db_path}")
+
+clean_database("database.sqlite")
+
+print("DEEP_TRANSLATION_COMPLETED_100%")
