@@ -22,9 +22,9 @@ UPLOADS_DIR = BASE_DIR / "uploads"
 
 ALLOWED_EXTENSIONS = {
     '.pdf', '.zip', '.rar', '.7z', '.tar', '.gz',
-    '.doc', '.docx', '.ppt', '.pptx', '.xls', '.xlsx',
-    '.txt', '.py', '.java', '.c', '.cpp', '.cs', '.js', '.ts', '.html', '.css', '.json', '.sql',
-    '.png', '.jpg', '.jpeg'
+    '.doc', '.docx', '.ppt', '.pptx', '.xls', '.xlsx', '.csv',
+    '.txt', '.py', '.java', '.c', '.cpp', '.cs', '.js', '.ts', '.html', '.css', '.json', '.sql', '.md', '.ipynb',
+    '.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg', '.heic', '.heif', '.bmp'
 }
 MAX_FILE_SIZE = 25 * 1024 * 1024  # 25 MB
 
