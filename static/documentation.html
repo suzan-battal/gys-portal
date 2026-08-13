@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TTMS - Proje Şartnamesi ve Teknik Dokümantasyon Raporu</title>
+  <title>TTMS - Project Specification & Technical Architecture Documentation Report</title>
   <link rel="stylesheet" href="/css/style.css">
   <style>
     body {
@@ -106,15 +106,15 @@
     <div class="doc-header">
       <div>
         <h1>🎓 TRAINING TASK MANAGEMENT SYSTEM (TTMS)</h1>
-        <p>Proje Analiz, Mimari ve Teknik Dokümantasyon Raporu (Project Documentation)</p>
+        <p>University Task & Training Management Platform - Architectural Specification & Technical Report</p>
       </div>
       <div style="display: flex; gap: 10px;">
-        <a href="/" class="btn-action btn-secondary btn-back">⬅ Sisteme Dön</a>
-        <button onclick="window.print()" class="btn-print">🖨️ Raporu Yazdır / PDF</button>
+        <a href="/" class="btn-action btn-secondary btn-back">⬅ Return to Portal</a>
+        <button onclick="window.print()" class="btn-print">🖨️ Print Report / Export PDF</button>
       </div>
     </div>
 
-    <!-- 0. SECTION 30: NİHAİ PROJE ŞARTNAME BEYANI VE ÖZET (FINAL CAPSTONE SPECIFICATION) -->
+    <!-- 0. SECTION 30: FINAL PROJECT SPECIFICATION STATEMENT & ARCHITECTURAL SUMMARY (FINAL CAPSTONE SPECIFICATION) -->
     <div class="doc-section" style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); color: #F8FAFC; border: 2px solid #F59E0B; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);">
       <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; border-bottom: 1px solid rgba(245, 158, 11, 0.3); padding-bottom: 12px;">
         <div style="display: flex; align-items: center; gap: 10px;">
@@ -124,7 +124,7 @@
           </h2>
         </div>
         <span style="background: #10B981; color: #FFFFFF; font-size: 11px; font-weight: 800; padding: 4px 12px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px;">
-          ✓ %100 Uçtan Uca Tamamlandı ve Doğrulandı
+          ✓ 100% Fully Implemented, Tested & Verified
         </span>
       </div>
 
@@ -143,8 +143,8 @@
           <div style="font-size: 13px; color: #38BDF8; font-weight: 700; margin-top: 4px;">Admin, Trainer, Student (26 İzin)</div>
         </div>
         <div style="background: rgba(255, 255, 255, 0.08); padding: 12px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.1);">
-          <div style="font-size: 11px; color: #94A3B8; font-weight: 700; text-transform: uppercase;">2. Görev & Teslimat Döngüsü</div>
-          <div style="font-size: 13px; color: #34D399; font-weight: 700; margin-top: 4px;">12 Alan, Versiyonlama (v1/v2/v3)</div>
+          <div style="font-size: 11px; color: #94A3B8; font-weight: 700; text-transform: uppercase;">2. Task & Submission Lifecycle</div>
+          <div style="font-size: 13px; color: #34D399; font-weight: 700; margin-top: 4px;">12 Alan, Versionlama (v1/v2/v3)</div>
         </div>
         <div style="background: rgba(255, 255, 255, 0.08); padding: 12px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.1);">
           <div style="font-size: 11px; color: #94A3B8; font-weight: 700; text-transform: uppercase;">3. İnceleme & Rubrik Notu</div>
@@ -157,12 +157,12 @@
       </div>
     </div>
 
-    <!-- 1. GENEL BİLGİLER -->
+    <!-- 1. GENERAL INFORMATION -->
     <div class="doc-section">
-      <h2>📌 1. Proje Genel Bilgileri (Project Summary)</h2>
+      <h2>📌 1. Proje Genel Informationleri (Project Summary)</h2>
       <table class="doc-table">
         <tr>
-          <th style="width: 30%;">Proje Adı</th>
+          <th style="width: 30%;">Project Name</th>
           <td>Training Task Management System (TTMS) - Üniversite Görev Yönetim Sistemi</td>
         </tr>
         <tr>
@@ -171,7 +171,7 @@
         </tr>
         <tr>
           <th>Kullanıcı Rolleri (Main Users)</th>
-          <td>Admin (Yönetici) / Trainer (Eğitmen) / Student (Öğrenci)</td>
+          <td>Admin (Administrator) / Trainer (Trainer) / Student (Student)</td>
         </tr>
         <tr>
           <th>Çekirdek Modüller (Core Modules)</th>
@@ -195,9 +195,9 @@
         <thead>
           <tr>
             <th>Özellik / Yetki</th>
-            <th style="text-align: center;">Yönetici (Admin)</th>
-            <th style="text-align: center;">Eğitmen (Trainer)</th>
-            <th style="text-align: center;">Öğrenci (Student)</th>
+            <th style="text-align: center;">Administrator (Admin)</th>
+            <th style="text-align: center;">Trainer (Trainer)</th>
+            <th style="text-align: center;">Student (Student)</th>
           </tr>
         </thead>
         <tbody>
@@ -226,7 +226,7 @@
             <td style="text-align: center; color: #DC2626;">❌ Yetkisiz</td>
           </tr>
           <tr>
-            <td>Not ve Eğitmen Değerlendirmesini Görüntüleme</td>
+            <td>Not ve Trainer Değerlendirmesini Görüntüleme</td>
             <td style="text-align: center; color: #059669;">✅ Evet</td>
             <td style="text-align: center; color: #059669;">✅ Evet</td>
             <td style="text-align: center; color: #059669; font-weight: 700;">✅ Evet</td>
@@ -237,7 +237,7 @@
 
     <!-- 3. VERİTABANI ŞEMASI VE 28 TEMEL TABLO MİMARİSİ (SECTION 23) -->
     <div class="doc-section">
-      <h2>🗄️ 3. Section 23: 28 Temel Veritabanı Tablo Mimarisi (Database Architecture & Data Dictionary)</h2>
+      <h2>🗄️ 3. Section 23: 28 Temel Database Schema & Data Dictionary (Database Architecture & Data Dictionary)</h2>
       <p>Sistem, şartnamede belirtilen tüm 28 ilişkisel tablo ile tam normalize edilmiş ve indekslenmiş olarak SQLite üzerinde yapılandırılmıştır:</p>
       
       <table class="doc-table">
@@ -284,13 +284,13 @@
             <td>6</td>
             <td><code>student_profiles</code></td>
             <td>Profiller & Gruplar</td>
-            <td>Öğrenci detaylı akademik profili (user_id [FK], student_no, department, academic_year, gpa, advisor_id)</td>
+            <td>Student detaylı akademik profili (user_id [FK], student_no, department, academic_year, gpa, advisor_id)</td>
           </tr>
           <tr>
             <td>7</td>
             <td><code>trainer_profiles</code></td>
             <td>Profiller & Gruplar</td>
-            <td>Eğitmen akademik unvanı, ofisi, tescil no ve kontenjanı (user_id [FK], title, department, office_location)</td>
+            <td>Trainer akademik unvanı, ofisi, tescil no ve kontenjanı (user_id [FK], title, department, office_location)</td>
           </tr>
           <tr>
             <td>8</td>
@@ -332,7 +332,7 @@
             <td>14</td>
             <td><code>task_submissions</code></td>
             <td>Görev & Teslimat</td>
-            <td>Öğrenci teslimatları ve sürümleri (task_id [FK], student_id [FK], version, file_path, status, grade)</td>
+            <td>Student teslimatları ve sürümleri (task_id [FK], student_id [FK], version, file_path, status, grade)</td>
           </tr>
           <tr>
             <td>15</td>
@@ -344,7 +344,7 @@
             <td>16</td>
             <td><code>task_reviews</code></td>
             <td>Görev & Teslimat</td>
-            <td>Eğitmen inceleme ve değerlendirme raporları (submission_id [FK], reviewer_id [FK], grade, feedback)</td>
+            <td>Trainer inceleme ve değerlendirme raporları (submission_id [FK], reviewer_id [FK], grade, feedback)</td>
           </tr>
           <tr>
             <td>17</td>
@@ -500,19 +500,19 @@
       <h2>🌳 5. Section 25: Temel İlişkiler ve Hiyerarşik İş Akışı (Core Architectural Relationships & Workflow)</h2>
       <p>Sistemin uçtan uca mimari ilişkileri ve görev yaşam döngüsü aşağıdaki hiyerarşik karar ağacına göre işletilmektedir:</p>
 
-      <pre style="background: #0F172A; color: #E2E8F0; padding: 24px; border-radius: 12px; font-family: 'Consolas', 'Courier New', monospace; font-size: 14px; line-height: 1.8; margin: 16px 0; border: 1px solid #1E293B; white-space: pre; overflow-x: auto;"><span style="color: #F59E0B; font-weight: bold;">ADMIN (Sistem Yöneticisi)</span>
+      <pre style="background: #0F172A; color: #E2E8F0; padding: 24px; border-radius: 12px; font-family: 'Consolas', 'Courier New', monospace; font-size: 14px; line-height: 1.8; margin: 16px 0; border: 1px solid #1E293B; white-space: pre; overflow-x: auto;"><span style="color: #F59E0B; font-weight: bold;">ADMIN (Sistem Administratorsi)</span>
   │
   ├── <span style="color: #38BDF8;">Users / Trainers / Students</span> (Kullanıcı & Rol Yönetimi)
-  └── <span style="color: #38BDF8;">Training Groups</span> (Eğitim Grupları & Şubeler)
+  └── <span style="color: #38BDF8;">Training Groups</span> (Training Groups & Şubeler)
         │
-        ├── <span style="color: #A78BFA;">Trainer</span> (Sorumlu Eğitmen)
-        └── <span style="color: #A78BFA;">Students</span> (Grup Öğrencileri)
+        ├── <span style="color: #A78BFA;">Trainer</span> (Sorumlu Trainer)
+        └── <span style="color: #A78BFA;">Students</span> (Grup Studentleri)
               │
               └── <span style="color: #34D399;">Task</span> (Görev & Ödev Tanımları)
                     │
-                    └── <span style="color: #60A5FA;">Submission</span> (Öğrenci Teslimatı - Dosya, Link, Versiyon)
+                    └── <span style="color: #60A5FA;">Submission</span> (Student Teslimatı - Dosya, Link, Version)
                           │
-                          └── <span style="color: #FBBF24;">Review</span> (Eğitmen İncelemesi & Karar Mekanizması)
+                          └── <span style="color: #FBBF24;">Review</span> (Trainer İncelemesi & Karar Mekanizması)
                                 │
                                 ├── <span style="color: #10B981; font-weight: bold;">✅ Approved (Kabul Edildi)</span> ➔ <span style="color: #34D399; font-weight: bold;">Evaluation</span> (0-100 Puan, 5 Kriterli Rubrik & Harf Notu)
                                 │
@@ -530,7 +530,7 @@
           <tr>
             <td><strong>1. ADMIN & Users</strong></td>
             <td><code>users</code>, <code>roles</code>, <code>role_user</code>, <code>permissions</code></td>
-            <td>Yönetici tüm kullanıcıları tanımlar, rolleri atar ve eğitim gruplarını organize eder.</td>
+            <td>Administrator tüm kullanıcıları tanımlar, rolleri atar ve eğitim gruplarını organize eder.</td>
           </tr>
           <tr>
             <td><strong>2. Training Groups</strong></td>
@@ -540,19 +540,19 @@
           <tr>
             <td><strong>3. Task Assignment</strong></td>
             <td><code>tasks</code>, <code>task_assignments</code>, <code>task_attachments</code>, <code>tags</code></td>
-            <td>Eğitmen gruba veya öğrenciye özel görev tanımlar (12 alan, öncelik, son teslim tarihi).</td>
+            <td>Trainer gruba veya öğrenciye özel görev tanımlar (12 alan, öncelik, son teslim tarihi).</td>
           </tr>
           <tr>
             <td><strong>4. Submission</strong></td>
             <td><code>task_submissions</code>, <code>submission_attachments</code>, <code>task_checklists</code></td>
-            <td>Öğrenci kontrol listesini tamamlayıp dosyasını yükler; sistem teslimatı versiyonlayarak kaydeder.</td>
+            <td>Student kontrol listesini tamamlayıp dosyasını yükler; sistem teslimatı versiyonlayarak kaydeder.</td>
           </tr>
           <tr>
             <td><strong>5. Review & Branching</strong></td>
             <td><code>task_reviews</code>, <code>task_evaluations</code>, <code>notifications</code></td>
-            <td>Eğitmen inceleme yapar:<br>
+            <td>Trainer inceleme yapar:<br>
             • <strong>Approved</strong>: 5 Kriterli Rubrik ile notlandırılır ve başarı tamamlanır.<br>
-            • <strong>Needs Revision</strong>: Öğrenciye revizyon bildirimi gider ve yeniden teslim kapısı açılır.</td>
+            • <strong>Needs Revision</strong>: Studentye revizyon bildirimi gider ve yeniden teslim kapısı açılır.</td>
           </tr>
         </tbody>
       </table>
@@ -605,13 +605,13 @@
             <td><code>GET</code></td>
             <td><code>/api/audit-logs</code></td>
             <td>Section 22: Güvenlik Denetim Günlüğü (Who/What/When/IP)</td>
-            <td>Sistem Yöneticileri</td>
+            <td>Sistem Administratorleri</td>
           </tr>
           <tr>
             <td><code>GET</code></td>
             <td><code>/api/database/schema</code></td>
             <td>Section 23: Veritabanı Şeması ve 28 Tablo Sözlüğü</td>
-            <td>Sistem Yöneticileri</td>
+            <td>Sistem Administratorleri</td>
           </tr>
           <tr>
             <td><code>GET, POST</code></td>
@@ -668,9 +668,9 @@
           <tr><td>4</td><td><code>Add User</code></td><td>Admin</td><td>Yeni öğrenci, eğitmen veya yönetici oluşturan, otomatik profil üreten modal formu.</td></tr>
           <tr><td>5</td><td><code>User Profile</code></td><td>Tüm Roller</td><td>Kullanıcının kendi şifresini, adını ve oturum geçmişini yönettiği profil ekranı.</td></tr>
           <tr><td>6</td><td><code>Students</code></td><td>Admin / Trainer</td><td>Kayıtlı öğrencilerin listelendiği, GPA ve danışman bilgilerini gösteren tablo.</td></tr>
-          <tr><td>7</td><td><code>Student Profile</code></td><td>Admin / Trainer / Student</td><td>Section 14: Öğrencinin akademik geçmişi, GPA, tamamlanan görevleri ve istatistikleri.</td></tr>
-          <tr><td>8</td><td><code>Trainers</code></td><td>Admin</td><td>Eğitmenlerin unvanı, ofis lokasyonu ve sorumlu oldukları grup sayıları tablosu.</td></tr>
-          <tr><td>9</td><td><code>Trainer Profile</code></td><td>Admin / Trainer</td><td>Eğitmenin aktif görevleri, verdiği dersler ve öğrenci istatistikleri detay ekranı.</td></tr>
+          <tr><td>7</td><td><code>Student Profile</code></td><td>Admin / Trainer / Student</td><td>Section 14: Studentnin akademik geçmişi, GPA, tamamlanan görevleri ve istatistikleri.</td></tr>
+          <tr><td>8</td><td><code>Trainers</code></td><td>Admin</td><td>Trainerlerin unvanı, ofis lokasyonu ve sorumlu oldukları grup sayıları tablosu.</td></tr>
+          <tr><td>9</td><td><code>Trainer Profile</code></td><td>Admin / Trainer</td><td>Trainerin aktif görevleri, verdiği dersler ve öğrenci istatistikleri detay ekranı.</td></tr>
           <tr><td>10</td><td><code>Training Groups</code></td><td>Admin / Trainer</td><td>Eğitim şubelerinin listelendiği, sorumlu eğitmen ve öğrenci sayıları paneli.</td></tr>
           <tr><td>11</td><td><code>Create Group</code></td><td>Admin</td><td>Yeni eğitim şubesi açma, eğitmen atama ve çoklu öğrenci seçme modalı.</td></tr>
           <tr><td>12</td><td><code>Group Details</code></td><td>Admin / Trainer</td><td>Şube detayları, kayıtlı öğrenci avatarları ve gruba özel açılmış görevler listesi.</td></tr>
@@ -678,10 +678,10 @@
           <tr><td>14</td><td><code>Create Task</code></td><td>Admin / Trainer</td><td>12 zorunlu alan, son teslim tarihi, rubrik kriterleri ve dosya eki ile yeni görev açma.</td></tr>
           <tr><td>15</td><td><code>Task Details</code></td><td>Tüm Roller</td><td>Görevin açıklaması, kontrol listesi, etiketleri, bağımlılıkları ve soru-cevap yorum alanı.</td></tr>
           <tr><td>16</td><td><code>Today's Tasks</code></td><td>Tüm Roller</td><td>Section 17: Bugün teslim edilmesi gereken veya acil durumdaki görevlerin odak paneli.</td></tr>
-          <tr><td>17</td><td><code>My Tasks</code></td><td>Student</td><td>Öğrencinin kendi görevlerini gördüğü, teslimat durumunu ve notlarını izlediği liste.</td></tr>
+          <tr><td>17</td><td><code>My Tasks</code></td><td>Student</td><td>Studentnin kendi görevlerini gördüğü, teslimat durumunu ve notlarını izlediği liste.</td></tr>
           <tr><td>18</td><td><code>Submissions</code></td><td>Admin / Trainer</td><td>Tüm öğrenci teslimatlarının, yüklenen dosyaların ve değerlendirme durumlarının listesi.</td></tr>
           <tr><td>19</td><td><code>Submission Details</code></td><td>Tüm Roller</td><td>Ödev teslim dosyası, öğrenci notu, teslim tarihi ve revizyon geçmişi detay modalı.</td></tr>
-          <tr><td>20</td><td><code>Reviews</code></td><td>Admin / Trainer</td><td>Eğitmenin teslim edilen ödevi inceleyip Kabul veya Düzeltme kararı verdiği ekran.</td></tr>
+          <tr><td>20</td><td><code>Reviews</code></td><td>Admin / Trainer</td><td>Trainerin teslim edilen ödevi inceleyip Kabul veya Düzeltme kararı verdiği ekran.</td></tr>
           <tr><td>21</td><td><code>Evaluations</code></td><td>Admin / Trainer</td><td>5 Kriterli Rubrik notlandırma formu (0-100 puan) ve detaylı akademik geri bildirim.</td></tr>
           <tr><td>22</td><td><code>Calendar</code></td><td>Tüm Roller</td><td>Section 20: Aylık/Haftalık akademik takvim, sınavlar, canlı dersler ve teslim tarihleri.</td></tr>
           <tr><td>23</td><td><code>Announcements</code></td><td>Tüm Roller</td><td>Section 19: Duyuru panosu, 5 hedef kitleye özel yayınlama ve bildirim iletimi.</td></tr>
@@ -706,7 +706,7 @@
             <th style="width: 5%;">#</th>
             <th style="width: 35%;">Şartname Gereksinimi (Requirement)</th>
             <th style="width: 30%;">Uygulama Modülü & Mimari Çözüm</th>
-            <th>Doğrulama & Çalışma Durumu</th>
+            <th>Doğrulama & Çalışma Statusu</th>
           </tr>
         </thead>
         <tbody>
@@ -724,20 +724,20 @@
           </tr>
           <tr>
             <td><strong>3</strong></td>
-            <td>Yönetici kullanıcıları ve eğitim gruplarını yönetebilmelidir (Admin CRUD).</td>
+            <td>Administrator kullanıcıları ve eğitim gruplarını yönetebilmelidir (Admin CRUD).</td>
             <td><code>AdminController</code>, Kullanıcı Ekle/Düzenle/Sil, Eğitim Şubeleri yönetimi.</td>
             <td><span style="color: #10B981; font-weight: bold;">✅ %100 Karşılandı</span></td>
           </tr>
           <tr>
             <td><strong>4</strong></td>
-            <td>Eğitmen görev oluşturup dağıtabilmelidir (Task Creation & Assignment).</td>
+            <td>Trainer görev oluşturup dağıtabilmelidir (Task Creation & Assignment).</td>
             <td>12 Zorunlu Alan, gruba ve bireysel öğrenciye görev atama, dosya eki ekleme.</td>
             <td><span style="color: #10B981; font-weight: bold;">✅ %100 Karşılandı</span></td>
           </tr>
           <tr>
             <td><strong>5</strong></td>
-            <td>Öğrenci görevi birden fazla kez teslim edebilmelidir (Resubmission Flow).</td>
-            <td>Eğitmen düzeltme istediğinde v2, v3 revizyon teslimatı yükleme desteği.</td>
+            <td>Student görevi birden fazla kez teslim edebilmelidir (Resubmission Flow).</td>
+            <td>Trainer düzeltme istediğinde v2, v3 revizyon teslimatı yükleme desteği.</td>
             <td><span style="color: #10B981; font-weight: bold;">✅ %100 Karşılandı</span></td>
           </tr>
           <tr>
@@ -748,7 +748,7 @@
           </tr>
           <tr>
             <td><strong>7</strong></td>
-            <td>Eğitmen her teslimatı inceleyip değerlendirebilmelidir (Review & Rubric Eval).</td>
+            <td>Trainer her teslimatı inceleyip değerlendirebilmelidir (Review & Rubric Eval).</td>
             <td>İnceleme Modalı, 5 Kriterli Rubrik notlandırma formu (0-100) ve akademik geribildirim.</td>
             <td><span style="color: #10B981; font-weight: bold;">✅ %100 Karşılandı</span></td>
           </tr>
@@ -761,7 +761,7 @@
           <tr>
             <td><strong>9</strong></td>
             <td>Her Role için farklı Dashboard sunulmalıdır (Role-based Dashboards).</td>
-            <td>Yönetici Paneli (KPIs/Loglar), Eğitmen Paneli (Bekleyenler), Öğrenci Paneli (Ödevlerim/GPA).</td>
+            <td>Administrator Paneli (KPIs/Loglar), Trainer Paneli (Bekleyenler), Student Paneli (Ödevlerim/GPA).</td>
             <td><span style="color: #10B981; font-weight: bold;">✅ %100 Karşılandı</span></td>
           </tr>
           <tr>
@@ -797,7 +797,7 @@
             <th style="width: 5%;">#</th>
             <th style="width: 30%;">Gereksinim İlkesi (Principle)</th>
             <th style="width: 45%;">Teknik Uygulama & Mimari Standart (Implementation)</th>
-            <th>Uyum Durumu</th>
+            <th>Uyum Statusu</th>
           </tr>
         </thead>
         <tbody>
@@ -815,7 +815,7 @@
           </tr>
           <tr>
             <td><strong>3</strong></td>
-            <td><strong>Güvenli Kimlik Doğrulama & Yetkilendirme</strong> (Auth & RBAC)</td>
+            <td><strong>Güvenli Kimlik Doğrulama & Authorization</strong> (Auth & RBAC)</td>
             <td>SHA-256 şifre hashleme, Bearer Token oturumları, 6 sistem rolü ve 26 granüler izin kodlu dinamik RBAC matrisi.</td>
             <td><span style="color: #10B981; font-weight: bold;">✅ %100 Uyumlu</span></td>
           </tr>
@@ -846,19 +846,19 @@
           <tr>
             <td><strong>8</strong></td>
             <td><strong>Hızlı Arama ve Filtreleme</strong> (Real-time Search & Filter)</td>
-            <td>Çok kriterli anlık filtreleme (Role, Grup, Durum, Öncelik, Tarih) ve 10 milisaniye altı gecikmesiz sorgu performansı.</td>
+            <td>Çok kriterli anlık filtreleme (Role, Grup, Status, Öncelik, Date) ve 10 milisaniye altı gecikmesiz sorgu performansı.</td>
             <td><span style="color: #10B981; font-weight: bold;">✅ %100 Uyumlu</span></td>
           </tr>
           <tr>
             <td><strong>9</strong></td>
-            <td><strong>Hatalar ve İşlemler İçin Loglama</strong> (Audit & Error Logs)</td>
+            <td><strong>Errorlar ve İşlemler İçin Loglama</strong> (Audit & Error Logs)</td>
             <td>Who / What / When / IP / Eski-Yeni Değerler formatında yapılandırılmış <code>audit_logs</code> arşivi ve konsol logları.</td>
             <td><span style="color: #10B981; font-weight: bold;">✅ %100 Uyumlu</span></td>
           </tr>
           <tr>
             <td><strong>10</strong></td>
             <td><strong>Mobile App & Harici API Hazırlığı</strong> (Decoupled REST API)</td>
-            <td>Durumsuz (Stateless) JSON REST API mimarisi sayesinde gelecekte Flutter/React Native mobil uygulamaları doğrudan bağlanabilir.</td>
+            <td>Statussuz (Stateless) JSON REST API mimarisi sayesinde gelecekte Flutter/React Native mobil uygulamaları doğrudan bağlanabilir.</td>
             <td><span style="color: #10B981; font-weight: bold;">✅ %100 Uyumlu</span></td>
           </tr>
         </tbody>
@@ -877,42 +877,42 @@
             <th style="width: 25%;">Aşama Adı (Phase)</th>
             <th style="width: 20%;">Mühendislik Katmanı</th>
             <th>Geliştirilen Çözüm ve Çıktılar (Deliverables)</th>
-            <th style="width: 12%;">Durum</th>
+            <th style="width: 12%;">Status</th>
           </tr>
         </thead>
         <tbody>
-          <tr><td><strong>13</strong></td><td><code>Project Analysis</code></td><td>Analiz</td><td>Üniversite görev ve eğitim yönetim sistemi gereksinim ve etki analizi.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Tamamlandı</span></td></tr>
-          <tr><td><strong>14</strong></td><td><code>Functional & Non-Functional Requirements</code></td><td>Gereksinim</td><td>12 Fonksiyonel (Section 27) ve 10 Fonksiyonel Olmayan (Section 28) şartname tanımı.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Tamamlandı</span></td></tr>
-          <tr><td><strong>15</strong></td><td><code>Actors & Use Cases</code></td><td>Kullanım Senaryoları</td><td>3 Ana Aktör (Admin, Trainer, Student) ve 26 granüler kullanım senaryosu haritası.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Tamamlandı</span></td></tr>
-          <tr><td><strong>16</strong></td><td><code>Use Case Diagram</code></td><td>UML Modelleme</td><td>Aktör-sistem etkileşimlerini gösteren resmi UML Use Case diyagramı.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Tamamlandı</span></td></tr>
-          <tr><td><strong>17</strong></td><td><code>Activity Diagrams</code></td><td>UML Modelleme</td><td>Görev atama, ödev teslimatı, eğitmen inceleme ve revizyon döngüsü akış şemaları.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Tamamlandı</span></td></tr>
-          <tr><td><strong>18</strong></td><td><code>ER Diagram</code></td><td>Veri Modelleme</td><td>28 Temel + 8 Genişletme tablosunun Entity-Relationship (ER) varlık-ilişki diyagramı.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Tamamlandı</span></td></tr>
-          <tr><td><strong>19</strong></td><td><code>Database Design</code></td><td>Veritabanı</td><td>3NF ilişkisel veritabanı şeması, Foreign Key kısıtlamaları ve bileşik indeksler.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Tamamlandı</span></td></tr>
-          <tr><td><strong>20</strong></td><td><code>UI Wireframes</code></td><td>Arayüz Tasarımı</td><td>Responsive Grid, modern tipografi, koyu/açık kontrastlı bileşenler ve modal formlar.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Tamamlandı</span></td></tr>
-          <tr><td><strong>21</strong></td><td><code>Migrations</code></td><td>Veritabanı DDL</td><td><code>init_db()</code> ile otomatik tablo oluşturma, indeksleme ve tohumlama (seed) scripti.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Tamamlandı</span></td></tr>
-          <tr><td><strong>22</strong></td><td><code>Models & Relationships</code></td><td>Veri Erişim</td><td>Python SQLite CRUD metotları, foreign key cascade bütünlüğü ve model ilişkileri.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Tamamlandı</span></td></tr>
-          <tr><td><strong>23</strong></td><td><code>Authentication</code></td><td>Güvenlik</td><td>SHA-256 şifre hashleme, Bearer Token oturumları ve güvenli login/logout akışı.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Tamamlandı</span></td></tr>
-          <tr><td><strong>24</strong></td><td><code>Roles & Permissions</code></td><td>Yetkilendirme</td><td>6 Sistem rolü, 26 izin kodu ve dinamik RBAC matrisi ile korunan uç noktalar.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Tamamlandı</span></td></tr>
-          <tr><td><strong>25</strong></td><td><code>Controllers / Services / APIs</code></td><td>Backend API</td><td>RESTful JSON mimarisinde 20+ servis uç noktası (<code>/api/...</code>).</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Tamamlandı</span></td></tr>
-          <tr><td><strong>26</strong></td><td><code>Admin Dashboard</code></td><td>Ön Yüz (Frontend)</td><td>Yönetici genel bakış paneli, kullanıcı sayıları, aktif gruplar ve log özetleri.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Tamamlandı</span></td></tr>
-          <tr><td><strong>27</strong></td><td><code>Trainer Dashboard</code></td><td>Ön Yüz (Frontend)</td><td>Eğitmen grup takibi, bekleyen teslimat incelemeleri ve rubrik notlandırma kısayolu.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Tamamlandı</span></td></tr>
-          <tr><td><strong>28</strong></td><td><code>Student Dashboard</code></td><td>Ön Yüz (Frontend)</td><td>Öğrenci görev listesi, teslimat durumu, GPA başarı hesaplaması ve yaklaşan teslimler.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Tamamlandı</span></td></tr>
-          <tr><td><strong>29</strong></td><td><code>Tasks Module</code></td><td>Görev Yönetimi</td><td>12 Alanlı görev oluşturma, etiket taksonomisi, kontrol listeleri ve bağımlılık kilidi.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Tamamlandı</span></td></tr>
-          <tr><td><strong>30</strong></td><td><code>Submissions Module</code></td><td>Teslimat</td><td>Dosya yükleme (PDF/Kod/Zip), not ekleme ve revizyon (v1/v2/v3) sürüm takibi.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Tamamlandı</span></td></tr>
-          <tr><td><strong>31</strong></td><td><code>Reviews & Evaluation</code></td><td>Değerlendirme</td><td>Kabul/Düzeltme karar ağacı, 5 kriterli rubrik notlandırma ve akademik geribildirim.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Tamamlandı</span></td></tr>
-          <tr><td><strong>32</strong></td><td><code>Notifications</code></td><td>İletişim</td><td>Olay tabanlı anlık bildirimler, okunmamış rozet sayacı ve 5 hedef kitleli duyurular.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Tamamlandı</span></td></tr>
-          <tr><td><strong>33</strong></td><td><code>Reports</code></td><td>Analitik</td><td>Section 21: 6 Analitik akademik rapor, başarı oranları grafikleri ve CSV dışa aktarım.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Tamamlandı</span></td></tr>
-          <tr><td><strong>34</strong></td><td><code>Audit Logs</code></td><td>Güvenlik Denetimi</td><td>Section 22: Who/What/When/IP güvenlik loglama arşivi ve JSON değer farkları.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Tamamlandı</span></td></tr>
-          <tr><td><strong>35</strong></td><td><code>Testing</code></td><td>Kalite Güvence</td><td>15 Otomatik entegrasyon test senaryosu ve uçtan uca API doğrulama testleri.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Tamamlandı</span></td></tr>
-          <tr><td><strong>36</strong></td><td><code>Final Documentation</code></td><td>Belgelendirme</td><td>Etkileşimli teknik dokümantasyon, şartname karşılama matrisi ve yazdırılabilir PDF rapor.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Tamamlandı</span></td></tr>
+          <tr><td><strong>13</strong></td><td><code>Project Analysis</code></td><td>Analiz</td><td>Üniversite görev ve eğitim yönetim sistemi gereksinim ve etki analizi.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Completed</span></td></tr>
+          <tr><td><strong>14</strong></td><td><code>Functional & Non-Functional Requirements</code></td><td>Gereksinim</td><td>12 Fonksiyonel (Section 27) ve 10 Fonksiyonel Olmayan (Section 28) şartname tanımı.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Completed</span></td></tr>
+          <tr><td><strong>15</strong></td><td><code>Actors & Use Cases</code></td><td>Kullanım Senaryoları</td><td>3 Ana Aktör (Admin, Trainer, Student) ve 26 granüler kullanım senaryosu haritası.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Completed</span></td></tr>
+          <tr><td><strong>16</strong></td><td><code>Use Case Diagram</code></td><td>UML Modelleme</td><td>Aktör-sistem etkileşimlerini gösteren resmi UML Use Case diyagramı.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Completed</span></td></tr>
+          <tr><td><strong>17</strong></td><td><code>Activity Diagrams</code></td><td>UML Modelleme</td><td>Görev atama, ödev teslimatı, eğitmen inceleme ve revizyon döngüsü akış şemaları.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Completed</span></td></tr>
+          <tr><td><strong>18</strong></td><td><code>ER Diagram</code></td><td>Veri Modelleme</td><td>28 Temel + 8 Genişletme tablosunun Entity-Relationship (ER) varlık-ilişki diyagramı.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Completed</span></td></tr>
+          <tr><td><strong>19</strong></td><td><code>Database Design</code></td><td>Veritabanı</td><td>3NF ilişkisel veritabanı şeması, Foreign Key kısıtlamaları ve bileşik indeksler.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Completed</span></td></tr>
+          <tr><td><strong>20</strong></td><td><code>UI Wireframes</code></td><td>Arayüz Tasarımı</td><td>Responsive Grid, modern tipografi, koyu/açık kontrastlı bileşenler ve modal formlar.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Completed</span></td></tr>
+          <tr><td><strong>21</strong></td><td><code>Migrations</code></td><td>Veritabanı DDL</td><td><code>init_db()</code> ile otomatik tablo oluşturma, indeksleme ve tohumlama (seed) scripti.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Completed</span></td></tr>
+          <tr><td><strong>22</strong></td><td><code>Models & Relationships</code></td><td>Veri Erişim</td><td>Python SQLite CRUD metotları, foreign key cascade bütünlüğü ve model ilişkileri.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Completed</span></td></tr>
+          <tr><td><strong>23</strong></td><td><code>Authentication</code></td><td>Güvenlik</td><td>SHA-256 şifre hashleme, Bearer Token oturumları ve güvenli login/logout akışı.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Completed</span></td></tr>
+          <tr><td><strong>24</strong></td><td><code>Roles & Permissions</code></td><td>Authorization</td><td>6 Sistem rolü, 26 izin kodu ve dinamik RBAC matrisi ile korunan uç noktalar.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Completed</span></td></tr>
+          <tr><td><strong>25</strong></td><td><code>Controllers / Services / APIs</code></td><td>Backend API</td><td>RESTful JSON mimarisinde 20+ servis uç noktası (<code>/api/...</code>).</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Completed</span></td></tr>
+          <tr><td><strong>26</strong></td><td><code>Admin Dashboard</code></td><td>Ön Yüz (Frontend)</td><td>Administrator genel bakış paneli, kullanıcı sayıları, aktif gruplar ve log özetleri.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Completed</span></td></tr>
+          <tr><td><strong>27</strong></td><td><code>Trainer Dashboard</code></td><td>Ön Yüz (Frontend)</td><td>Trainer grup takibi, bekleyen teslimat incelemeleri ve rubrik notlandırma kısayolu.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Completed</span></td></tr>
+          <tr><td><strong>28</strong></td><td><code>Student Dashboard</code></td><td>Ön Yüz (Frontend)</td><td>Student görev listesi, teslimat durumu, GPA başarı hesaplaması ve yaklaşan teslimler.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Completed</span></td></tr>
+          <tr><td><strong>29</strong></td><td><code>Tasks Module</code></td><td>Görev Yönetimi</td><td>12 Alanlı görev oluşturma, etiket taksonomisi, kontrol listeleri ve bağımlılık kilidi.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Completed</span></td></tr>
+          <tr><td><strong>30</strong></td><td><code>Submissions Module</code></td><td>Teslimat</td><td>Dosya yükleme (PDF/Kod/Zip), not ekleme ve revizyon (v1/v2/v3) sürüm takibi.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Completed</span></td></tr>
+          <tr><td><strong>31</strong></td><td><code>Reviews & Evaluation</code></td><td>Değerlendirme</td><td>Kabul/Düzeltme karar ağacı, 5 kriterli rubrik notlandırma ve akademik geribildirim.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Completed</span></td></tr>
+          <tr><td><strong>32</strong></td><td><code>Notifications</code></td><td>İletişim</td><td>Olay tabanlı anlık bildirimler, okunmamış rozet sayacı ve 5 hedef kitleli duyurular.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Completed</span></td></tr>
+          <tr><td><strong>33</strong></td><td><code>Reports</code></td><td>Analitik</td><td>Section 21: 6 Analitik akademik rapor, başarı oranları grafikleri ve CSV dışa aktarım.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Completed</span></td></tr>
+          <tr><td><strong>34</strong></td><td><code>Audit Logs</code></td><td>Güvenlik Denetimi</td><td>Section 22: Who/What/When/IP güvenlik loglama arşivi ve JSON değer farkları.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Completed</span></td></tr>
+          <tr><td><strong>35</strong></td><td><code>Testing</code></td><td>Kalite Güvence</td><td>15 Otomatik entegrasyon test senaryosu ve uçtan uca API doğrulama testleri.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Completed</span></td></tr>
+          <tr><td><strong>36</strong></td><td><code>Final Documentation</code></td><td>Belgelendirme</td><td>Etkileşimli teknik dokümantasyon, şartname karşılama matrisi ve yazdırılabilir PDF rapor.</td><td><span style="color: #10B981; font-weight: bold;">✅ %100 Completed</span></td></tr>
         </tbody>
       </table>
     </div>
 
     <!-- 11. SECTION 31: ÖĞRENCİ TESLİMAT ÇIKTILARI MATRİSİ (19 DELIVERABLES) -->
     <div class="doc-section">
-      <h2>📦 11. Section 31: Öğrenci Teslimat Çıktıları Kontrol Listesi (19 Deliverables Checklist)</h2>
-      <p>Öğrencinin bitirme projesi kapsamında teslim etmesi gereken 19 teknik ve pratik çıktının tamamı %100 eksiksiz olarak hazırlanmış ve doğrulanmıştır:</p>
+      <h2>📦 11. Section 31: Student Teslimat Çıktıları Kontrol Listesi (19 Deliverables Checklist)</h2>
+      <p>Studentnin bitirme projesi kapsamında teslim etmesi gereken 19 teknik ve pratik çıktının tamamı %100 eksiksiz olarak hazırlanmış ve doğrulanmıştır:</p>
 
       <table class="doc-table">
         <thead>
@@ -920,29 +920,29 @@
             <th style="width: 5%;">#</th>
             <th style="width: 25%;">Teslimat Çıktısı (Deliverable)</th>
             <th style="width: 20%;">Format & Tür</th>
-            <th>Sistemde Karşılandığı Modül / Dosya / Rapor Bölümü</th>
-            <th style="width: 12%;">Durum</th>
+            <th>Sistemde Karşılandığı Modül / Dosya / Rapor Sectionü</th>
+            <th style="width: 12%;">Status</th>
           </tr>
         </thead>
         <tbody>
-          <tr><td><strong>1</strong></td><td><code>Project Description</code></td><td>Dokümantasyon</td><td>Bölüm 1 & Bölüm 30: Kapsamlı Proje Tanımı ve Hedef Beyanı.</td><td><span style="color: #10B981; font-weight: bold;">✓ Teslim Edildi</span></td></tr>
-          <tr><td><strong>2</strong></td><td><code>Actors & User Roles</code></td><td>Rol Analizi</td><td>Bölüm 2 & 12: Admin, Trainer, Student ve 6 sistem rolü tanımı.</td><td><span style="color: #10B981; font-weight: bold;">✓ Teslim Edildi</span></td></tr>
-          <tr><td><strong>3</strong></td><td><code>Functional Requirements</code></td><td>Gereksinimler</td><td>Bölüm 27: 12 Temel Fonksiyonel Gereksinim Karşılama Matrisi.</td><td><span style="color: #10B981; font-weight: bold;">✓ Teslim Edildi</span></td></tr>
-          <tr><td><strong>4</strong></td><td><code>Non-Functional Requirements</code></td><td>Mühendislik</td><td>Bölüm 28: 10 Temel Fonksiyonel Olmayan Kalite İlkesi.</td><td><span style="color: #10B981; font-weight: bold;">✓ Teslim Edildi</span></td></tr>
-          <tr><td><strong>5</strong></td><td><code>Use Case Diagram</code></td><td>UML Şeması</td><td>Bölüm 29: Aktör-sistem etkileşim UML kullanım senaryosu haritası.</td><td><span style="color: #10B981; font-weight: bold;">✓ Teslim Edildi</span></td></tr>
+          <tr><td><strong>1</strong></td><td><code>Project Description</code></td><td>Dokümantasyon</td><td>Section 1 & Section 30: Kapsamlı Proje Tanımı ve Hedef Beyanı.</td><td><span style="color: #10B981; font-weight: bold;">✓ Teslim Edildi</span></td></tr>
+          <tr><td><strong>2</strong></td><td><code>Actors & User Roles</code></td><td>Rol Analizi</td><td>Section 2 & 12: Admin, Trainer, Student ve 6 sistem rolü tanımı.</td><td><span style="color: #10B981; font-weight: bold;">✓ Teslim Edildi</span></td></tr>
+          <tr><td><strong>3</strong></td><td><code>Functional Requirements</code></td><td>Gereksinimler</td><td>Section 27: 12 Temel Fonksiyonel Gereksinim Karşılama Matrisi.</td><td><span style="color: #10B981; font-weight: bold;">✓ Teslim Edildi</span></td></tr>
+          <tr><td><strong>4</strong></td><td><code>Non-Functional Requirements</code></td><td>Mühendislik</td><td>Section 28: 10 Temel Fonksiyonel Olmayan Kalite İlkesi.</td><td><span style="color: #10B981; font-weight: bold;">✓ Teslim Edildi</span></td></tr>
+          <tr><td><strong>5</strong></td><td><code>Use Case Diagram</code></td><td>UML Şeması</td><td>Section 29: Aktör-sistem etkileşim UML kullanım senaryosu haritası.</td><td><span style="color: #10B981; font-weight: bold;">✓ Teslim Edildi</span></td></tr>
           <tr><td><strong>6</strong></td><td><code>Detailed Use Cases</code></td><td>Kullanım Detayı</td><td>26 Granüler kullanım senaryosu, ön koşul ve son durum matrisi.</td><td><span style="color: #10B981; font-weight: bold;">✓ Teslim Edildi</span></td></tr>
-          <tr><td><strong>7</strong></td><td><code>Activity Diagrams</code></td><td>İş Akışı</td><td>Bölüm 25: Hiyerarşik görev, teslim, inceleme ve revizyon akış ağacı.</td><td><span style="color: #10B981; font-weight: bold;">✓ Teslim Edildi</span></td></tr>
-          <tr><td><strong>8</strong></td><td><code>ER Diagram</code></td><td>Veri Modelleme</td><td>Bölüm 3 & 4: 28 Temel + 8 Genişletme tablosu Entity-Relationship şeması.</td><td><span style="color: #10B981; font-weight: bold;">✓ Teslim Edildi</span></td></tr>
+          <tr><td><strong>7</strong></td><td><code>Activity Diagrams</code></td><td>İş Akışı</td><td>Section 25: Hiyerarşik görev, teslim, inceleme ve revizyon akış ağacı.</td><td><span style="color: #10B981; font-weight: bold;">✓ Teslim Edildi</span></td></tr>
+          <tr><td><strong>8</strong></td><td><code>ER Diagram</code></td><td>Veri Modelleme</td><td>Section 3 & 4: 28 Temel + 8 Genişletme tablosu Entity-Relationship şeması.</td><td><span style="color: #10B981; font-weight: bold;">✓ Teslim Edildi</span></td></tr>
           <tr><td><strong>9</strong></td><td><code>Database Tables & Relationships</code></td><td>Veritabanı</td><td><code>database.sqlite</code> ve <code>database.py</code>: 36 İlişkisel tablo ve DDL indeksleri.</td><td><span style="color: #10B981; font-weight: bold;">✓ Teslim Edildi</span></td></tr>
-          <tr><td><strong>10</strong></td><td><code>Wireframes / UI Design</code></td><td>Kullanıcı Arayüzü</td><td>Bölüm 26: 29 Responsive ekran tasarımı, modern CSS ve modal formlar.</td><td><span style="color: #10B981; font-weight: bold;">✓ Teslim Edildi</span></td></tr>
+          <tr><td><strong>10</strong></td><td><code>Wireframes / UI Design</code></td><td>Kullanıcı Arayüzü</td><td>Section 26: 29 Responsive ekran tasarımı, modern CSS ve modal formlar.</td><td><span style="color: #10B981; font-weight: bold;">✓ Teslim Edildi</span></td></tr>
           <tr><td><strong>11</strong></td><td><code>Working Web Application</code></td><td>Yazılım (Kod)</td><td><code>server.py</code>, <code>database.py</code>, <code>app.js</code>: Canlı tam çalışan platform.</td><td><span style="color: #10B981; font-weight: bold;">✓ Teslim Edildi</span></td></tr>
           <tr><td><strong>12</strong></td><td><code>Authentication & Authorization</code></td><td>Güvenlik</td><td><code>/api/auth/login</code>, SHA-256 şifreleme, Bearer Token oturum güvenliği.</td><td><span style="color: #10B981; font-weight: bold;">✓ Teslim Edildi</span></td></tr>
-          <tr><td><strong>13</strong></td><td><code>Roles & Permissions</code></td><td>Yetki Matrisi</td><td>Bölüm 12: 6 Rol ve 26 izin kodlu dinamik RBAC matris arayüzü.</td><td><span style="color: #10B981; font-weight: bold;">✓ Teslim Edildi</span></td></tr>
+          <tr><td><strong>13</strong></td><td><code>Roles & Permissions</code></td><td>Yetki Matrisi</td><td>Section 12: 6 Rol ve 26 izin kodlu dinamik RBAC matris arayüzü.</td><td><span style="color: #10B981; font-weight: bold;">✓ Teslim Edildi</span></td></tr>
           <tr><td><strong>14</strong></td><td><code>Task Management Module</code></td><td>Ana Modül</td><td>12 Alanlı görev tanımlama, etiketleme, kontrol listeleri, ön koşullar.</td><td><span style="color: #10B981; font-weight: bold;">✓ Teslim Edildi</span></td></tr>
           <tr><td><strong>15</strong></td><td><code>Submission & Review Module</code></td><td>Ana Modül</td><td>Ödev yükleme, sürümleme (v1/v2/v3), 5 kriterli rubrik değerlendirme.</td><td><span style="color: #10B981; font-weight: bold;">✓ Teslim Edildi</span></td></tr>
-          <tr><td><strong>16</strong></td><td><code>Notification Module</code></td><td>İletişim</td><td>Bölüm 19: Anlık bildirimler, rozet sayaçları ve 5 hedef kitleli duyurular.</td><td><span style="color: #10B981; font-weight: bold;">✓ Teslim Edildi</span></td></tr>
-          <tr><td><strong>17</strong></td><td><code>Reports</code></td><td>Analitik</td><td>Bölüm 21: 6 Analitik performans raporu ve Excel/CSV dışa aktarım.</td><td><span style="color: #10B981; font-weight: bold;">✓ Teslim Edildi</span></td></tr>
-          <tr><td><strong>18</strong></td><td><code>Testing Report</code></td><td>Kalite Testi</td><td>Bölüm 12: 15 Entegrasyon test senaryosu ve uçtan uca doğrulama kayıtları.</td><td><span style="color: #10B981; font-weight: bold;">✓ Teslim Edildi</span></td></tr>
+          <tr><td><strong>16</strong></td><td><code>Notification Module</code></td><td>İletişim</td><td>Section 19: Anlık bildirimler, rozet sayaçları ve 5 hedef kitleli duyurular.</td><td><span style="color: #10B981; font-weight: bold;">✓ Teslim Edildi</span></td></tr>
+          <tr><td><strong>17</strong></td><td><code>Reports</code></td><td>Analitik</td><td>Section 21: 6 Analitik performans raporu ve Excel/CSV dışa aktarım.</td><td><span style="color: #10B981; font-weight: bold;">✓ Teslim Edildi</span></td></tr>
+          <tr><td><strong>18</strong></td><td><code>Testing Report</code></td><td>Kalite Testi</td><td>Section 12: 15 Entegrasyon test senaryosu ve uçtan uca doğrulama kayıtları.</td><td><span style="color: #10B981; font-weight: bold;">✓ Teslim Edildi</span></td></tr>
           <tr><td><strong>19</strong></td><td><code>Final Project Documentation</code></td><td>Bitirme Tezi</td><td><code>documentation.html</code>: Yazdırılabilir resmi PDF proje dokümantasyon raporu.</td><td><span style="color: #10B981; font-weight: bold;">✓ Teslim Edildi</span></td></tr>
         </tbody>
       </table>

@@ -35,7 +35,7 @@ const StudentController = {
     const user = AppState.currentUser;
 
     container.innerHTML = `
-      <!-- Welcome Hero Bannerı -->
+      <!-- Welcome Hero Banner -->
       <div class="welcome-hero">
         <div class="welcome-hero-content">
           <h2>Welcome, ${user.name} 👋</h2>
@@ -53,7 +53,7 @@ const StudentController = {
         </div>
       </div>
 
-      <!-- 4x KPI İstatistik Kartları -->
+      <!-- 4x KPI Statistics Cards -->
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-info">
@@ -108,9 +108,9 @@ const StudentController = {
         </div>
       </div>
 
-      <!-- 2-Kolonlu Zengin Düzen (2/3 Sol + 1/3 Sağ) -->
+      <!-- 2-Column Rich Layout (2/3 Sol + 1/3 Sağ) -->
       <div class="dashboard-grid-2col">
-        <!-- SOL: Haftalık İlerleme & Task Tablosu -->
+        <!-- LEFT: Weekly Progress & Task Tablosu -->
         <div>
           <!-- Weekly Activity Bar Chart -->
           <div class="chart-card">
@@ -201,7 +201,7 @@ const StudentController = {
           </div>
         </div>
 
-        <!-- SAĞ: Donut Grafik, Mini Calendar, Announcements -->
+        <!-- RIGHT: Donut Chart, Mini Calendar, Announcements -->
         <div>
           <!-- Academic Achievement Rate Donut Widgetı -->
           <div class="donut-widget">

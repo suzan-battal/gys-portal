@@ -61,7 +61,7 @@ const AdminController = {
     const user = AppState.currentUser;
 
     container.innerHTML = `
-      <!-- Welcome Bannerı (Hero Banner) -->
+      <!-- Welcome Hero Banner -->
       <div class="welcome-hero" style="margin-bottom: 24px;">
         <div class="welcome-hero-content">
           <h2>Welcome, ${user.name} 👋</h2>
@@ -79,7 +79,7 @@ const AdminController = {
         </div>
       </div>
 
-      <!-- Section 16: 7x KPI İstatistik Kartları -->
+      <!-- Section 16: 7x KPI Statistics Cards -->
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px;">
         <!-- 1. Total Students -->
         <div class="stat-card" style="padding: 14px 16px;">
@@ -189,7 +189,7 @@ const AdminController = {
         </div>
       </div>
 
-      <!-- 2-Kolonlu Düzen: 9. Trainer Activity & 10. Late Submissions -->
+      <!-- 2-Column Layout: 9. Trainer Activity & 10. Late Submissions -->
       <div style="display: grid; grid-template-columns: 1.2fr 1.8fr; gap: 20px; margin-bottom: 24px; align-items: start;">
         
         <!-- 9. Trainer Activity -->
@@ -361,7 +361,7 @@ const AdminController = {
           </div>
           <button class="btn-action btn-primary" onclick="AdminController.openAddGroupModal()" style="width: auto;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            <span>Yeni Group Oluştur</span>
+            <span>Create New Group</span>
           </button>
         </div>
         <div class="table-responsive">
@@ -816,7 +816,7 @@ const AdminController = {
                 </div>
                 <div class="form-group">
                   <label>Bölüm / Uzmanlık Alanı *</label>
-                  <input type="text" id="group-dept" placeholder="Örn: Bilgisayar Mühendisliği" required>
+                  <input type="text" id="group-dept" placeholder="Örn: Informationsayar Mühendisliği" required>
                 </div>
               </div>
               <div class="form-group">

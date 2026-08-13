@@ -3544,40 +3544,40 @@ def seed_database():
         if count > 0:
             return
 
-    print("Veritabanı tohumlanıyor (Seeding initial university data with Training Groups)...")
+    print("Seeding initial university database with English Demo Data & Training Groups...")
 
-    # 1. Kullanıcılar
-    admin_id = create_user("Sistem Yöneticisi", "yonetici@universite.edu.tr", "Admin123!", "admin")
+    # 1. Users
+    admin_id = create_user("System Administrator", "yonetici@universite.edu.tr", "Admin123!", "admin")
     
-    t1_id = create_user("Prof. Dr. Ahmet Yılmaz", "ahmet.yilmaz@universite.edu.tr", "Egitmen123!", "trainer")
-    t2_id = create_user("Doç. Dr. Ayşe Kaya", "ayse.kaya@universite.edu.tr", "Egitmen123!", "trainer")
+    t1_id = create_user("Prof. Ahmet Yilmaz", "ahmet.yilmaz@universite.edu.tr", "Egitmen123!", "trainer")
+    t2_id = create_user("Assoc. Prof. Ayse Kaya", "ayse.kaya@universite.edu.tr", "Egitmen123!", "trainer")
     
     s1_id = create_user("Mehmet Demir", "mehmet.demir@universite.edu.tr", "Ogrenci123!", "student")
-    s2_id = create_user("Zeynep Çelik", "zeynep.celik@universite.edu.tr", "Ogrenci123!", "student")
-    s3_id = create_user("Can Özkan", "can.ozkan@universite.edu.tr", "Ogrenci123!", "student")
-    s4_id = create_user("Elif Yıldız", "elif.yildiz@universite.edu.tr", "Ogrenci123!", "student")
-    s5_id = create_user("Burak Şahin", "burak.sahin@universite.edu.tr", "Ogrenci123!", "student")
+    s2_id = create_user("Zeynep Celik", "zeynep.celik@universite.edu.tr", "Ogrenci123!", "student")
+    s3_id = create_user("Can Ozkan", "can.ozkan@universite.edu.tr", "Ogrenci123!", "student")
+    s4_id = create_user("Elif Yildiz", "elif.yildiz@universite.edu.tr", "Ogrenci123!", "student")
+    s5_id = create_user("Burak Sahin", "burak.sahin@universite.edu.tr", "Ogrenci123!", "student")
 
-    # 2. Eğitim Grupları (Training Groups)
+    # 2. Training Groups
     now = datetime.now()
     d_start = now.strftime("%Y-%m-%d")
     d_end = (now + timedelta(days=90)).strftime("%Y-%m-%d")
 
     g1_id = create_group(
-        "Yazılım Geliştirme ve Algoritmalar - Şube A",
-        "Bilgisayar Mühendisliği",
-        "İleri algoritma analizi, veri yapıları ve web mimarileri eğitim grubu.",
+        "Software Development & Algorithms - Section A",
+        "Computer Science & Engineering",
+        "Advanced algorithm analysis, data structures, and enterprise web architecture training group.",
         d_start, d_end, t1_id, [s1_id, s2_id, s3_id]
     )
 
     g2_id = create_group(
-        "Siber Güvenlik ve Ağ Sistemleri - Şube B",
-        "Yazılım ve Bilişim Sistemleri",
-        "Ağ güvenliği, penetrasyon testleri ve zafiyet analizi çalışma grubu.",
+        "Cyber Security & Network Systems - Section B",
+        "Information Technology & Cyber Defense",
+        "Network security analysis, penetration testing, vulnerability assessment, and secure protocol design.",
         d_start, d_end, t2_id, [s4_id, s5_id]
     )
 
-    # 3. Görevler (Tasks)
+    # 3. Tasks
     d1 = (now + timedelta(days=5)).strftime("%Y-%m-%d")
     d2 = (now + timedelta(days=8)).strftime("%Y-%m-%d")
     d3 = (now + timedelta(days=12)).strftime("%Y-%m-%d")
@@ -3585,33 +3585,33 @@ def seed_database():
     d5 = (now + timedelta(days=20)).strftime("%Y-%m-%d")
 
     task1 = create_task(
-        "Veri Yapıları: İkili Arama Ağacı (BST) İmplementasyonu",
-        "Python veya C++ kullanarak dengeli ikili arama ağacı (AVL/BST) veri yapısını oluşturunuz. Ekleme, silme ve arama fonksiyonlarını zaman karmaşıklığı analizleriyle birlikte raporlayınız.",
-        d1, t1_id, s1_id, 'Yüksek', g1_id
+        "Data Structures: Binary Search Tree (BST) Implementation",
+        "Implement a self-balancing binary search tree (AVL/BST) in Python or C++. Include insertion, deletion, lookup operations, and full time complexity analysis in your report.",
+        d1, t1_id, s1_id, 'High', g1_id
     )
 
     task2 = create_task(
-        "Web Programlama: RESTful API ve JWT Kimlik Doğrulama",
-        "Kullanıcı kayıt, giriş ve oturum yönetimi sunan güvenli bir REST API geliştiriniz. API dokümantasyonunu ve Postman koleksiyonunu ekleyiniz.",
-        d2, t1_id, s2_id, 'Normal', g1_id
+        "Web Programming: RESTful API & JWT Authentication",
+        "Develop a secure REST API providing user registration, login, and token-based session management. Include complete API documentation and Postman collection.",
+        d2, t1_id, s2_id, 'Medium', g1_id
     )
 
     task3 = create_task(
-        "Yapay Zeka: Makine Öğrenmesi ile Görüntü Sınıflandırma",
-        "Evrişimli Sinir Ağları (CNN) kullanarak MNIST veya CIFAR-10 veri kümesi üzerinde %90+ doğruluk sağlayan model eğitip metrik grafikleriyle sununuz.",
-        d3, t2_id, s3_id, 'Normal', g1_id
+        "Artificial Intelligence: Image Classification with CNN",
+        "Train a Convolutional Neural Network (CNN) on MNIST/CIFAR-10 achieving 90%+ test accuracy. Submit test evaluation metrics and ROC curves.",
+        d3, t2_id, s3_id, 'Medium', g1_id
     )
 
     task4 = create_task(
-        "Veritabanı Yönetimi: E-Ticaret Veritabanı Şeması ve SQL Optimizasyonu",
-        "3. Normal Forma (3NF) uygun ilişkisel veritabanı şeması tasarlayınız. İndeksleme ve sorgu optimizasyon senaryolarını raporlayınız.",
-        d4, t2_id, s4_id, 'Normal', g2_id
+        "Database Management: E-Commerce Relational Schema Design & SQL Optimization",
+        "Design a 3NF normalized relational database schema for an enterprise e-commerce platform. Include index optimization and query execution plans.",
+        d4, t2_id, s4_id, 'Medium', g2_id
     )
 
     task5 = create_task(
-        "Mobil Uygulama: Flutter ile Görev Takip Arayüzü",
-        "Modern ve kullanıcı dostu bir mobil görev yönetim arayüzü tasarlayıp durum yönetimini uygulayınız.",
-        d5, t1_id, s5_id, 'Acil', g2_id
+        "Mobile Application: Cross-Platform Task Tracker UI with Flutter",
+        "Design and build a responsive mobile task tracking user interface using Flutter and clean state management.",
+        d5, t1_id, s5_id, 'Urgent', g2_id
     )
 
 

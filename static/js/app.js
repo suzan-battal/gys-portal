@@ -609,7 +609,7 @@ async function openStudentProfileModal(studentId) {
       </div>
     </div>
 
-    <!-- 7. Task History Table (Task History ve Grade Detailsları) -->
+    <!-- 7. Task History Table (Task History & Grade Details) -->
     <div class="panel-card" style="padding: 0; overflow: hidden; border: 1px solid var(--border-light); border-radius: 10px; margin-bottom: 20px;">
       <div style="padding: 12px 18px; background: var(--bg-page); border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center;">
         <strong style="font-size: 13.5px; color: var(--primary-navy);">📋 Task History (Task History - ${task_history.length})</strong>
@@ -631,7 +631,7 @@ async function openStudentProfileModal(studentId) {
               let statusBadgeHtml = '<span class="status-badge badge-pending">Pending</span>';
               if (t.submission_status === 'Completed' || t.submission_status === 'Approved') {
                 statusBadgeHtml = '<span class="status-badge badge-completed">Completed</span>';
-              } else if (t.submission_status === 'Revizyon İstendi') {
+              } else if (t.submission_status === 'Needs Revision') {
                 statusBadgeHtml = '<span class="status-badge badge-late">Revizyon</span>';
               } else if (t.submission_status === 'Submitted' || t.submission_status === 'Viewniyor') {
                 statusBadgeHtml = '<span class="status-badge badge-reviewing">Viewniyor</span>';
@@ -661,7 +661,7 @@ async function openStudentProfileModal(studentId) {
       </div>
     </div>
 
-    <!-- 8. Recent Activity (Son Aktiviteler & Timestamp (When) Çizelgesi) -->
+    <!-- 8. Recent Activity (Recent Activities & Timeline) -->
     <div class="card" style="padding: 16px; border: 1px solid var(--border-light); background: var(--bg-card); border-radius: 10px;">
       <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
         <span style="font-size: 16px;">⏱️</span>
@@ -712,7 +712,7 @@ function handleUniversalFileSelected(e) {
   if (!file) return;
 
   if (file.size > 25 * 1024 * 1024) {
-    showToast("Dosya boyutu çok büyük. Maksimum 25 MB yükleyebilirsiniz.", "error");
+    showToast("File size is too large. Maximum allowed size is 25 MB.", "error");
     clearUniversalFile();
     return;
   }
@@ -1508,14 +1508,14 @@ const TodayTasksController = {
       <div class="panel-card" style="padding: 0; overflow: hidden; border: 1px solid var(--border-light); border-radius: 12px;">
         <div style="padding: 14px 20px; background: var(--bg-page); border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center;">
           <strong style="font-size: 14px; color: var(--primary-navy);">Task Listesi (${tasks.length} Task Listeleniyor)</strong>
-          <span style="font-size: 12px; color: var(--text-muted);">Tarihe göre sıralı</span>
+          <span style="font-size: 12px; color: var(--text-muted);">Datee göre sıralı</span>
         </div>
 
         <div class="table-responsive" style="margin: 0;">
           <table class="custom-table" style="margin: 0; width: 100%;">
             <thead>
               <tr style="background: var(--bg-page); font-size: 11.5px;">
-                <th style="padding: 10px 14px;">Task Bilgisi</th>
+                <th style="padding: 10px 14px;">Task Informationsi</th>
                 <th style="padding: 10px 14px;">Group & Trainer</th>
                 <th style="padding: 10px 14px;">Atanan Student</th>
                 <th style="padding: 10px 14px;">Due Date</th>
@@ -1751,7 +1751,7 @@ const AnnouncementsController = {
                 ${escapeHtml(a.message)}
               </div>
 
-              <!-- Alt Bilgi: Published By ve Tarih -->
+              <!-- Alt Information: Published By ve Date -->
               <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11.5px; color: var(--text-muted); border-top: 1px solid var(--border-light); padding-top: 10px;">
                 <div style="display: flex; align-items: center; gap: 8px;">
                   <div class="avatar-circle" style="width: 24px; height: 24px; font-size: 10px;">${escapeHtml((a.author_name || 'Y').charAt(0))}</div>
@@ -2353,12 +2353,12 @@ const CalendarController = {
               <option value="events">🎪 Events (Akademik Etkinlik / Seminer)</option>
               <option value="meetings">🤝 Meetings (Toplantı & Görüşme)</option>
               <option value="tasks">📋 Tasks (Task & Çalışma)</option>
-              <option value="deadlines">⏰ Deadlines (Due Date Tarihi)</option>
+              <option value="deadlines">⏰ Deadlines (Due Date Datei)</option>
             </select>
           </div>
 
           <div>
-            <label class="form-label" style="font-weight: 700;">Tarih <span style="color: var(--accent-rose);">*</span></label>
+            <label class="form-label" style="font-weight: 700;">Date <span style="color: var(--accent-rose);">*</span></label>
             <input type="date" id="cal-event-date" value="${defaultDate}" class="form-control" required>
           </div>
         </div>
@@ -2649,7 +2649,7 @@ const ReportsController = {
         { label: 'Toplam Student', val: kpis.total_students || 0, icon: '🎓', color: '#2563EB' },
         { label: 'Sınıf Grade Mediumlaması', val: `${kpis.class_average_grade || 0} / 100`, icon: '📈', color: '#059669' },
         { label: 'Average Score Oranı', val: `%${kpis.average_completion_rate || 0}`, icon: '🎯', color: '#7C3AED' },
-        { label: 'High Başarılı (>85)', val: kpis.high_achievers_count || 0, icon: '⭐', color: '#D97706' }
+        { label: 'High Success (>85)', val: kpis.high_achievers_count || 0, icon: '⭐', color: '#D97706' }
       ];
     } else if (type === 'trainer_performance') {
       items = [
@@ -2663,7 +2663,7 @@ const ReportsController = {
         { label: 'Toplam Training Group', val: kpis.total_groups || 0, icon: '🏢', color: '#2563EB' },
         { label: 'Kayıtlı Toplam Kursiyer', val: kpis.total_enrolled_students || 0, icon: '👥', color: '#059669' },
         { label: 'Genel Grade Mediumlaması', val: `${kpis.group_overall_average || 0} / 100`, icon: '📊', color: '#7C3AED' },
-        { label: 'En Başarılı Group', val: kpis.top_group_name || '-', icon: '🏆', color: '#D97706' }
+        { label: 'En Success Group', val: kpis.top_group_name || '-', icon: '🏆', color: '#D97706' }
       ];
     } else if (type === 'tasks_report') {
       items = [
@@ -2719,7 +2719,7 @@ const ReportsController = {
         <table class="data-table" style="width: 100%; border-collapse: collapse; font-size: 12.5px;">
           <thead>
             <tr style="background: var(--bg-page); border-bottom: 1px solid var(--border-light); text-align: left;">
-              <th style="padding: 12px 16px;">Student Bilgisi</th>
+              <th style="padding: 12px 16px;">Student Informationsi</th>
               <th style="padding: 12px 16px;">Training Group & Trainer</th>
               <th style="padding: 12px 16px; text-align: center;">Total Tasks</th>
               <th style="padding: 12px 16px; text-align: center;">Tamamlanan</th>
@@ -2927,7 +2927,7 @@ const ReportsController = {
           <thead>
             <tr style="background: var(--bg-page); border-bottom: 1px solid var(--border-light); text-align: left;">
               <th style="padding: 12px 16px;">Overdue Task</th>
-              <th style="padding: 12px 16px;">Student Bilgisi</th>
+              <th style="padding: 12px 16px;">Student Informationsi</th>
               <th style="padding: 12px 16px;">Group & Trainer</th>
               <th style="padding: 12px 16px;">Due Date</th>
               <th style="padding: 12px 16px; text-align: center;">Gecikme Süresi</th>
@@ -3178,7 +3178,7 @@ const AuditLogsController = {
 
         <div class="panel-card" style="padding: 16px 18px; border-radius: 10px; background: var(--bg-card); border: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between;">
           <div>
-            <div style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px;">Kritik & Uyarılar</div>
+            <div style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px;">Kritik & Warninglar</div>
             <div style="font-size: 20px; font-weight: 800; color: #DC2626;">${auditData.critical_count}</div>
           </div>
           <div style="font-size: 24px; padding: 8px; background: var(--bg-page); border-radius: 8px;">🚨</div>
@@ -3207,8 +3207,8 @@ const AuditLogsController = {
             <!-- Severity Filter -->
             <select class="form-control" style="font-size: 12px; padding: 5px 10px; height: 34px; width: 150px;" onchange="AuditLogsController.setFilter('severity', this.value)">
               <option value="all" ${this.filters.severity === 'all' ? 'selected' : ''}>🛡️ Tüm Düzeyler</option>
-              <option value="info" ${this.filters.severity === 'info' ? 'selected' : ''}>🟢 Bilgi (Info)</option>
-              <option value="warning" ${this.filters.severity === 'warning' ? 'selected' : ''}>🟡 Uyarı (Warning)</option>
+              <option value="info" ${this.filters.severity === 'info' ? 'selected' : ''}>🟢 Information (Info)</option>
+              <option value="warning" ${this.filters.severity === 'warning' ? 'selected' : ''}>🟡 Warning (Warning)</option>
               <option value="critical" ${this.filters.severity === 'critical' ? 'selected' : ''}>🔴 Kritik (Critical)</option>
             </select>
 
@@ -3268,8 +3268,8 @@ const AuditLogsController = {
         </thead>
         <tbody>
           ${logs.map(log => {
-            let sevBadge = '<span class="status-badge" style="background: rgba(16,185,129,0.1); color: #059669; border: 1px solid rgba(16,185,129,0.2);">🟢 Bilgi</span>';
-            if (log.severity === 'warning') sevBadge = '<span class="status-badge" style="background: rgba(245,158,11,0.1); color: #D97706; border: 1px solid rgba(245,158,11,0.2);">🟡 Uyarı</span>';
+            let sevBadge = '<span class="status-badge" style="background: rgba(16,185,129,0.1); color: #059669; border: 1px solid rgba(16,185,129,0.2);">🟢 Information</span>';
+            if (log.severity === 'warning') sevBadge = '<span class="status-badge" style="background: rgba(245,158,11,0.1); color: #D97706; border: 1px solid rgba(245,158,11,0.2);">🟡 Warning</span>';
             else if (log.severity === 'critical') sevBadge = '<span class="status-badge" style="background: rgba(239,68,68,0.1); color: #DC2626; border: 1px solid rgba(239,68,68,0.2);">🔴 Kritik</span>';
 
             return `
@@ -3738,7 +3738,7 @@ const DatabaseSchemaController = {
     if (!res.success || !res.data) {
       modal.innerHTML = `
         <div class="modal-card" style="max-width: 500px; width: 90%;">
-          <h3>Hata</h3>
+          <h3>Error</h3>
           <p>Tablo verileri alınamadı.</p>
           <button type="button" class="btn-action btn-secondary" onclick="closeUniversalModal()">Close</button>
         </div>

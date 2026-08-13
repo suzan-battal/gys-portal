@@ -42,7 +42,7 @@ const TrainerController = {
           </div>
           <button class="btn-action btn-primary" onclick="AdminController.openAddGroupModal()" style="width: auto;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            <span>Yeni Group Oluştur</span>
+            <span>Create New Group</span>
           </button>
         </div>
         <div class="table-responsive">
@@ -109,7 +109,7 @@ const TrainerController = {
     const user = AppState.currentUser;
 
     container.innerHTML = `
-      <!-- Welcome Hero Bannerı -->
+      <!-- Welcome Hero Banner -->
       <div class="welcome-hero" style="margin-bottom: 24px;">
         <div class="welcome-hero-content">
           <h2>Welcome, Sn. ${user.name} 👋</h2>
@@ -127,7 +127,7 @@ const TrainerController = {
         </div>
       </div>
 
-      <!-- Section 15: 5x KPI İstatistik Kartları (My Students, Active Tasks, Waiting Review, Late Tasks, Completed Today) -->
+      <!-- Section 15: 5x KPI Statistics Cards (My Students, Active Tasks, Waiting Review, Late Tasks, Completed Today) -->
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-bottom: 24px;">
         <!-- 1. My Students -->
         <div class="stat-card" style="padding: 16px 18px;">
@@ -190,9 +190,9 @@ const TrainerController = {
         </div>
       </div>
 
-      <!-- 2-Kolonlu Zengin Ana Düzen -->
+      <!-- 2-Column Rich Main Layout -->
       <div style="display: grid; grid-template-columns: 1.8fr 1.2fr; gap: 20px; align-items: start;">
-        <!-- SOL SÜTUN: 6. Tasks Waiting for Review & 8. Group Progress -->
+        <!-- LEFT COLUMN: 6. Tasks Waiting for Review & 8. Group Progress -->
         <div style="display: flex; flex-direction: column; gap: 20px;">
           
           <!-- 6. Tasks Waiting for Review (Reviewme ve Gradema Bekleyen Ödevler) -->
@@ -293,7 +293,7 @@ const TrainerController = {
           </div>
         </div>
 
-        <!-- SAĞ SÜTUN: 7. Recent Student Submissions & Hızlı Aksiyonlar -->
+        <!-- RIGHT COLUMN: 7. Recent Student Submissions & Hızlı Aksiyonlar -->
         <div style="display: flex; flex-direction: column; gap: 20px;">
           
           <!-- 7. Recent Student Submissions (Son Student Submissionsi Akışı) -->
@@ -418,7 +418,7 @@ const TrainerController = {
           <table class="custom-table">
             <thead>
               <tr>
-                <th>Student Bilgisi</th>
+                <th>Student Informationsi</th>
                 <th>Atanan Task</th>
                 <th>Completed</th>
                 <th>Başarı Mediumlaması</th>
