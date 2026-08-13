@@ -10,13 +10,13 @@ const StudentController = {
     const heading = document.getElementById('page-heading');
 
     if (tabId === 'home') {
-      heading.innerHTML = `<span>Öğrenci Paneli - Genel Bakış</span>`;
+      heading.innerHTML = `<span>Student Dashboard - Overview</span>`;
       await this.renderHome(main);
     } else if (tabId === 'my-tasks') {
       heading.innerHTML = `<span>Görevlerim ve Ödev Teslimi</span>`;
       await this.renderMyTasks(main);
     } else if (tabId === 'my-submissions') {
-      heading.innerHTML = `<span>Teslimlerim ve Notlarım</span>`;
+      heading.innerHTML = `<span>My Submissions & Academic Grades</span>`;
       await this.renderMySubmissions(main);
     }
   },
@@ -44,7 +44,7 @@ const StudentController = {
         <div class="welcome-hero-actions">
           <button class="btn-hero-action" onclick="openUniversalUploadModal()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-            <span>Dosya Yükle / Teslim Et</span>
+            <span>Submit Assignment</span>
           </button>
           <button class="btn-hero-action" onclick="switchTab('my-submissions')">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
@@ -70,7 +70,7 @@ const StudentController = {
 
         <div class="stat-card">
           <div class="stat-info">
-            <span>Bekleyen Ödevler</span>
+            <span>Pending Start Ödevler</span>
             <h3>${stats.pending_tasks}</h3>
             <div class="stat-trend positive" style="color:var(--accent-gold);">
               <span>Teslim Edilecek</span>
@@ -96,7 +96,7 @@ const StudentController = {
 
         <div class="stat-card">
           <div class="stat-info">
-            <span>Notlanan & Tamamlanan</span>
+            <span>Notlanan & Completed</span>
             <h3>${stats.reviewed_tasks}</h3>
             <div class="stat-trend positive">
               <span>Sonuçlandı</span>
@@ -167,11 +167,11 @@ const StudentController = {
                 <thead>
                   <tr>
                     <th>Görev</th>
-                    <th>Eğitmen</th>
-                    <th>Son Teslim Tarihi</th>
-                    <th>Durum</th>
+                    <th>Instructor</th>
+                    <th>Due Date Tarihi</th>
+                    <th>Status</th>
                     <th>Not</th>
-                    <th style="text-align: right;">İşlem</th>
+                    <th style="text-align: right;">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -227,7 +227,7 @@ const StudentController = {
                 <strong style="color:var(--accent-emerald);">${stats.submitted_tasks + stats.reviewed_tasks}</strong>
               </div>
               <div>
-                <span style="color:var(--text-muted); display:block;">Bekleyen</span>
+                <span style="color:var(--text-muted); display:block;">Pending Start</span>
                 <strong style="color:var(--accent-gold);">${stats.pending_tasks}</strong>
               </div>
               <div>
@@ -355,11 +355,11 @@ const StudentController = {
             <thead>
               <tr>
                 <th>Görev</th>
-                <th>Eğitmen</th>
-                <th>Son Teslim Tarihi</th>
-                <th>Öncelik</th>
-                <th>Durum</th>
-                <th style="text-align: right;">İşlem</th>
+                <th>Instructor</th>
+                <th>Due Date Tarihi</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th style="text-align: right;">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -416,12 +416,12 @@ const StudentController = {
             <thead>
               <tr>
                 <th>Görev</th>
-                <th>Eğitmen</th>
+                <th>Instructor</th>
                 <th>Teslim Tarihi</th>
                 <th>Yüklenen Dosya</th>
-                <th>Durum</th>
+                <th>Status</th>
                 <th>Not</th>
-                <th>Eğitmen Geri Bildirimi</th>
+                <th>Instructor Trainer Feedbacki</th>
               </tr>
             </thead>
             <tbody>
@@ -504,7 +504,7 @@ const StudentController = {
       statusBadgeContainer.outerHTML = getStatusBadgeHtml(t.status);
     }
 
-    // "Çalışmaya Başla (In Progress)" butonu kontrolü
+    // "Start Working (In Progress)" butonu kontrolü
     const btnStart = document.getElementById('btn-start-task');
     if (btnStart) {
       if (t.status === 'Bekliyor' || !t.status) {
@@ -526,7 +526,7 @@ const StudentController = {
         evalBox.style.background = '#FFFBEB';
         evalBox.style.border = '1px solid #FDE68A';
       }
-      if (evalHeaderTitle) evalHeaderTitle.innerHTML = `<span style="color:#D97706; font-weight:700;">⚠️ Eğitmen Düzeltme ve Revizyon Talebi</span>`;
+      if (evalHeaderTitle) evalHeaderTitle.innerHTML = `<span style="color:#D97706; font-weight:700;">⚠️ Instructor Düzeltme ve Revizyon Talebi</span>`;
       if (gradeBadge) {
         gradeBadge.textContent = t.grade !== null && t.grade !== undefined ? `Puan: ${t.grade} / 100` : 'Düzeltme Bekleniyor';
         gradeBadge.style.background = '#F59E0B';
@@ -539,16 +539,16 @@ const StudentController = {
         evalBox.style.background = 'var(--bg-page)';
         evalBox.style.border = '1px solid var(--border-light)';
       }
-      if (evalHeaderTitle) evalHeaderTitle.innerHTML = `Eğitmen Değerlendirmesi & Notu`;
+      if (evalHeaderTitle) evalHeaderTitle.innerHTML = `Instructor Değerlendirmesi & Notu`;
       if (gradeBadge) {
         gradeBadge.textContent = `Not: ${t.grade} / 100`;
         gradeBadge.style.background = 'var(--accent-gold)';
       }
-      if (feedbackText) feedbackText.textContent = t.feedback || 'Eğitmeniniz henüz yazılı geri bildirim girmedi.';
-      if (btnSubmitText) btnSubmitText.textContent = 'Görevi Teslim Et';
+      if (feedbackText) feedbackText.textContent = t.feedback || 'Instructoriniz henüz yazılı geri bildirim girmedi.';
+      if (btnSubmitText) btnSubmitText.textContent = 'Submit Solution';
     } else {
       if (evalBox) evalBox.style.display = 'none';
-      if (btnSubmitText) btnSubmitText.textContent = 'Görevi Teslim Et';
+      if (btnSubmitText) btnSubmitText.textContent = 'Submit Solution';
     }
 
     // Section 9: Rubrik Kriter Dağılımını Göster
@@ -694,7 +694,7 @@ async function handleStartTask() {
     StudentController.openTaskDetailModal(taskId);
     switchTab(AppState.currentTab);
   } else {
-    showToast(res.error || "İşlem sırasında bir hata oluştu.", "error");
+    showToast(res.error || "Action sırasında bir hata oluştu.", "error");
   }
 }
 
@@ -713,7 +713,7 @@ async function handleUploadTaskSubmission() {
   if (!file) {
     if (studentLink || studentNotes) {
       // Link veya not girildiyse otomatik çözüm raporu belgesi oluştur
-      const content = `ÖĞRENCİ ÖDEV TESLİM VE ÇÖZÜM RAPORU\n=========================================\n\nProje / Kaynak Linki:\n${studentLink || 'Belirtilmedi'}\n\nÖğrenci Notu ve Açıklamaları:\n${studentNotes || 'Belirtilmedi'}\n\nTeslim Zamanı: ${new Date().toLocaleString('tr-TR')}\n`;
+      const content = `ÖĞRENCİ ÖDEV TESLİM VE ÇÖZÜM RAPORU\n=========================================\n\nProje / Kaynak Linki:\n${studentLink || 'Belirtilmedi'}\n\nÖğrenci Notu ve Açıklamaları:\n${studentNotes || 'Belirtilmedi'}\n\nSubmission Date: ${new Date().toLocaleString('tr-TR')}\n`;
       const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
       file = new File([blob], 'ogrenci_cozum_raporu.txt', { type: 'text/plain' });
     } else {
@@ -744,7 +744,7 @@ async function handleUploadTaskSubmission() {
 
   if (btn) {
     btn.disabled = false;
-    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg><span id="btn-submit-text">Görevi Teslim Et</span>`;
+    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg><span id="btn-submit-text">Submit Solution</span>`;
   }
 
   if (res.success) {

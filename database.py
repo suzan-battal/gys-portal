@@ -20,49 +20,49 @@ UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
 # ==================== SECTION 12: ROLES & PERMISSIONS (RBAC ENGINE) ====================
 
 AVAILABLE_ROLES = [
-    {"code": "super_admin", "title": "Super Admin", "desc": "Sistem Üst Yöneticisi (Tüm Yetkiler)"},
-    {"code": "admin", "title": "Admin", "desc": "Sistem ve Akademik Yönetici"},
-    {"code": "training_manager", "title": "Training Manager", "desc": "Eğitim ve Program Koordinatörü"},
-    {"code": "trainer", "title": "Trainer", "desc": "Eğitmen / Akademisyen"},
-    {"code": "assistant_trainer", "title": "Assistant Trainer", "desc": "Yardımcı Eğitmen / Asistan"},
-    {"code": "student", "title": "Student", "desc": "Öğrenci / Kursiyer"}
+    {"code": "super_admin", "title": "Super Admin", "desc": "System Super Administrator (Full Permissions)"},
+    {"code": "admin", "title": "Admin", "desc": "System & Academic Administrator"},
+    {"code": "training_manager", "title": "Training Manager", "desc": "Training & Academic Program Coordinator"},
+    {"code": "trainer", "title": "Trainer", "desc": "Faculty Instructor / Academic Trainer"},
+    {"code": "assistant_trainer", "title": "Assistant Trainer", "desc": "Teaching Assistant / Assistant Trainer"},
+    {"code": "student", "title": "Student", "desc": "Enrolled Student / Trainee"}
 ]
 
 ALL_PERMISSIONS = [
-    {"code": "users.view", "name": "Kullanıcıları Görüntüle", "category": "Kullanıcı Yönetimi"},
-    {"code": "users.create", "name": "Yeni Kullanıcı Ekle", "category": "Kullanıcı Yönetimi"},
-    {"code": "users.update", "name": "Kullanıcı Bilgilerini Güncelle", "category": "Kullanıcı Yönetimi"},
-    {"code": "users.delete", "name": "Kullanıcı Sil", "category": "Kullanıcı Yönetimi"},
+    {"code": "users.view", "name": "View Users", "category": "User Management"},
+    {"code": "users.create", "name": "Create Users", "category": "User Management"},
+    {"code": "users.update", "name": "Update Users", "category": "User Management"},
+    {"code": "users.delete", "name": "Delete Users", "category": "User Management"},
     
-    {"code": "students.view", "name": "Öğrencileri Listele", "category": "Öğrenci Yönetimi"},
-    {"code": "students.create", "name": "Öğrenci Kaydı Oluştur", "category": "Öğrenci Yönetimi"},
-    {"code": "students.update", "name": "Öğrenci Bilgisi Güncelle", "category": "Öğrenci Yönetimi"},
+    {"code": "students.view", "name": "List Students", "category": "Student Management"},
+    {"code": "students.create", "name": "Create Student Record", "category": "Student Management"},
+    {"code": "students.update", "name": "Update Student Record", "category": "Student Management"},
     
-    {"code": "trainers.view", "name": "Eğitmenleri Listele", "category": "Eğitmen Yönetimi"},
-    {"code": "trainers.create", "name": "Yeni Eğitmen Ekle", "category": "Eğitmen Yönetimi"},
+    {"code": "trainers.view", "name": "List Trainers", "category": "Trainer Management"},
+    {"code": "trainers.create", "name": "Add New Trainer", "category": "Trainer Management"},
     
-    {"code": "groups.view", "name": "Eğitim Gruplarını Görüntüle", "category": "Grup Yönetimi"},
-    {"code": "groups.create", "name": "Yeni Eğitim Grubu Oluştur", "category": "Grup Yönetimi"},
-    {"code": "groups.update", "name": "Grup Bilgilerini Güncelle", "category": "Grup Yönetimi"},
-    {"code": "groups.delete", "name": "Eğitim Grubu Sil", "category": "Grup Yönetimi"},
+    {"code": "groups.view", "name": "View Training Groups", "category": "Group Management"},
+    {"code": "groups.create", "name": "Create Training Group", "category": "Group Management"},
+    {"code": "groups.update", "name": "Update Training Group", "category": "Group Management"},
+    {"code": "groups.delete", "name": "Delete Training Group", "category": "Group Management"},
     
-    {"code": "tasks.view", "name": "Görevleri Görüntüle", "category": "Görev Yönetimi"},
-    {"code": "tasks.create", "name": "Yeni Görev Tanımla", "category": "Görev Yönetimi"},
-    {"code": "tasks.update", "name": "Görev Bilgilerini Düzenle", "category": "Görev Yönetimi"},
-    {"code": "tasks.delete", "name": "Görev Sil", "category": "Görev Yönetimi"},
-    {"code": "tasks.assign", "name": "Görev Ata (Bireysel/Grup)", "category": "Görev Yönetimi"},
+    {"code": "tasks.view", "name": "View Tasks", "category": "Task Management"},
+    {"code": "tasks.create", "name": "Create New Task", "category": "Task Management"},
+    {"code": "tasks.update", "name": "Edit Task Details", "category": "Task Management"},
+    {"code": "tasks.delete", "name": "Delete Task", "category": "Task Management"},
+    {"code": "tasks.assign", "name": "Assign Task (Single/Group)", "category": "Task Management"},
     
-    {"code": "submissions.view", "name": "Teslimleri Listele", "category": "Teslim & İnceleme"},
-    {"code": "submissions.review", "name": "Teslimi İncele & Değerlendir", "category": "Teslim & İnceleme"},
+    {"code": "submissions.view", "name": "List Submissions", "category": "Submission & Review"},
+    {"code": "submissions.review", "name": "Review & Evaluate Submission", "category": "Submission & Review"},
     
-    {"code": "evaluations.view", "name": "Not ve Değerlendirmeleri Gör", "category": "Notlandırma"},
-    {"code": "evaluations.create", "name": "Not & Geri Bildirim Ekle", "category": "Notlandırma"},
+    {"code": "evaluations.view", "name": "View Grades & Evaluations", "category": "Grading"},
+    {"code": "evaluations.create", "name": "Submit Grade & Feedback", "category": "Grading"},
     
-    {"code": "notifications.view", "name": "Bildirimleri Görüntüle", "category": "İletişim & Duyuru"},
-    {"code": "notifications.send", "name": "Duyuru ve Bildirim Gönder", "category": "İletişim & Duyuru"},
+    {"code": "notifications.view", "name": "View Notifications", "category": "Communication"},
+    {"code": "notifications.send", "name": "Send Announcements & Notifications", "category": "Communication"},
     
-    {"code": "reports.view", "name": "Akademik Raporları İncele", "category": "Raporlama & Sistem"},
-    {"code": "settings.manage", "name": "Sistem Ayarlarını Yönet", "category": "Raporlama & Sistem"}
+    {"code": "reports.view", "name": "View Academic Reports", "category": "Reporting & System"},
+    {"code": "settings.manage", "name": "Manage System Settings", "category": "Reporting & System"}
 ]
 
 DEFAULT_ROLE_PERMISSIONS = {

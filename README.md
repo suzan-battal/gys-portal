@@ -1,6 +1,6 @@
-# 🎓 Training Task Management System (TTMS) - Üniversite Görev & Eğitim Portalı
+# 🎓 Training Task Management System (TTMS) - University Portal
 
-> **Modern, Rol Tabanlı ve Tam Kapsamlı Üniversite Görev, Teslimat, Değerlendirme ve Akademik Eğitim Yönetim Platformu**
+> **Modern, Role-Based University Academic Task, Assignment, Rubric Grading & Training Management Platform**
 
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/)
 [![Database SQLite](https://img.shields.io/badge/database-SQLite_3NF-green.svg)](https://sqlite.org/)
@@ -9,73 +9,76 @@
 
 ---
 
-## 🌟 Proje Genel Bakışı (Project Overview)
+## 🌟 Project Overview
 
-**TTMS (Training Task Management System)**, üniversitelerde ve eğitim kurumlarında **Yönetim (Admin)**, **Eğitmenler (Trainers)** ve **Öğrenciler (Students)** arasındaki tüm akademik iş akışlarını uçtan uca dijitalleştiren tam kapsamlı bir kurumsal web platformudur.
+**TTMS (Training Task Management System)** is an enterprise academic web platform designed to streamline and digitize all workflows between **Administrators**, **Faculty Trainers**, and **Students** in universities and training institutions.
 
-Sistem; görev oluşturma, teslimat versiyonlama, 5 kriterli rubrik değerlendirme, akademik takvim, hedef kitleli duyurular, anlık bildirimler, 6 modüllü analitik raporlama ve denetim loglarını (Audit Logs) tek bir çatı altında sunar.
-
----
-
-## 🚀 Temel Özellikler & Modüller
-
-1. **👥 Kullanıcı & Rol Yönetimi (RBAC)**:
-   - 6 Farklı Sistem Rolü (`Super Admin`, `Admin`, `Training Manager`, `Trainer`, `Assistant Trainer`, `Student`).
-   - 26 Granüler İzin Kodlu Dinamik İzin Matrisi.
-2. **🏫 Eğitim Grupları & Şubeler**:
-   - Eğitmen atama, çoklu öğrenci kaydı, şube bazlı görev dağıtımı.
-3. **📋 Görev & Teslimat Döngüsü (12 Alanlı Görev Formu)**:
-   - Öncelik seviyeleri (Düşük, Normal, Yüksek, Acil), teslim tarihleri, kontrol listeleri (Checklists) ve taksonomik etiketler (Tags).
-   - Dosya yükleme (PDF, Zip, Python, Jupyter Notebook vb.) ve revizyon geçmişi (v1, v2, v3).
-4. **⭐ 5 Kriterli Rubrik Değerlendirme (0-100 Puan)**:
-   - Tamamlanma (20p), Kod Kalitesi (20p), Doğruluk (20p), Zamanlama (20p), İletişim (20p).
-   - Karar ağacı: `Approved` (Kabul) veya `Needs Revision` (Düzeltme İstendi).
-5. **🗓️ Akademik Takvim & Bugünün Görevleri**:
-   - Sınavlar, canlı dersler ve son teslim tarihleri entegrasyonu.
-6. **📢 Hedef Kitleli Duyurular & Bildirim Merkezi**:
-   - 5 Farklı hedef kitleye özel duyuru yayınlama ve anlık bildirimler.
-7. **📊 Raporlama & Analitik Merkezi (CSV Export)**:
-   - Öğrenci Performansı, Eğitmen İnceleme Hızı, Grup Başarısı, Görev Dağılımı ve Geç Teslimat Raporları.
-8. **🛡️ Güvenlik & Denetim Günlüğü (Audit Logs)**:
-   - `Who / What / When / IP / Değişiklik Değerleri (Diff)` formatında KVKK uyumlu loglama.
+The platform provides end-to-end assignment lifecycles, submission versioning, 5-criteria 100-point rubric evaluations, academic calendars, targeted announcements, real-time notification centers, 6-module analytical reporting (with CSV export), and tamper-evident audit logs.
 
 ---
 
-## 🗄️ Veritabanı Mimarisi (36 Tablo)
+## 🚀 Core Features & Architecture
 
-Sistem **3. Normal Forma (3NF)** uygun, Foreign Key bütünlüğü ve bileşik performans indeksleri içeren **36 ilişkisel SQLite tablosu** ile çalışır:
-
-* **Çekirdek Tablolar (28 Tablo)**: `users`, `roles`, `permissions`, `role_user`, `permission_role`, `student_profiles`, `trainer_profiles`, `training_groups`, `training_group_students`, `training_group_trainers`, `tasks`, `task_assignments`, `task_attachments`, `task_submissions`, `submission_attachments`, `task_reviews`, `task_evaluations`, `task_comments`, `comment_attachments`, `notifications`, `notification_recipients`, `announcements`, `announcement_recipients`, `training_sessions`, `session_attendances`, `activity_logs`, `audit_logs`, `settings`.
-* **Genişletme Tabloları (8 Tablo)**: `projects`, `project_members`, `project_tasks`, `tags`, `task_tags`, `task_dependencies`, `task_checklists`, `task_checklist_items`.
+1. **👥 Role-Based Access Control (RBAC)**:
+   - 6 Defined Institutional Roles (`Super Admin`, `Admin`, `Training Manager`, `Trainer`, `Assistant Trainer`, `Student`).
+   - 26 Granular Permission Codes with a Dynamic Roles & Permissions Matrix.
+2. **🏫 Training Groups & Cohorts**:
+   - Multi-trainer assignment, bulk student enrollment, and cohort-wide task dispatching.
+3. **📋 Task & Submission Lifecycle (12-Parameter Specification)**:
+   - Priority levels (`Low`, `Medium`, `High`, `Urgent`), start and due dates, estimated hours, checklists, and taxonomic tags.
+   - Secure file uploads (PDF, ZIP, Python, Java, C++, JS, Jupyter Notebooks) and revision attempt histories (`v1`, `v2`, `v3`).
+4. **⭐ 5-Criterion Rubric Evaluation Model (0-100 Points)**:
+   - Task Completion (30 pts), Quality (25 pts), Accuracy (20 pts), Deadline Commitment (15 pts), Communication (10 pts).
+   - Trainer decision flow: `Approve` (Completed), `Needs Revision`, or `Reject`.
+5. **🗓️ Academic Calendar & Today's Tasks Hub**:
+   - Integrated live scheduling for exams, classes, and upcoming deadlines.
+6. **📢 Targeted Announcements & Notification Center**:
+   - Targeted broadcasts for 5 audience scopes, unread counters, and automated submission alerts.
+7. **📊 Analytics & Reporting Center (CSV Export)**:
+   - Student Performance & GPA, Trainer Review Speeds, Group Completion Rates, Task Distribution, and Overdue Submissions.
+8. **🛡️ Security & Tamper-Evident Audit Logging**:
+   - Detailed `Who / What / When / IP Address / Changes (Diff)` tracking for full academic integrity.
 
 ---
 
-## 💻 Kurulum ve Çalıştırma (Quick Start)
+## 🗄️ Relational Database Architecture (36 Tables)
 
-### 1. Depoyu Klonlayın
+Built in **Third Normal Form (3NF)** with strict Foreign Key enforcement, composite indexes, and ACID compliance:
+
+* **Core Tables (28 Tables)**: `users`, `roles`, `permissions`, `role_user`, `permission_role`, `student_profiles`, `trainer_profiles`, `training_groups`, `training_group_students`, `training_group_trainers`, `tasks`, `task_assignments`, `task_attachments`, `task_submissions`, `submission_attachments`, `task_reviews`, `task_evaluations`, `task_comments`, `comment_attachments`, `notifications`, `notification_recipients`, `announcements`, `announcement_recipients`, `training_sessions`, `session_attendances`, `activity_logs`, `audit_logs`, `settings`.
+* **Extension Tables (8 Tables)**: `projects`, `project_members`, `project_tasks`, `tags`, `task_tags`, `task_dependencies`, `task_checklists`, `task_checklist_items`.
+
+---
+
+## 💻 Quick Start Guide
+
+### 1. Clone the Repository
 ```bash
 git clone https://github.com/suzan-battal/gys-portal.git
 cd gys-portal
 ```
 
-### 2. Uygulamayı Başlatın
+### 2. Launch the Application Server
 ```bash
 python3 server.py
 ```
 
-### 3. Tarayıcıda Açın
-Tarayıcınızda [http://localhost:8080](http://localhost:8080) adresine gidin.
+### 3. Open in Browser
+Navigate to [http://localhost:8080](http://localhost:8080) in your web browser.
 
-### 🔑 Demo Giriş Bilgileri:
-* **Yönetici (Admin)**: `yonetici@universite.edu.tr` / `Admin123!`
-* **Eğitmen (Trainer)**: `ahmet.yilmaz@universite.edu.tr` / `Egitmen123!`
-* **Öğrenci (Student)**: `mehmet.demir@universite.edu.tr` / `Ogrenci123!`
-
----
-
-## 📄 Proje Dokümantasyonu
-Sistem içerisinde yer alan **`Proje Raporu`** sekmesinden veya doğrudan [http://localhost:8080/static/documentation.html](http://localhost:8080/static/documentation.html) adresinden tüm şartname karşılama matrislerine ve yazdırılabilir PDF raporuna erişebilirsiniz.
+### 🔑 Demo Credentials (1-Click Login Supported):
+* **Super Admin**: `superadmin@universite.edu.tr` / `SuperAdmin123!`
+* **Administrator**: `yonetici@universite.edu.tr` / `Admin123!`
+* **Training Manager**: `egitim.muduru@universite.edu.tr` / `Mudur123!`
+* **Trainer**: `ahmet.yilmaz@universite.edu.tr` / `Egitmen123!`
+* **Assistant Trainer**: `asistan.merve@universite.edu.tr` / `Asistan123!`
+* **Student**: `mehmet.demir@universite.edu.tr` / `Ogrenci123!`
 
 ---
-**Geliştirici**: Suzan Battal  
-**Proje**: Üniversite Görev ve Eğitim Yönetim Platformu (TTMS)
+
+## 📄 Project Specification & Documentation Report
+Access the complete 31-Section Academic Specification Report inside the platform via the **`Project Specification Report`** navigation tab or directly at [http://localhost:8080/static/documentation.html](http://localhost:8080/static/documentation.html).
+
+---
+**Developer**: Suzan Battal  
+**Project**: University Task & Training Management System (TTMS)

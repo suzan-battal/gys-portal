@@ -1,6 +1,6 @@
 /**
- * Üniversite Görev Yönetim Sistemi - Yönetici Paneli Denetleyicisi (admin.js)
- * İstatistikler, Öğrenci/Eğitmen/Kullanıcı CRUD, Eğitim Grupları (Training Groups) ve Görev Yönetimi.
+ * Üniversite Tasks Yönetim Sistemi - Yönetici Paneli Denetleyicisi (admin.js)
+ * İstatistikler, Student/Trainer/Kullanıcı CRUD, Eğitim Groupları (Training Groups) ve Tasks Yönetimi.
  */
 
 const AdminController = {
@@ -10,28 +10,28 @@ const AdminController = {
     const heading = document.getElementById('page-heading');
 
     if (tabId === 'home') {
-      heading.innerHTML = `<span>Yönetici Paneli - Genel Bakış</span>`;
+      heading.innerHTML = `<span>Administrator Dashboard - Overview</span>`;
       await this.renderHome(main);
     } else if (tabId === 'roles-permissions') {
-      heading.innerHTML = `<span>Roller & İzinler Matrisi (Section 12: Roles & Permissions)</span>`;
+      heading.innerHTML = `<span>Roles & Permissions Matrix (RBAC Engine)</span>`;
       await this.renderRolesPermissions(main);
     } else if (tabId === 'groups') {
-      heading.innerHTML = `<span>Eğitim Grupları Yönetimi</span>`;
+      heading.innerHTML = `<span>Training Groups & Cohorts Management</span>`;
       await this.renderGroups(main);
     } else if (tabId === 'students') {
-      heading.innerHTML = `<span>Öğrenci Yönetimi</span>`;
-      await this.renderUsersByRole(main, 'student', 'Öğrenciler');
+      heading.innerHTML = `<span>Student Management</span>`;
+      await this.renderUsersByRole(main, 'student', 'Students');
     } else if (tabId === 'trainers') {
-      heading.innerHTML = `<span>Eğitmen Yönetimi</span>`;
-      await this.renderUsersByRole(main, 'trainer', 'Eğitmenler');
+      heading.innerHTML = `<span>Trainer Management</span>`;
+      await this.renderUsersByRole(main, 'trainer', 'Trainers');
     } else if (tabId === 'all-users') {
-      heading.innerHTML = `<span>Tüm Kullanıcılar</span>`;
+      heading.innerHTML = `<span>All Users Management</span>`;
       await this.renderAllUsers(main);
     } else if (tabId === 'tasks') {
-      heading.innerHTML = `<span>Görev ve Ödev Yönetimi</span>`;
+      heading.innerHTML = `<span>Tasks & Assignments Management</span>`;
       await this.renderTasks(main);
     } else if (tabId === 'submissions') {
-      heading.innerHTML = `<span>Tüm Ödev Teslimleri</span>`;
+      heading.innerHTML = `<span>All Assignment Submissions</span>`;
       await this.renderSubmissions(main);
     }
   },
@@ -64,17 +64,17 @@ const AdminController = {
       <!-- Hoş Geldiniz Bannerı (Hero Banner) -->
       <div class="welcome-hero" style="margin-bottom: 24px;">
         <div class="welcome-hero-content">
-          <h2>Hoş Geldiniz, Sn. ${user.name} 👋</h2>
-          <p>16. Admin Dashboard (Yönetici Kontrol Paneli). Üniversite genelindeki tüm öğrencileri, eğitmenleri, grupları, aktif/geciken görevleri ve genel akademik performansı anlık izleyin.</p>
+          <h2>Welcome, ${user.name} 👋</h2>
+          <p>Administrator Control Center. Monitor institution-wide students, trainers, groups, active/overdue tasks, and overall academic performance in real time.</p>
         </div>
         <div class="welcome-hero-actions">
           <button class="btn-hero-action" onclick="AdminController.openAddTaskModal()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            <span>Görev Oluştur</span>
+            <span>Create Task</span>
           </button>
           <button class="btn-hero-action" onclick="AdminController.openAddGroupModal()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-            <span>Yeni Grup Aç</span>
+            <span>Create Group</span>
           </button>
         </div>
       </div>
@@ -86,7 +86,7 @@ const AdminController = {
           <div class="stat-info">
             <span style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">1. Total Students</span>
             <h3 style="font-size: 24px; font-weight: 800; color: var(--primary-navy); margin: 3px 0;">${kpi.total_students}</h3>
-            <div class="stat-trend positive"><span style="font-size: 10.5px;">Kayıtlı Öğrenci</span></div>
+            <div class="stat-trend positive"><span style="font-size: 10.5px;">Enrolled Students</span></div>
           </div>
         </div>
 
@@ -95,7 +95,7 @@ const AdminController = {
           <div class="stat-info">
             <span style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">2. Total Trainers</span>
             <h3 style="font-size: 24px; font-weight: 800; color: var(--primary-navy); margin: 3px 0;">${kpi.total_trainers}</h3>
-            <div class="stat-trend positive"><span style="font-size: 10.5px;">Eğitmen Kadrosu</span></div>
+            <div class="stat-trend positive"><span style="font-size: 10.5px;">Faculty Instructors</span></div>
           </div>
         </div>
 
@@ -104,7 +104,7 @@ const AdminController = {
           <div class="stat-info">
             <span style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">3. Training Groups</span>
             <h3 style="font-size: 24px; font-weight: 800; color: var(--primary-blue); margin: 3px 0;">${kpi.training_groups}</h3>
-            <div class="stat-trend neutral"><span style="font-size: 10.5px;">Aktif Grup</span></div>
+            <div class="stat-trend neutral"><span style="font-size: 10.5px;">Active Groups</span></div>
           </div>
         </div>
 
@@ -113,7 +113,7 @@ const AdminController = {
           <div class="stat-info">
             <span style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">4. Active Tasks</span>
             <h3 style="font-size: 24px; font-weight: 800; color: #6366F1; margin: 3px 0;">${kpi.active_tasks}</h3>
-            <div class="stat-trend neutral"><span style="font-size: 10.5px;">Devam Eden</span></div>
+            <div class="stat-trend neutral"><span style="font-size: 10.5px;">In Progress</span></div>
           </div>
         </div>
 
@@ -122,7 +122,7 @@ const AdminController = {
           <div class="stat-info">
             <span style="font-size: 11px; font-weight: 700; color: var(--accent-gold); text-transform: uppercase;">5. Pending Reviews</span>
             <h3 style="font-size: 24px; font-weight: 800; color: var(--accent-gold); margin: 3px 0;">${kpi.pending_reviews}</h3>
-            <div class="stat-trend" style="color: var(--accent-gold);"><span style="font-size: 10.5px;">İnceleme Bekleyen</span></div>
+            <div class="stat-trend" style="color: var(--accent-gold);"><span style="font-size: 10.5px;">Pending Review</span></div>
           </div>
         </div>
 
@@ -131,7 +131,7 @@ const AdminController = {
           <div class="stat-info">
             <span style="font-size: 11px; font-weight: 700; color: var(--accent-rose); text-transform: uppercase;">6. Late Tasks</span>
             <h3 style="font-size: 24px; font-weight: 800; color: var(--accent-rose); margin: 3px 0;">${kpi.late_tasks}</h3>
-            <div class="stat-trend" style="color: var(--accent-rose);"><span style="font-size: 10.5px;">Geciken Görev</span></div>
+            <div class="stat-trend" style="color: var(--accent-rose);"><span style="font-size: 10.5px;">Overdue Tasks</span></div>
           </div>
         </div>
 
@@ -140,7 +140,7 @@ const AdminController = {
           <div class="stat-info">
             <span style="font-size: 11px; font-weight: 700; color: var(--accent-emerald); text-transform: uppercase;">7. Tasks Completed</span>
             <h3 style="font-size: 24px; font-weight: 800; color: var(--accent-emerald); margin: 3px 0;">${kpi.tasks_completed_this_week}</h3>
-            <div class="stat-trend positive"><span style="font-size: 10.5px;">Bu Hafta Biten</span></div>
+            <div class="stat-trend positive"><span style="font-size: 10.5px;">Completed This Week</span></div>
           </div>
         </div>
       </div>
@@ -150,16 +150,16 @@ const AdminController = {
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
           <div style="display: flex; align-items: center; gap: 8px;">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--primary-blue);"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-            <strong style="font-size: 15px; color: var(--primary-navy);">8. Student Progress (Genel Öğrenci İlerleme ve Başarı Oranları)</strong>
+            <strong style="font-size: 15px; color: var(--primary-navy);">Student Progress & Performance Overview</strong>
           </div>
-          <span class="status-badge badge-completed">Sistem Geneli İzleme</span>
+          <span class="status-badge badge-completed">Institution-Wide Tracking</span>
         </div>
 
         <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 16px; align-items: center; background: var(--bg-page); padding: 16px 20px; border-radius: 10px; border: 1px solid var(--border-light);">
           <!-- Progress Bar -->
           <div>
             <div style="display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 6px;">
-              <span style="font-weight: 600; color: var(--text-secondary);">Genel Tamamlama Oranı (% Progress)</span>
+              <span style="font-weight: 600; color: var(--text-secondary);">Overall Completion Rate (% Progress)</span>
               <strong style="color: var(--primary-blue); font-size: 14px;">%${student_progress.completion_rate}</strong>
             </div>
             <div style="width: 100%; height: 10px; background: #E2E8F0; border-radius: 999px; overflow: hidden;">
@@ -168,22 +168,22 @@ const AdminController = {
           </div>
 
           <div style="text-align: center; border-left: 1px solid var(--border-light); padding-left: 10px;">
-            <span style="font-size: 11px; color: var(--text-muted); display: block;">Toplam Görev</span>
+            <span style="font-size: 11px; color: var(--text-muted); display: block;">Total Tasks</span>
             <strong style="font-size: 18px; color: var(--primary-navy);">${student_progress.total_tasks_assigned}</strong>
           </div>
 
           <div style="text-align: center; border-left: 1px solid var(--border-light); padding-left: 10px;">
-            <span style="font-size: 11px; color: var(--text-muted); display: block;">Tamamlanan</span>
+            <span style="font-size: 11px; color: var(--text-muted); display: block;">Completed</span>
             <strong style="font-size: 18px; color: #10B981;">${student_progress.completed}</strong>
           </div>
 
           <div style="text-align: center; border-left: 1px solid var(--border-light); padding-left: 10px;">
-            <span style="font-size: 11px; color: var(--text-muted); display: block;">Geciken</span>
+            <span style="font-size: 11px; color: var(--text-muted); display: block;">Overdue</span>
             <strong style="font-size: 18px; color: var(--accent-rose);">${student_progress.late}</strong>
           </div>
 
           <div style="text-align: center; border-left: 1px solid var(--border-light); padding-left: 10px;">
-            <span style="font-size: 11px; color: var(--text-muted); display: block;">Ortalama Not</span>
+            <span style="font-size: 11px; color: var(--text-muted); display: block;">Average Grade</span>
             <strong style="font-size: 18px; color: var(--primary-navy);">${student_progress.avg_grade > 0 ? student_progress.avg_grade + ' / 100' : '-'}</strong>
           </div>
         </div>
@@ -197,24 +197,24 @@ const AdminController = {
           <div style="padding: 14px 18px; background: var(--bg-page); border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center;">
             <div style="display: flex; align-items: center; gap: 8px;">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent-gold);"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
-              <strong style="font-size: 14px; color: var(--primary-navy);">9. Trainer Activity (Eğitmen Aktivitesi)</strong>
+              <strong style="font-size: 14px; color: var(--primary-navy);">Trainer Activity & Review Metrics</strong>
             </div>
-            <button class="btn-action btn-secondary btn-sm" onclick="switchTab('trainers')">Eğitmenler</button>
+            <button class="btn-action btn-secondary btn-sm" onclick="switchTab('trainers')">Trainers</button>
           </div>
           <div class="table-responsive" style="margin: 0;">
             <table class="custom-table" style="margin: 0; width: 100%;">
               <thead>
                 <tr style="background: var(--bg-page); font-size: 11px;">
-                  <th style="padding: 8px 12px;">Eğitmen</th>
-                  <th style="padding: 8px 12px;">Görev</th>
-                  <th style="padding: 8px 12px;">Bekleyen</th>
-                  <th style="padding: 8px 12px;">Notlanan</th>
-                  <th style="padding: 8px 12px; text-align: right;">Ort. Not</th>
+                  <th style="padding: 8px 12px;">Trainer</th>
+                  <th style="padding: 8px 12px;">Tasks</th>
+                  <th style="padding: 8px 12px;">Pending</th>
+                  <th style="padding: 8px 12px;">Graded</th>
+                  <th style="padding: 8px 12px; text-align: right;">Avg. Grade</th>
                 </tr>
               </thead>
               <tbody>
                 ${trainer_activity.length === 0 ? `
-                  <tr><td colspan="5" style="text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;">Kayıtlı eğitmen bulunmuyor.</td></tr>
+                  <tr><td colspan="5" style="text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;">No trainers registered in the system.</td></tr>
                 ` : trainer_activity.map(tr => `
                   <tr style="border-bottom: 1px solid var(--border-light); font-size: 12px;">
                     <td style="padding: 8px 12px;">
@@ -241,25 +241,25 @@ const AdminController = {
           <div style="padding: 14px 18px; background: var(--bg-page); border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center;">
             <div style="display: flex; align-items: center; gap: 8px;">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent-rose);"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
-              <strong style="font-size: 14px; color: var(--primary-navy);">10. Late Submissions (Geciken Görevler)</strong>
+              <strong style="font-size: 14px; color: var(--primary-navy);">10. Late Submissions (Overdue Tasksler)</strong>
             </div>
-            <button class="btn-action btn-secondary btn-sm" onclick="switchTab('tasks')">Tüm Görevler</button>
+            <button class="btn-action btn-secondary btn-sm" onclick="switchTab('tasks')">Tüm Tasksler</button>
           </div>
           <div class="table-responsive" style="margin: 0;">
             <table class="custom-table" style="margin: 0; width: 100%;">
               <thead>
                 <tr style="background: var(--bg-page); font-size: 11px;">
-                  <th style="padding: 8px 12px;">Öğrenci</th>
-                  <th style="padding: 8px 12px;">Görev Başlığı</th>
-                  <th style="padding: 8px 12px;">Grup</th>
-                  <th style="padding: 8px 12px;">Son Tarih</th>
-                  <th style="padding: 8px 12px;">Gecikme</th>
-                  <th style="padding: 8px 12px; text-align: right;">İşlem</th>
+                  <th style="padding: 8px 12px;">Student</th>
+                  <th style="padding: 8px 12px;">Tasks Başlığı</th>
+                  <th style="padding: 8px 12px;">Group</th>
+                  <th style="padding: 8px 12px;">Deadline</th>
+                  <th style="padding: 8px 12px;">Overdue</th>
+                  <th style="padding: 8px 12px; text-align: right;">Action</th>
                 </tr>
               </thead>
               <tbody>
                 ${late_submissions.length === 0 ? `
-                  <tr><td colspan="6" style="text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;">Gecikmiş herhangi bir ödev bulunmamaktadır! 🎉</td></tr>
+                  <tr><td colspan="6" style="text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;">No overdue assignments found! Great job! 🎉</td></tr>
                 ` : late_submissions.map(ls => `
                   <tr style="border-bottom: 1px solid var(--border-light); font-size: 12px;">
                     <td style="padding: 8px 12px;">
@@ -271,10 +271,10 @@ const AdminController = {
                     <td style="padding: 8px 12px;"><span style="color: var(--text-secondary); font-size: 11px;">${ls.group_name}</span></td>
                     <td style="padding: 8px 12px; font-size: 11px; color: var(--text-muted);">${formatDateTr(ls.deadline)}</td>
                     <td style="padding: 8px 12px;">
-                      <span class="status-badge badge-late" style="font-size: 10px;">${ls.days_overdue > 0 ? `+${ls.days_overdue} Gün` : 'Süresi Doldu'}</span>
+                      <span class="status-badge badge-late" style="font-size: 10px;">${ls.days_overdue > 0 ? `+${ls.days_overdue} Days` : 'Deadline Passed'}</span>
                     </td>
                     <td style="padding: 8px 12px; text-align: right;">
-                      <button class="btn-action btn-secondary btn-sm" onclick="openStudentProfileModal(${ls.student_id})" style="padding: 3px 8px; font-size: 11px;">Profil (14)</button>
+                      <button class="btn-action btn-secondary btn-sm" onclick="openStudentProfileModal(${ls.student_id})" style="padding: 3px 8px; font-size: 11px;">Profile</button>
                     </td>
                   </tr>
                 `).join('')}
@@ -289,28 +289,28 @@ const AdminController = {
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
           <div style="display: flex; align-items: center; gap: 8px;">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--primary-blue);"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
-            <strong style="font-size: 15px; color: var(--primary-navy);">11. Training Groups Performance (Eğitim Grupları Başarı ve İlerleme Tablosu)</strong>
+            <strong style="font-size: 15px; color: var(--primary-navy);">11. Training Groups Performance (Eğitim Groupları Başarı ve İlerleme Tablosu)</strong>
           </div>
-          <button class="btn-action btn-primary btn-sm" onclick="switchTab('groups')">Tüm Grupları Yönet</button>
+          <button class="btn-action btn-primary btn-sm" onclick="switchTab('groups')">Tüm Groupları Yönet</button>
         </div>
 
         <div class="table-responsive" style="margin: 0;">
           <table class="custom-table" style="margin: 0; width: 100%;">
             <thead>
               <tr style="background: var(--bg-page); font-size: 11.5px;">
-                <th style="padding: 10px 14px;">Grup Adı & Uzmanlık</th>
-                <th style="padding: 10px 14px;">Sorumlu Eğitmen</th>
-                <th style="padding: 10px 14px;">Öğrenci Mevcudu</th>
-                <th style="padding: 10px 14px;">Toplam Görev</th>
-                <th style="padding: 10px 14px;">Biten Görev</th>
-                <th style="padding: 10px 14px; min-width: 140px;">İlerleme (% Progress)</th>
-                <th style="padding: 10px 14px;">Ortalama Not</th>
+                <th style="padding: 10px 14px;">Group Adı & Uzmanlık</th>
+                <th style="padding: 10px 14px;">Sorumlu Trainer</th>
+                <th style="padding: 10px 14px;">Student Mevcudu</th>
+                <th style="padding: 10px 14px;">Total Tasks</th>
+                <th style="padding: 10px 14px;">Biten Tasks</th>
+                <th style="padding: 10px 14px; min-width: 140px;">Progress (%)</th>
+                <th style="padding: 10px 14px;">Average Grade</th>
                 <th style="padding: 10px 14px; text-align: right;">Durum</th>
               </tr>
             </thead>
             <tbody>
               ${training_groups_performance.length === 0 ? `
-                <tr><td colspan="8" style="text-align: center; padding: 24px; color: var(--text-muted); font-size: 12.5px;">Henüz tanımlı bir eğitim grubu bulunmuyor.</td></tr>
+                <tr><td colspan="8" style="text-align: center; padding: 24px; color: var(--text-muted); font-size: 12.5px;">No training groups defined yet.</td></tr>
               ` : training_groups_performance.map(g => `
                 <tr style="border-bottom: 1px solid var(--border-light); font-size: 12.5px;">
                   <td style="padding: 10px 14px;">
@@ -320,7 +320,7 @@ const AdminController = {
                   <td style="padding: 10px 14px;">
                     <span style="font-weight: 600; color: var(--primary-navy);">${g.trainer_name || '-'}</span>
                   </td>
-                  <td style="padding: 10px 14px;"><span class="status-badge badge-submitted">${g.student_count} Öğrenci</span></td>
+                  <td style="padding: 10px 14px;"><span class="status-badge badge-submitted">${g.student_count} Student</span></td>
                   <td style="padding: 10px 14px;">${g.total_tasks}</td>
                   <td style="padding: 10px 14px;"><strong style="color: #10B981;">${g.completed_tasks}</strong></td>
                   <td style="padding: 10px 14px;">
@@ -357,28 +357,28 @@ const AdminController = {
       <div class="panel-card">
         <div class="panel-header">
           <div class="panel-header-left">
-            <h3>Eğitim Grupları ve Şubeler (${groups.length})</h3>
+            <h3>Eğitim Groupları ve Şubeler (${groups.length})</h3>
           </div>
           <button class="btn-action btn-primary" onclick="AdminController.openAddGroupModal()" style="width: auto;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            <span>Yeni Grup Oluştur</span>
+            <span>Yeni Group Oluştur</span>
           </button>
         </div>
         <div class="table-responsive">
           <table class="custom-table">
             <thead>
               <tr>
-                <th>Grup Adı & Uzmanlık</th>
-                <th>Sorumlu Eğitmen</th>
-                <th>Kayıtlı Öğrenci</th>
-                <th>Tarih Aralığı</th>
+                <th>Group Adı & Uzmanlık</th>
+                <th>Sorumlu Trainer</th>
+                <th>Enrolled Students</th>
+                <th>Date Range</th>
                 <th>Durum</th>
-                <th style="text-align: right;">İşlemler</th>
+                <th style="text-align: right;">Actionler</th>
               </tr>
             </thead>
             <tbody>
               ${groups.length === 0 ? `
-                <tr><td colspan="6" class="empty-state">Henüz oluşturulmuş bir eğitim grubu bulunmamaktadır.</td></tr>
+                <tr><td colspan="6" class="empty-state">No training groups created yet.</td></tr>
               ` : groups.map(g => `
                 <tr>
                   <td class="text-main">
@@ -386,16 +386,16 @@ const AdminController = {
                     <div style="font-size:12px; color:var(--text-secondary);">${g.department}</div>
                   </td>
                   <td>${g.trainer_name}</td>
-                  <td><span class="status-badge badge-submitted">${g.student_count || 0} Öğrenci</span></td>
+                  <td><span class="status-badge badge-submitted">${g.student_count || 0} Student</span></td>
                   <td style="font-size:12.5px;">${formatDateTr(g.start_date)} - ${formatDateTr(g.end_date)}</td>
                   <td>
                     <span class="status-badge ${g.status === 'Active' ? 'badge-completed' : (g.status === 'Completed' ? 'badge-submitted' : 'badge-pending')}">
-                      ${g.status === 'Active' ? 'Aktif' : (g.status === 'Completed' ? 'Tamamlandı' : 'Arşiv')}
+                      ${g.status === 'Active' ? 'Active' : (g.status === 'Completed' ? 'Tamamlandı' : 'Archived')}
                     </span>
                   </td>
                   <td style="text-align: right; white-space: nowrap;">
-                    <button class="btn-action btn-secondary btn-sm" onclick="AdminController.openEditGroupModal(${g.id})">Düzenle</button>
-                    <button class="btn-action btn-danger btn-sm" style="margin-left:6px;" onclick="AdminController.deleteGroup(${g.id}, '${g.name.replace(/'/g, "\\'")}')">Sil</button>
+                    <button class="btn-action btn-secondary btn-sm" onclick="AdminController.openEditGroupModal(${g.id})">Edit</button>
+                    <button class="btn-action btn-danger btn-sm" style="margin-left:6px;" onclick="AdminController.deleteGroup(${g.id}, '${g.name.replace(/'/g, "\\'")}')">Delete</button>
                   </td>
                 </tr>
               `).join('')}
@@ -413,7 +413,7 @@ const AdminController = {
     const res = await apiFetch(`/api/users?role=${role}`);
     const users = res.users || [];
 
-    const singularTitle = role === 'student' ? 'Öğrenci' : 'Eğitmen';
+    const singularTitle = role === 'student' ? 'Student' : 'Trainer';
 
     container.innerHTML = `
       <div class="panel-card">
@@ -434,7 +434,7 @@ const AdminController = {
                 <th>Ad Soyad</th>
                 <th>Kurumsal E-posta</th>
                 <th>Kayıt Tarihi</th>
-                <th style="text-align: right;">İşlemler</th>
+                <th style="text-align: right;">Actionler</th>
               </tr>
             </thead>
             <tbody>
@@ -449,9 +449,9 @@ const AdminController = {
                   <td>${u.email}</td>
                   <td>${formatDateTr(u.created_at)}</td>
                   <td style="text-align: right;">
-                    ${role === 'student' ? `<button class="btn-action btn-primary btn-sm" style="margin-right: 6px; padding: 4px 10px; font-size: 11.5px;" onclick="openStudentProfileModal(${u.id})">Profil (14)</button>` : ''}
-                    <button class="btn-action btn-secondary btn-sm" onclick="AdminController.openEditUserModal(${u.id})">Düzenle</button>
-                    <button class="btn-action btn-danger btn-sm" style="margin-left: 6px;" onclick="AdminController.deleteUser(${u.id}, '${u.name.replace(/'/g, "\\'")}')">Sil</button>
+                    ${role === 'student' ? `<button class="btn-action btn-primary btn-sm" style="margin-right: 6px; padding: 4px 10px; font-size: 11.5px;" onclick="openStudentProfileModal(${u.id})">Profile</button>` : ''}
+                    <button class="btn-action btn-secondary btn-sm" onclick="AdminController.openEditUserModal(${u.id})">Edit</button>
+                    <button class="btn-action btn-danger btn-sm" style="margin-left: 6px;" onclick="AdminController.deleteUser(${u.id}, '${u.name.replace(/'/g, "\\'")}')">Delete</button>
                   </td>
                 </tr>
               `).join('')}
@@ -479,12 +479,12 @@ const AdminController = {
       <!-- Section 13 Başlık ve Aksiyon -->
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
         <div>
-          <h2 style="font-size: 20px; color: var(--primary-navy); margin: 0 0 4px 0;">13. Users Management (Kullanıcı Yönetimi)</h2>
-          <p style="font-size: 13px; color: var(--text-secondary); margin: 0;">Sistemdeki kullanıcıları Role, Group ve Status filtreleri ile arayın ve yönetin.</p>
+          <h2 style="font-size: 20px; color: var(--primary-navy); margin: 0 0 4px 0;">Users Management</h2>
+          <p style="font-size: 13px; color: var(--text-secondary); margin: 0;">Search and manage all institutional users with Role, Group, and Status filters.</p>
         </div>
         <button class="btn-action btn-primary" onclick="AdminController.openAddUserModal('student')" style="display: flex; align-items: center; gap: 6px; padding: 10px 20px; font-size: 13px; font-weight: 600;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-          <span>Yeni Kullanıcı Ekle</span>
+          <span>Add New User</span>
         </button>
       </div>
 
@@ -493,14 +493,14 @@ const AdminController = {
         <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 12px; align-items: center;">
           <!-- 1. Search Input -->
           <div style="position: relative;">
-            <input type="text" id="filter-user-search" oninput="AdminController.filterUsersTable()" placeholder="🔍 Kullanıcı veya e-posta ara (Search user)..." style="width: 100%; padding: 9px 12px 9px 34px; font-size: 13px; border: 1px solid var(--border-light); border-radius: 8px; background: var(--bg-page); box-sizing: border-box;" />
+            <input type="text" id="filter-user-search" oninput="AdminController.filterUsersTable()" placeholder="🔍 Search user by name or email..." style="width: 100%; padding: 9px 12px 9px 34px; font-size: 13px; border: 1px solid var(--border-light); border-radius: 8px; background: var(--bg-page); box-sizing: border-box;" />
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="position: absolute; left: 10px; top: 12px; color: var(--text-muted);"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
           </div>
 
           <!-- 2. Role Filter -->
           <div>
             <select id="filter-user-role" onchange="AdminController.filterUsersTable()" style="width: 100%; padding: 9px 12px; font-size: 13px; border: 1px solid var(--border-light); border-radius: 8px; background: var(--bg-page); color: var(--text-main);">
-              <option value="">👤 Tüm Roller (All Roles)</option>
+              <option value="">👤 All Roles</option>
               <option value="super_admin">👑 Super Admin</option>
               <option value="admin">🛡️ Admin</option>
               <option value="training_manager">🎓 Training Manager</option>
@@ -513,18 +513,18 @@ const AdminController = {
           <!-- 3. Group Filter -->
           <div>
             <select id="filter-user-group" onchange="AdminController.filterUsersTable()" style="width: 100%; padding: 9px 12px; font-size: 13px; border: 1px solid var(--border-light); border-radius: 8px; background: var(--bg-page); color: var(--text-main);">
-              <option value="">🏢 Tüm Gruplar (All Groups)</option>
+              <option value="">🏢 Tüm Grouplar (All Groups)</option>
               ${groups.map(g => `<option value="${g.name}">${g.name}</option>`).join('')}
-              <option value="-">Grup Atanmamış (-)</option>
+              <option value="-">Group Atanmamış (-)</option>
             </select>
           </div>
 
           <!-- 4. Status Filter -->
           <div>
             <select id="filter-user-status" onchange="AdminController.filterUsersTable()" style="width: 100%; padding: 9px 12px; font-size: 13px; border: 1px solid var(--border-light); border-radius: 8px; background: var(--bg-page); color: var(--text-main);">
-              <option value="">🟢 Tüm Durumlar (All Status)</option>
-              <option value="Active">Aktif (Active)</option>
-              <option value="Inactive">Pasif (Inactive)</option>
+              <option value="">🟢 All Statuses</option>
+              <option value="Active">Active (Active)</option>
+              <option value="Inactive">Inactive</option>
             </select>
           </div>
         </div>
@@ -536,12 +536,12 @@ const AdminController = {
           <table class="custom-table" style="margin: 0; width: 100%;">
             <thead>
               <tr style="background: var(--bg-page); border-bottom: 2px solid var(--border-light);">
-                <th style="padding: 14px 18px; width: 260px;">User (Kullanıcı)</th>
-                <th style="padding: 14px 14px;">Role (Rol)</th>
-                <th style="padding: 14px 14px;">Group (Eğitim Grubu)</th>
-                <th style="padding: 14px 14px; text-align: center;">Status (Durum)</th>
-                <th style="padding: 14px 14px;">Last Login (Son Giriş)</th>
-                <th style="padding: 14px 18px; text-align: right;">İşlemler</th>
+                <th style="padding: 14px 18px; width: 260px;">User</th>
+                <th style="padding: 14px 14px;">Role</th>
+                <th style="padding: 14px 14px;">Group</th>
+                <th style="padding: 14px 14px; text-align: center;">Status</th>
+                <th style="padding: 14px 14px;">Last Login</th>
+                <th style="padding: 14px 18px; text-align: right;">Actionler</th>
               </tr>
             </thead>
             <tbody id="users-table-tbody">
@@ -555,7 +555,7 @@ const AdminController = {
 
   generateUserRowsHtml(users) {
     if (!users || users.length === 0) {
-      return `<tr><td colspan="6" style="padding: 30px; text-align: center; color: var(--text-muted); font-size: 13px;">Arama kriterlerine uygun kullanıcı bulunamadı.</td></tr>`;
+      return `<tr><td colspan="6" style="padding: 30px; text-align: center; color: var(--text-muted); font-size: 13px;">No users found matching the search criteria.</td></tr>`;
     }
 
     return users.map(u => {
@@ -593,9 +593,9 @@ const AdminController = {
           <td style="padding: 12px 14px; text-align: center;">${statusBadge}</td>
           <td style="padding: 12px 14px;">${AdminController.formatLastLogin(u.last_login)}</td>
           <td style="padding: 12px 18px; text-align: right;">
-            <button class="btn-action btn-secondary btn-sm" onclick="AdminController.openEditUserModal(${u.id})">Düzenle</button>
+            <button class="btn-action btn-secondary btn-sm" onclick="AdminController.openEditUserModal(${u.id})">Edit</button>
             ${u.id !== AppState.currentUser.id ? `
-              <button class="btn-action btn-danger btn-sm" style="margin-left: 6px;" onclick="AdminController.deleteUser(${u.id}, '${u.name.replace(/'/g, "\\'")}')">Sil</button>
+              <button class="btn-action btn-danger btn-sm" style="margin-left: 6px;" onclick="AdminController.deleteUser(${u.id}, '${u.name.replace(/'/g, "\\'")}')">Delete</button>
             ` : ''}
           </td>
         </tr>
@@ -655,12 +655,12 @@ const AdminController = {
       <div class="panel-card">
         <div class="panel-header">
           <div class="panel-header-left">
-            <h3>Tanımlı Görevler ve Ödevler (${tasks.length})</h3>
+            <h3>Tanımlı Tasksler ve Ödevler (${tasks.length})</h3>
           </div>
           <div style="display:flex; gap:10px;">
             <button class="btn-action btn-primary" onclick="AdminController.openAddTaskModal()" style="width: auto;">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-              <span>Yeni Görev Oluştur</span>
+              <span>Yeni Tasks Oluştur</span>
             </button>
           </div>
         </div>
@@ -668,20 +668,20 @@ const AdminController = {
           <table class="custom-table">
             <thead>
               <tr>
-                <th>Görev Başlığı</th>
-                <th>Öncelik</th>
-                <th>Sorumlu Eğitmen</th>
-                <th>Atanan Öğrenci</th>
-                <th>Son Teslim Tarihi</th>
+                <th>Tasks Başlığı</th>
+                <th>Priority</th>
+                <th>Sorumlu Trainer</th>
+                <th>Atanan Student</th>
+                <th>Submission Deadline</th>
                 <th>Durum</th>
-                <th style="text-align: right;">İşlemler</th>
+                <th style="text-align: right;">Actionler</th>
               </tr>
             </thead>
             <tbody>
               ${tasks.length === 0 ? `
-                <tr><td colspan="7" class="empty-state">Henüz tanımlanmış bir görev bulunmamaktadır.</td></tr>
+                <tr><td colspan="7" class="empty-state">No assignments have been created yet.</td></tr>
               ` : tasks.map(t => {
-                let prioColor = t.priority === 'Acil' ? 'var(--accent-rose)' : (t.priority === 'Yüksek' ? 'var(--accent-gold)' : 'var(--text-muted)');
+                let prioColor = t.priority === 'Urgent' ? 'var(--accent-rose)' : (t.priority === 'High' ? 'var(--accent-gold)' : 'var(--text-muted)');
                 return `
                   <tr>
                     <td class="text-main">
@@ -694,8 +694,8 @@ const AdminController = {
                     <td>${formatDateTr(t.deadline)}</td>
                     <td>${getStatusBadgeHtml(t.status)}</td>
                     <td style="text-align: right;">
-                      <button class="btn-action btn-secondary btn-sm" onclick="AdminController.openEditTaskModal(${t.id})">Düzenle</button>
-                      <button class="btn-action btn-danger btn-sm" style="margin-left: 6px;" onclick="AdminController.deleteTask(${t.id}, '${t.title.replace(/'/g, "\\'")}')">Sil</button>
+                      <button class="btn-action btn-secondary btn-sm" onclick="AdminController.openEditTaskModal(${t.id})">Edit</button>
+                      <button class="btn-action btn-danger btn-sm" style="margin-left: 6px;" onclick="AdminController.deleteTask(${t.id}, '${t.title.replace(/'/g, "\\'")}')">Delete</button>
                     </td>
                   </tr>
                 `;
@@ -718,29 +718,29 @@ const AdminController = {
       <div class="panel-card">
         <div class="panel-header">
           <div class="panel-header-left">
-            <h3>Öğrenci Teslim ve Notlandırma Listesi (${submissions.length})</h3>
+            <h3>Student Teslim ve Notlandırma Listesi (${submissions.length})</h3>
           </div>
         </div>
         <div class="table-responsive">
           <table class="custom-table">
             <thead>
               <tr>
-                <th>Deneme / Revizyon</th>
-                <th>Öğrenci</th>
-                <th>Görev</th>
-                <th>Eğitmen</th>
-                <th>Teslim Zamanı</th>
-                <th>Zamanlama (Is Late)</th>
-                <th>Dosya & Link</th>
+                <th>Attempt / Revision</th>
+                <th>Student</th>
+                <th>Tasks</th>
+                <th>Trainer</th>
+                <th>Submission Date</th>
+                <th>Timing</th>
+                <th>File & URL</th>
                 <th>Durum</th>
                 <th>Not</th>
-                <th>Geri Bildirim</th>
-                <th style="text-align: right;">İşlem</th>
+                <th>Feedback</th>
+                <th style="text-align: right;">Action</th>
               </tr>
             </thead>
             <tbody>
               ${submissions.length === 0 ? `
-                <tr><td colspan="11" class="empty-state">Henüz hiçbir ödev teslim edilmemiştir.</td></tr>
+                <tr><td colspan="11" class="empty-state">No assignments have been submitted yet.</td></tr>
               ` : submissions.map(s => `
                 <tr>
                   <td>
@@ -811,7 +811,7 @@ const AdminController = {
             <div class="modal-body" style="overflow-y: auto; max-height: calc(85vh - 130px); padding: 16px 20px;">
               <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                 <div class="form-group">
-                  <label>Grup / Şube Adı *</label>
+                  <label>Group / Şube Adı *</label>
                   <input type="text" id="group-name" placeholder="Örn: Yazılım Mühendisliği - Şube A" required>
                 </div>
                 <div class="form-group">
@@ -820,8 +820,8 @@ const AdminController = {
                 </div>
               </div>
               <div class="form-group">
-                <label>Grup Açıklaması ve Hedefleri</label>
-                <textarea id="group-desc" rows="2" placeholder="Grup hedefleri, ders kapsamı ve yönergeler..."></textarea>
+                <label>Group Açıklaması ve Hedefleri</label>
+                <textarea id="group-desc" rows="2" placeholder="Group hedefleri, ders kapsamı ve yönergeler..."></textarea>
               </div>
               <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;">
                 <div class="form-group">
@@ -833,22 +833,22 @@ const AdminController = {
                   <input type="date" id="group-end" value="2026-12-31" required>
                 </div>
                 <div class="form-group">
-                  <label>Grup Durumu *</label>
+                  <label>Group Durumu *</label>
                   <select id="group-status" required>
-                    <option value="Active" selected>🟢 Active (Aktif)</option>
+                    <option value="Active" selected>🟢 Active (Active)</option>
                     <option value="Completed">🔵 Completed (Tamamlandı)</option>
-                    <option value="Archived">⚪ Archived (Arşivlendi)</option>
+                    <option value="Archived">⚪ Archived (Archivedlendi)</option>
                   </select>
                 </div>
               </div>
               <div class="form-group">
-                <label>Ana Sorumlu Eğitmen (Primary Trainer) *</label>
+                <label>Ana Sorumlu Trainer (Primary Trainer) *</label>
                 <select id="group-trainer" required>
                   ${(trainersRes.users || []).map(t => `<option value="${t.id}">${t.name} (${t.email})</option>`).join('')}
                 </select>
               </div>
               <div class="form-group">
-                <label>Yardımcı Eğitmenler (Assistant Trainers)</label>
+                <label>Yardımcı Trainers (Assistant Trainers)</label>
                 <div style="max-height:80px; overflow-y:auto; border:1px solid var(--border-light); padding:8px 12px; border-radius:8px; background:var(--bg-page);">
                   ${(trainersRes.users || []).map(t => `
                     <label style="display:flex; align-items:center; gap:8px; margin-bottom:4px; font-size:12.5px; cursor:pointer;">
@@ -860,8 +860,8 @@ const AdminController = {
               </div>
               <div class="form-group" style="margin-bottom:0;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                  <label style="margin-bottom:0;">Gruba Kayıtlı Öğrenciler (${(studentsRes.users || []).length} Mevcut)</label>
-                  <span style="font-size:11.5px; color:var(--text-muted);">Öğrenci ekleyin / çıkarın</span>
+                  <label style="margin-bottom:0;">Gruba Enrolled Studentsler (${(studentsRes.users || []).length} Mevcut)</label>
+                  <span style="font-size:11.5px; color:var(--text-muted);">Student ekleyin / çıkarın</span>
                 </div>
                 <div style="max-height:110px; overflow-y:auto; border:1px solid var(--border-light); padding:8px 12px; border-radius:8px; background:var(--bg-page);">
                   ${(studentsRes.users || []).map(s => `
@@ -892,7 +892,7 @@ const AdminController = {
     ]);
 
     if (!groupRes.success || !groupRes.group) {
-      showToast("Grup bilgileri yüklenemedi.", "error");
+      showToast("Group bilgileri yüklenemedi.", "error");
       return;
     }
 
@@ -904,14 +904,14 @@ const AdminController = {
       <div id="modal-group-custom" class="modal-overlay active">
         <div class="modal-box" style="max-width: 620px; max-height: 85vh; display: flex; flex-direction: column; overflow: hidden;">
           <div class="modal-header">
-            <h3>Eğitim Grubunu Düzenle: ${g.name}</h3>
+            <h3>Eğitim Grubunu Edit: ${g.name}</h3>
             <button class="modal-close-btn" onclick="document.getElementById('modal-group-custom').remove()">&times;</button>
           </div>
           <form onsubmit="AdminController.handleSaveGroup(event, ${g.id})" style="display: flex; flex-direction: column; overflow: hidden; flex: 1;">
             <div class="modal-body" style="overflow-y: auto; max-height: calc(85vh - 130px); padding: 16px 20px;">
               <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                 <div class="form-group">
-                  <label>Grup / Şube Adı *</label>
+                  <label>Group / Şube Adı *</label>
                   <input type="text" id="group-name" value="${g.name}" required>
                 </div>
                 <div class="form-group">
@@ -920,7 +920,7 @@ const AdminController = {
                 </div>
               </div>
               <div class="form-group">
-                <label>Grup Açıklaması ve Hedefleri</label>
+                <label>Group Açıklaması ve Hedefleri</label>
                 <textarea id="group-desc" rows="2">${g.description || ''}</textarea>
               </div>
               <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;">
@@ -933,22 +933,22 @@ const AdminController = {
                   <input type="date" id="group-end" value="${g.end_date || ''}" required>
                 </div>
                 <div class="form-group">
-                  <label>Grup Durumu *</label>
+                  <label>Group Durumu *</label>
                   <select id="group-status" required>
-                    <option value="Active" ${g.status === 'Active' ? 'selected' : ''}>🟢 Active (Aktif)</option>
+                    <option value="Active" ${g.status === 'Active' ? 'selected' : ''}>🟢 Active (Active)</option>
                     <option value="Completed" ${g.status === 'Completed' ? 'selected' : ''}>🔵 Completed (Tamamlandı)</option>
-                    <option value="Archived" ${g.status === 'Archived' ? 'selected' : ''}>⚪ Archived (Arşivlendi)</option>
+                    <option value="Archived" ${g.status === 'Archived' ? 'selected' : ''}>⚪ Archived (Archivedlendi)</option>
                   </select>
                 </div>
               </div>
               <div class="form-group">
-                <label>Ana Sorumlu Eğitmen (Primary Trainer) *</label>
+                <label>Ana Sorumlu Trainer (Primary Trainer) *</label>
                 <select id="group-trainer" required>
                   ${(trainersRes.users || []).map(t => `<option value="${t.id}" ${t.id === g.trainer_id ? 'selected' : ''}>${t.name} (${t.email})</option>`).join('')}
                 </select>
               </div>
               <div class="form-group">
-                <label>Yardımcı Eğitmenler (Assistant Trainers)</label>
+                <label>Yardımcı Trainers (Assistant Trainers)</label>
                 <div style="max-height:80px; overflow-y:auto; border:1px solid var(--border-light); padding:8px 12px; border-radius:8px; background:var(--bg-page);">
                   ${(trainersRes.users || []).map(t => `
                     <label style="display:flex; align-items:center; gap:8px; margin-bottom:4px; font-size:12.5px; cursor:pointer;">
@@ -960,8 +960,8 @@ const AdminController = {
               </div>
               <div class="form-group" style="margin-bottom:0;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                  <label style="margin-bottom:0;">Gruba Kayıtlı Öğrenciler (${enrolledIds.length} Seçili)</label>
-                  <span style="font-size:11.5px; color:var(--text-muted);">Öğrenci ekleyin veya çıkarın</span>
+                  <label style="margin-bottom:0;">Gruba Enrolled Studentsler (${enrolledIds.length} Seçili)</label>
+                  <span style="font-size:11.5px; color:var(--text-muted);">Student ekleyin veya çıkarın</span>
                 </div>
                 <div style="max-height:110px; overflow-y:auto; border:1px solid var(--border-light); padding:8px 12px; border-radius:8px; background:var(--bg-page);">
                   ${(studentsRes.users || []).map(s => `
@@ -1014,21 +1014,21 @@ const AdminController = {
       showToast(groupId ? "Eğitim grubu güncellendi." : "Eğitim grubu başarıyla oluşturuldu.", "success");
       switchTab('groups');
     } else {
-      showToast(res.error || "Grup kaydedilirken hata oluştu.", "error");
+      showToast(res.error || "Group kaydedilirken hata oluştu.", "error");
     }
   },
 
   deleteGroup(groupId, groupName) {
     openConfirmModal(
-      'Grubu Sil',
+      'Grubu Delete',
       `"${groupName}" adlı eğitim grubunu silmek istediğinizden emin misiniz?`,
       async () => {
         const res = await apiFetch(`/api/groups/${groupId}`, { method: 'DELETE' });
         if (res.success) {
-          showToast("Grup silindi.", "success");
+          showToast("Group silindi.", "success");
           switchTab('groups');
         } else {
-          showToast(res.error || "Grup silinemedi.", "error");
+          showToast(res.error || "Group silinemedi.", "error");
         }
       }
     );
@@ -1036,7 +1036,7 @@ const AdminController = {
 
   // ==================== KULLANICI MODAL VE CRUD ====================
   openAddUserModal(defaultRole = 'student') {
-    document.getElementById('modal-user-title').textContent = defaultRole === 'trainer' ? 'Eğitmen Ekle' : (defaultRole === 'admin' ? 'Yönetici Ekle' : 'Öğrenci Ekle');
+    document.getElementById('modal-user-title').textContent = defaultRole === 'trainer' ? 'Trainer Ekle' : (defaultRole === 'admin' ? 'Yönetici Ekle' : 'Student Ekle');
     document.getElementById('user-id').value = '';
     document.getElementById('user-name').value = '';
     document.getElementById('user-email').value = '';
@@ -1057,7 +1057,7 @@ const AdminController = {
     }
 
     const u = res.user;
-    document.getElementById('modal-user-title').textContent = 'Kullanıcı Düzenle';
+    document.getElementById('modal-user-title').textContent = 'Kullanıcı Edit';
     document.getElementById('user-id').value = u.id;
     document.getElementById('user-name').value = u.name;
     document.getElementById('user-email').value = u.email;
@@ -1072,12 +1072,12 @@ const AdminController = {
 
   deleteUser(userId, userName) {
     openConfirmModal(
-      'Kullanıcıyı Sil',
+      'Kullanıcıyı Delete',
       `"${userName}" adlı kullanıcıyı silmek istediğinizden emin misiniz?`,
       async () => {
         const res = await apiFetch(`/api/users/${userId}`, { method: 'DELETE' });
         if (res.success) {
-          showToast("Kullanıcı başarıyla silindi.", "success");
+          showToast("User deleted successfully.", "success");
           switchTab(AppState.currentTab);
         } else {
           showToast(res.error || "Kullanıcı silinirken bir hata oluştu.", "error");
@@ -1088,7 +1088,7 @@ const AdminController = {
 
   // ==================== GÖREV MODAL VE CRUD ====================
   async openAddTaskModal() {
-    document.getElementById('modal-task-title').textContent = 'Yeni Görev Oluştur';
+    document.getElementById('modal-task-title').textContent = 'Yeni Tasks Oluştur';
     document.getElementById('task-id').value = '';
     document.getElementById('task-title').value = '';
     document.getElementById('task-description').value = '';
@@ -1126,7 +1126,7 @@ const AdminController = {
 
     const groupSelect = document.getElementById('task-group');
     if (groupSelect) {
-      groupSelect.innerHTML = (groupsRes.groups || []).map(g => `<option value="${g.id}">${g.name} (${g.student_count || 0} Öğrenci)</option>`).join('');
+      groupSelect.innerHTML = (groupsRes.groups || []).map(g => `<option value="${g.id}">${g.name} (${g.student_count || 0} Student)</option>`).join('');
     }
 
     openModal('modal-task');
@@ -1135,12 +1135,12 @@ const AdminController = {
   async openEditTaskModal(taskId) {
     const res = await apiFetch(`/api/tasks/${taskId}`);
     if (!res.success || !res.task) {
-      showToast("Görev bilgileri alınamadı.", "error");
+      showToast("Tasks bilgileri alınamadı.", "error");
       return;
     }
 
     const t = res.task;
-    document.getElementById('modal-task-title').textContent = 'Görevi Düzenle';
+    document.getElementById('modal-task-title').textContent = 'Tasksi Edit';
     document.getElementById('task-id').value = t.id;
     document.getElementById('task-title').value = t.title;
     document.getElementById('task-description').value = t.description;
@@ -1190,15 +1190,15 @@ const AdminController = {
 
   deleteTask(taskId, taskTitle) {
     openConfirmModal(
-      'Görevi Sil',
+      'Tasksi Delete',
       `"${taskTitle}" başlıklı görevi silmek istediğinizden emin misiniz?`,
       async () => {
         const res = await apiFetch(`/api/tasks/${taskId}`, { method: 'DELETE' });
         if (res.success) {
-          showToast("Görev başarıyla silindi.", "success");
+          showToast("Tasks başarıyla silindi.", "success");
           switchTab(AppState.currentTab);
         } else {
-          showToast(res.error || "Görev silinirken bir hata oluştu.", "error");
+          showToast(res.error || "Tasks silinirken bir hata oluştu.", "error");
         }
       }
     );
@@ -1249,7 +1249,7 @@ async function handleSaveUser(e) {
     showToast(res.message || "Kullanıcı başarıyla kaydedildi.", "success");
     switchTab(AppState.currentTab);
   } else {
-    showToast(res.error || "İşlem sırasında bir hata oluştu.", "error");
+    showToast(res.error || "Action sırasında bir hata oluştu.", "error");
   }
 }
 
@@ -1298,10 +1298,10 @@ async function handleSaveTask(e) {
 
   if (res.success) {
     closeModal('modal-task');
-    showToast(res.message || "Görev başarıyla kaydedildi.", "success");
+    showToast(res.message || "Tasks başarıyla kaydedildi.", "success");
     switchTab(AppState.currentTab);
   } else {
-    showToast(res.error || "İşlem sırasında bir hata oluştu.", "error");
+    showToast(res.error || "Action sırasında bir hata oluştu.", "error");
   }
 }
 
@@ -1335,7 +1335,7 @@ AdminController.renderRolesPermissions = async function(container) {
     'student': { bg: 'rgba(8, 145, 178, 0.1)', color: '#0891B2', icon: '🎒' }
   };
 
-  // İzinleri Kategorilerine Göre Grupla
+  // İzinleri Kategorilerine Göre Groupla
   const categories = {};
   permissions.forEach(p => {
     if (!categories[p.category]) categories[p.category] = [];

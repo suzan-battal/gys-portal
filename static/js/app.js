@@ -3,7 +3,7 @@
  * Kimlik doğrulama, yönlendirme, UI yöneticisi, modal ve toast bildirimleri, evrensel dosya yükleme.
  */
 
-// Global Uygulama Durumu (State)
+// Global Uygulama Statusu (State)
 const AppState = {
   currentUser: null,
   token: localStorage.getItem('gys_auth_token') || null,
@@ -36,10 +36,10 @@ async function apiFetch(endpoint, options = {}) {
     
     if (response.status === 401) {
       if (AppState.currentUser) {
-        showToast("Oturum süreniz doldu, lütfen tekrar giriş yapınız.", "warning");
+        showToast("Your session has expired. Please sign in again.", "warning");
         handleLogout(true);
       }
-      return { success: false, error: "Yetkisiz erişim", status: 401 };
+      return { success: false, error: "Unauthorized access", status: 401 };
     }
 
     if (!response.ok) {
@@ -53,7 +53,7 @@ async function apiFetch(endpoint, options = {}) {
     return data;
   } catch (err) {
     console.error("API Bağlantı Hatası:", err);
-    return { success: false, error: "Sunucuya bağlanılamadı. Lütfen bağlantınızı kontrol ediniz." };
+    return { success: false, error: "Could not connect to server. Please check your connection." };
   }
 }
 
@@ -128,13 +128,13 @@ async function handleLogin(e) {
   const password = document.getElementById('login-password').value.trim();
 
   if (!email || !password) {
-    showToast("Lütfen e-posta ve şifrenizi giriniz.", "error");
+    showToast("Please enter your email and password.", "error");
     return;
   }
 
   const btn = document.getElementById('btn-submit-login');
   btn.disabled = true;
-  btn.innerHTML = '<span>Giriş Yapılıyor...</span>';
+  btn.innerHTML = '<span>Signing In...</span>';
 
   const res = await apiFetch('/api/auth/login', {
     method: 'POST',
@@ -150,7 +150,7 @@ async function handleLogin(e) {
     </svg>`;
 
   if (!res.success) {
-    showToast(res.error || "Geçersiz e-posta veya şifre.", "error");
+    showToast(res.error || "Invalid email or password.", "error");
     return;
   }
 
@@ -158,7 +158,7 @@ async function handleLogin(e) {
   AppState.currentUser = res.user;
   localStorage.setItem('gys_auth_token', res.token);
 
-  showToast(`Hoş geldiniz, Sn. ${res.user.name}`, "success");
+  showToast(`Welcome, ${res.user.name}!`, "success");
   renderAuthenticatedUI();
 }
 
@@ -174,7 +174,7 @@ async function handleLogout(silent = false) {
   document.getElementById('view-dashboard').style.display = 'none';
   document.getElementById('view-login').style.display = 'flex';
   if (!silent) {
-    showToast("Başarıyla çıkış yapıldı.", "info");
+    showToast("Successfully signed out.", "info");
   }
 }
 
@@ -195,7 +195,7 @@ async function checkAuthSession() {
   }
 }
 
-// ==================== ARAYÜZ YÖNETİMİ VE ROL TESPİTİ ====================
+// ==================== UI MANAGEMENT & ROLE ROUTING ====================
 function renderAuthenticatedUI() {
   const user = AppState.currentUser;
   if (!user) return;
@@ -203,7 +203,7 @@ function renderAuthenticatedUI() {
   document.getElementById('view-login').style.display = 'none';
   document.getElementById('view-dashboard').style.display = 'flex';
 
-  // Topbar Profil Bilgileri
+  // Topbar Profile Info
   document.getElementById('user-display-name').textContent = user.name;
   document.getElementById('user-avatar').textContent = user.name.charAt(0).toUpperCase();
   
@@ -211,21 +211,21 @@ function renderAuthenticatedUI() {
   const sidebarRoleBadge = document.getElementById('sidebar-role-badge');
   const pageHeading = document.getElementById('page-heading');
 
-  let roleTitle = "Öğrenci (Student)";
+  let roleTitle = "Student";
   if (user.role === 'super_admin') roleTitle = "Super Admin";
-  else if (user.role === 'admin') roleTitle = "Yönetici (Admin)";
+  else if (user.role === 'admin') roleTitle = "Administrator";
   else if (user.role === 'training_manager') roleTitle = "Training Manager";
-  else if (user.role === 'trainer') roleTitle = "Eğitmen (Trainer)";
+  else if (user.role === 'trainer') roleTitle = "Trainer (Faculty)";
   else if (user.role === 'assistant_trainer') roleTitle = "Assistant Trainer";
 
   roleBadge.textContent = roleTitle;
-  sidebarRoleBadge.textContent = `${roleTitle} Paneli`;
-  pageHeading.textContent = `${roleTitle} Paneli`;
+  sidebarRoleBadge.textContent = `${roleTitle} Panel`;
+  pageHeading.textContent = `${roleTitle} Dashboard`;
 
-  // Sidebar Menülerini Role Göre İnşa Et
+  // Build Sidebar Menus by Role
   buildSidebarMenu(user.role);
 
-  // İlk Tab'ı Aç (Ana Sayfa)
+  // Open First Tab (Home Dashboard)
   switchTab('home');
 }
 
@@ -237,48 +237,48 @@ function buildSidebarMenu(role) {
 
   if (role === 'super_admin' || role === 'admin' || role === 'training_manager') {
     menuItems = [
-      { id: 'home', title: 'Ana Sayfa', icon: 'grid' },
-      { id: 'today-tasks', title: 'Bugünün Görevleri (17)', icon: 'calendar' },
-      { id: 'announcements', title: 'Duyurular (19)', icon: 'bell' },
-      { id: 'calendar', title: 'Akademik Takvim (20)', icon: 'calendar' },
-      { id: 'reports', title: 'Raporlar & Analitik (21)', icon: 'bar-chart-2' },
-      { id: 'audit-logs', title: 'Denetim Kayıtları (22)', icon: 'shield' },
-      { id: 'roles-permissions', title: 'Roller & İzinler (12)', icon: 'key' },
-      { id: 'settings', title: 'Sistem Ayarları (26)', icon: 'settings' },
-      { id: 'groups', title: 'Eğitim Grupları', icon: 'layers' },
-      { id: 'students', title: 'Öğrenciler', icon: 'users' },
-      { id: 'trainers', title: 'Eğitmenler', icon: 'award' },
-      { id: 'all-users', title: 'Kullanıcılar', icon: 'shield' },
-      { id: 'tasks', title: 'Görevler', icon: 'check-square' },
-      { id: 'submissions', title: 'Teslimler', icon: 'file-text' },
-      { id: 'doc', title: 'Proje Raporu', icon: 'book' },
-      { id: 'profile', title: 'Profil', icon: 'user' }
+      { id: 'home', title: 'Dashboard', icon: 'grid' },
+      { id: 'today-tasks', title: "Today's Tasks", icon: 'calendar' },
+      { id: 'announcements', title: 'Announcements', icon: 'bell' },
+      { id: 'calendar', title: 'Academic Calendar', icon: 'calendar' },
+      { id: 'reports', title: 'Reports & Analytics', icon: 'bar-chart-2' },
+      { id: 'audit-logs', title: 'Audit Logs', icon: 'shield' },
+      { id: 'roles-permissions', title: 'Roles & Permissions', icon: 'key' },
+      { id: 'settings', title: 'System Settings', icon: 'settings' },
+      { id: 'groups', title: 'Training Groups', icon: 'layers' },
+      { id: 'students', title: 'Students', icon: 'users' },
+      { id: 'trainers', title: 'Trainers', icon: 'award' },
+      { id: 'all-users', title: 'All Users', icon: 'shield' },
+      { id: 'tasks', title: 'Tasks & Assignments', icon: 'check-square' },
+      { id: 'submissions', title: 'Submissions', icon: 'file-text' },
+      { id: 'doc', title: 'Project Specification Report', icon: 'book' },
+      { id: 'profile', title: 'My Profile', icon: 'user' }
     ];
   } else if (role === 'trainer' || role === 'assistant_trainer') {
     menuItems = [
-      { id: 'home', title: 'Ana Sayfa', icon: 'grid' },
-      { id: 'today-tasks', title: 'Bugünün Görevleri (17)', icon: 'calendar' },
-      { id: 'announcements', title: 'Duyurular (19)', icon: 'bell' },
-      { id: 'calendar', title: 'Akademik Takvim (20)', icon: 'calendar' },
-      { id: 'reports', title: 'Raporlar & Analitik (21)', icon: 'bar-chart-2' },
-      { id: 'groups', title: 'Eğitim Grupları', icon: 'layers' },
-      { id: 'students', title: 'Öğrenciler', icon: 'users' },
-      { id: 'tasks', title: 'Görevler', icon: 'check-square' },
-      { id: 'submissions', title: 'Teslimler', icon: 'file-text' },
-      { id: 'doc', title: 'Proje Raporu', icon: 'book' },
-      { id: 'profile', title: 'Profil', icon: 'user' }
+      { id: 'home', title: 'Dashboard', icon: 'grid' },
+      { id: 'today-tasks', title: "Today's Tasks", icon: 'calendar' },
+      { id: 'announcements', title: 'Announcements', icon: 'bell' },
+      { id: 'calendar', title: 'Academic Calendar', icon: 'calendar' },
+      { id: 'reports', title: 'Reports & Analytics', icon: 'bar-chart-2' },
+      { id: 'groups', title: 'Training Groups', icon: 'layers' },
+      { id: 'students', title: 'Students', icon: 'users' },
+      { id: 'tasks', title: 'Tasks & Assignments', icon: 'check-square' },
+      { id: 'submissions', title: 'Submissions & Review', icon: 'file-text' },
+      { id: 'doc', title: 'Project Specification Report', icon: 'book' },
+      { id: 'profile', title: 'My Profile', icon: 'user' }
     ];
   } else if (role === 'student') {
     menuItems = [
-      { id: 'home', title: 'Ana Sayfa', icon: 'grid' },
-      { id: 'today-tasks', title: 'Bugünün Görevleri (17)', icon: 'calendar' },
-      { id: 'announcements', title: 'Duyurular (19)', icon: 'bell' },
-      { id: 'calendar', title: 'Akademik Takvim (20)', icon: 'calendar' },
-      { id: 'reports', title: 'Akademik Raporlar (21)', icon: 'bar-chart-2' },
-      { id: 'my-tasks', title: 'Görevlerim', icon: 'check-square' },
-      { id: 'my-submissions', title: 'Teslimlerim ve Notlarım', icon: 'file-text' },
-      { id: 'profile', title: 'Öğrenci Profili (14)', icon: 'user' },
-      { id: 'doc', title: 'Proje Raporu', icon: 'book' }
+      { id: 'home', title: 'Dashboard', icon: 'grid' },
+      { id: 'today-tasks', title: "Today's Tasks", icon: 'calendar' },
+      { id: 'announcements', title: 'Announcements', icon: 'bell' },
+      { id: 'calendar', title: 'Academic Calendar', icon: 'calendar' },
+      { id: 'reports', title: 'Academic Progress & GPA', icon: 'bar-chart-2' },
+      { id: 'my-tasks', title: 'My Tasks & Assignments', icon: 'check-square' },
+      { id: 'my-submissions', title: 'My Submissions & Grades', icon: 'file-text' },
+      { id: 'profile', title: 'Student Profile', icon: 'user' },
+      { id: 'doc', title: 'Project Specification Report', icon: 'book' }
     ];
   }
 
@@ -323,35 +323,35 @@ function switchTab(tabId) {
 
   // Section 17: Bugünün Görevleri (Tüm Roller için ortak merkezi sayfa)
   if (tabId === 'today-tasks') {
-    heading.innerHTML = `<span>17. Bugünün Görevleri (Today's Tasks Hub)</span>`;
+    heading.innerHTML = `<span>Today's Tasks (Today's Tasks Hub)</span>`;
     TodayTasksController.renderTodayTasks(main);
     return;
   }
 
   // Section 19: Duyurular (Tüm Roller için ortak duyuru panosu)
   if (tabId === 'announcements') {
-    heading.innerHTML = `<span>19. Duyurular ve Bildirimler (Announcements Hub)</span>`;
+    heading.innerHTML = `<span>Announcements & Gradeices Hub</span>`;
     AnnouncementsController.renderAnnouncements(main);
     return;
   }
 
   // Section 20: Akademik Takvim (Tüm Roller için ortak takvim)
   if (tabId === 'calendar') {
-    heading.innerHTML = `<span>20. Akademik Takvim (Calendar Hub)</span>`;
+    heading.innerHTML = `<span>Academic Calendar Hub</span>`;
     CalendarController.renderCalendar(main);
     return;
   }
 
   // Section 21: Raporlar ve Analitik Merkezi
   if (tabId === 'reports') {
-    heading.innerHTML = `<span>21. Raporlama ve Analitik Merkezi (Reports Hub)</span>`;
+    heading.innerHTML = `<span>Reports & Analytics Hub</span>`;
     ReportsController.renderReports(main);
     return;
   }
 
   // Section 22: Denetim Kayıtları (Audit Logs Hub)
   if (tabId === 'audit-logs') {
-    heading.innerHTML = `<span>22. Denetim Kayıtları (Audit Logs Hub)</span>`;
+    heading.innerHTML = `<span>Audit Logs & Security Hub</span>`;
     AuditLogsController.renderAuditLogs(main);
     return;
   }
@@ -359,7 +359,7 @@ function switchTab(tabId) {
   // Section 23: Veritabanı Tablo Mimarisi (Database Schema Hub)
   // Section 26.29: Sistem Ayarları (Settings Hub)
   if (tabId === 'settings') {
-    heading.innerHTML = `<span>26.29. Sistem Ayarları & Konfigürasyon (Settings Hub)</span>`;
+    heading.innerHTML = `<span>System Settings & Configuration Hub</span>`;
     SettingsController.renderSettings(main);
     return;
   }
@@ -411,7 +411,7 @@ function openProfileModal() {
 async function openStudentProfileModal(studentId) {
   openModal('modal-student-profile');
   const body = document.getElementById('stu-prof-body');
-  body.innerHTML = `<div style="text-align: center; padding: 40px;"><span style="color: var(--text-muted);">Öğrenci Profili ve İstatistikleri Yükleniyor...</span></div>`;
+  body.innerHTML = `<div style="text-align: center; padding: 40px;"><span style="color: var(--text-muted);">Loading Student Profile & Analytics...</span></div>`;
 
   const res = await apiFetch(`/api/students/${studentId}/profile`);
   if (!res.success) {
@@ -447,13 +447,13 @@ async function openStudentProfileModal(studentId) {
       <div class="card" style="padding: 16px; border: 1px solid var(--border-light); background: var(--bg-card); border-radius: 10px;">
         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
           <span style="font-size: 16px;">👤</span>
-          <strong style="font-size: 13.5px; color: var(--primary-navy);">Öğrenci Bilgileri (Student Information)</strong>
+          <strong style="font-size: 13.5px; color: var(--primary-navy);">Student Information</strong>
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 12.5px;">
-          <div><span style="color: var(--text-muted); font-size: 11px; display: block;">ÖĞRENCİ NO</span><strong>${student_info.student_no}</strong></div>
-          <div><span style="color: var(--text-muted); font-size: 11px; display: block;">HESAP DURUMU</span><span class="status-badge ${student_info.status === 'Active' ? 'badge-completed' : 'badge-pending'}" style="font-size: 10.5px;">${student_info.status}</span></div>
-          <div><span style="color: var(--text-muted); font-size: 11px; display: block;">KAYIT TARİHİ</span><span>${formatDateTr(student_info.created_at)}</span></div>
-          <div><span style="color: var(--text-muted); font-size: 11px; display: block;">SON GİRİŞ</span><span>${student_info.last_login ? formatDateTr(student_info.last_login) : 'Hiç giriş yapmadı'}</span></div>
+          <div><span style="color: var(--text-muted); font-size: 11px; display: block;">STUDENT ID</span><strong>${student_info.student_no}</strong></div>
+          <div><span style="color: var(--text-muted); font-size: 11px; display: block;">ACCOUNT STATUS</span><span class="status-badge ${student_info.status === 'Active' ? 'badge-completed' : 'badge-pending'}" style="font-size: 10.5px;">${student_info.status}</span></div>
+          <div><span style="color: var(--text-muted); font-size: 11px; display: block;">ENROLLMENT DATE</span><span>${formatDateTr(student_info.created_at)}</span></div>
+          <div><span style="color: var(--text-muted); font-size: 11px; display: block;">LAST LOGIN</span><span>${student_info.last_login ? formatDateTr(student_info.last_login) : 'Never logged in'}</span></div>
         </div>
       </div>
 
@@ -461,13 +461,13 @@ async function openStudentProfileModal(studentId) {
       <div class="card" style="padding: 16px; border: 1px solid var(--border-light); background: var(--bg-card); border-radius: 10px;">
         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
           <span style="font-size: 16px;">🏢</span>
-          <strong style="font-size: 13.5px; color: var(--primary-navy);">Eğitim Grubu & Eğitmen (Group & Trainer)</strong>
+          <strong style="font-size: 13.5px; color: var(--primary-navy);">Training Group & Trainer</strong>
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 12.5px;">
-          <div><span style="color: var(--text-muted); font-size: 11px; display: block;">EĞİTİM GRUBU</span><strong style="color: var(--primary-blue);">${group_info.group_name}</strong></div>
-          <div><span style="color: var(--text-muted); font-size: 11px; display: block;">BÖLÜM / ALAN</span><span>${group_info.department || '-'}</span></div>
-          <div><span style="color: var(--text-muted); font-size: 11px; display: block;">ANA EĞİTMEN</span><strong>${group_info.trainer_name}</strong></div>
-          <div><span style="color: var(--text-muted); font-size: 11px; display: block;">YARDIMCI EĞİTMEN</span><span>${group_info.assistant_trainers || '-'}</span></div>
+          <div><span style="color: var(--text-muted); font-size: 11px; display: block;">TRAINING GROUP</span><strong style="color: var(--primary-blue);">${group_info.group_name}</strong></div>
+          <div><span style="color: var(--text-muted); font-size: 11px; display: block;">DEPARTMENT / FIELD</span><span>${group_info.department || '-'}</span></div>
+          <div><span style="color: var(--text-muted); font-size: 11px; display: block;">LEAD TRAINER</span><strong>${group_info.trainer_name}</strong></div>
+          <div><span style="color: var(--text-muted); font-size: 11px; display: block;">ASSISTANT TRAINER</span><span>${group_info.assistant_trainers || '-'}</span></div>
         </div>
       </div>
     </div>
@@ -478,21 +478,21 @@ async function openStudentProfileModal(studentId) {
       <div class="card" style="padding: 12px 14px; text-align: center; border-radius: 10px; background: var(--bg-card); border: 1px solid var(--border-light);">
         <span style="font-size: 10.5px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Total Tasks</span>
         <div style="font-size: 20px; font-weight: 800; color: var(--primary-navy); margin-top: 3px;">${stats.total_tasks}</div>
-        <span style="font-size: 10px; color: var(--text-secondary);">Atanan Görev</span>
+        <span style="font-size: 10px; color: var(--text-secondary);">Assigned Tasks</span>
       </div>
 
       <!-- Completed -->
       <div class="card" style="padding: 12px 14px; text-align: center; border-radius: 10px; background: rgba(16, 185, 129, 0.06); border: 1px solid rgba(16, 185, 129, 0.2);">
         <span style="font-size: 10.5px; color: var(--accent-green); font-weight: 700; text-transform: uppercase;">Completed</span>
         <div style="font-size: 20px; font-weight: 800; color: var(--accent-green); margin-top: 3px;">${stats.completed}</div>
-        <span style="font-size: 10px; color: var(--accent-green);">Tamamlandı</span>
+        <span style="font-size: 10px; color: var(--accent-green);">Completed</span>
       </div>
 
       <!-- In Progress -->
       <div class="card" style="padding: 12px 14px; text-align: center; border-radius: 10px; background: rgba(59, 130, 246, 0.06); border: 1px solid rgba(59, 130, 246, 0.2);">
         <span style="font-size: 10.5px; color: var(--primary-blue); font-weight: 700; text-transform: uppercase;">In Progress</span>
         <div style="font-size: 20px; font-weight: 800; color: var(--primary-blue); margin-top: 3px;">${stats.in_progress}</div>
-        <span style="font-size: 10px; color: var(--primary-blue);">Devam Eden</span>
+        <span style="font-size: 10px; color: var(--primary-blue);">In Progress</span>
       </div>
 
       <!-- Late -->
@@ -526,7 +526,7 @@ async function openStudentProfileModal(studentId) {
       </div>
     </div>
 
-    <!-- 7. Task History Table (Görev Geçmişi ve Not Detayları) -->
+    <!-- 7. Task History Table (Görev Geçmişi ve Grade Detayları) -->
     <div class="panel-card" style="padding: 0; overflow: hidden; border: 1px solid var(--border-light); border-radius: 10px; margin-bottom: 20px;">
       <div style="padding: 12px 18px; background: var(--bg-page); border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center;">
         <strong style="font-size: 13.5px; color: var(--primary-navy);">📋 Görev Geçmişi (Task History - ${task_history.length})</strong>
@@ -535,23 +535,23 @@ async function openStudentProfileModal(studentId) {
         <table class="custom-table" style="margin: 0; width: 100%;">
           <thead>
             <tr style="background: var(--bg-page); font-size: 11.5px;">
-              <th style="padding: 10px 14px;">Görev Başlığı</th>
-              <th style="padding: 10px 14px;">Son Teslim</th>
-              <th style="padding: 10px 14px;">Durum</th>
-              <th style="padding: 10px 14px; text-align: center;">Not (100)</th>
+              <th style="padding: 10px 14px;">Task Title</th>
+              <th style="padding: 10px 14px;">Due Date</th>
+              <th style="padding: 10px 14px;">Status</th>
+              <th style="padding: 10px 14px; text-align: center;">Grade (100)</th>
               <th style="padding: 10px 14px; text-align: right;">İşlem</th>
             </tr>
           </thead>
           <tbody>
-            ${task_history.length === 0 ? `<tr><td colspan="5" style="text-align: center; padding: 20px; color: var(--text-muted);">Henüz atanmış bir görev bulunmuyor.</td></tr>` : ''}
+            ${task_history.length === 0 ? `<tr><td colspan="5" style="text-align: center; padding: 20px; color: var(--text-muted);">No tasks have been assigned yet.</td></tr>` : ''}
             ${task_history.map(t => {
               let statusBadgeHtml = '<span class="status-badge badge-pending">Bekliyor</span>';
-              if (t.submission_status === 'Tamamlandı' || t.submission_status === 'Kabul Edildi') {
-                statusBadgeHtml = '<span class="status-badge badge-completed">Tamamlandı</span>';
+              if (t.submission_status === 'Completed' || t.submission_status === 'Kabul Edildi') {
+                statusBadgeHtml = '<span class="status-badge badge-completed">Completed</span>';
               } else if (t.submission_status === 'Revizyon İstendi') {
                 statusBadgeHtml = '<span class="status-badge badge-late">Revizyon</span>';
-              } else if (t.submission_status === 'Teslim Edildi' || t.submission_status === 'İnceleniyor') {
-                statusBadgeHtml = '<span class="status-badge badge-reviewing">İnceleniyor</span>';
+              } else if (t.submission_status === 'Teslim Edildi' || t.submission_status === 'Viewniyor') {
+                statusBadgeHtml = '<span class="status-badge badge-reviewing">Viewniyor</span>';
               } else if (t.is_late) {
                 statusBadgeHtml = '<span class="status-badge badge-late">Gecikmiş</span>';
               }
@@ -568,7 +568,7 @@ async function openStudentProfileModal(studentId) {
                     ${t.grade !== null ? `<strong style="font-size: 14px; color: #10B981;">${t.grade}</strong>` : `<span style="color: var(--text-muted);">-</span>`}
                   </td>
                   <td style="padding: 10px 14px; text-align: right;">
-                    <button class="btn-action btn-secondary btn-sm" onclick="openTaskDetailModal(${t.task_id})">İncele</button>
+                    <button class="btn-action btn-secondary btn-sm" onclick="openTaskDetailModal(${t.task_id})">View</button>
                   </td>
                 </tr>
               `;
@@ -679,73 +679,73 @@ async function handleUploadUniversalFile() {
 
   if (res.success) {
     closeModal('modal-universal-upload');
-    showToast("Dosya başarıyla sisteme yüklendi!", "success");
+    showToast("File uploaded successfully to system!", "success");
     clearUniversalFile();
     switchTab(AppState.currentTab);
   } else {
-    showToast(res.error || "Dosya yüklenirken bir hata oluştu.", "error");
+    showToast(res.error || "An error occurred while uploading file.", "error");
   }
 }
 
 // ==================== YARDIMCI GÖRSEL FONKSİYONLAR ====================
 function getStatusBadgeHtml(status) {
-  if (status === 'Tamamlandı' || status === 'Completed' || status === 'Kabul Edildi') {
+  if (status === 'Completed' || status === 'Completed' || status === 'Kabul Edildi') {
     return `<span class="status-badge badge-completed">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-      Tamamlandı (Completed)
+      Completed
     </span>`;
   }
-  if (status === 'İnceleniyor' || status === 'Under Review') {
+  if (status === 'Viewniyor' || status === 'Under Review') {
     return `<span class="status-badge badge-reviewing">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
-      İnceleniyor (Under Review)
+      Under Review
     </span>`;
   }
   if (status === 'Yeniden Teslim Edildi' || status === 'Resubmitted') {
     return `<span class="status-badge" style="background: rgba(99, 102, 241, 0.15); color: #6366F1; border: 1px solid rgba(99, 102, 241, 0.3);">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"></polyline><polyline points="23 20 23 14 17 14"></polyline><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path></svg>
-      Yeniden Teslim Edildi (Resubmitted)
+      Resubmitted
     </span>`;
   }
   if (status === 'Teslim Edildi' || status === 'Submitted') {
     return `<span class="status-badge badge-submitted">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
-      Teslim Edildi (Submitted)
+      Submitted
     </span>`;
   }
   if (status === 'Düzeltme İstendi' || status === 'Needs Revision') {
     return `<span class="status-badge" style="background: rgba(245, 158, 11, 0.15); color: var(--accent-gold); border: 1px solid rgba(245, 158, 11, 0.3);">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-      Düzeltme İstendi (Needs Revision)
+      Needs Revision
     </span>`;
   }
   if (status === 'Devam Ediyor' || status === 'In Progress') {
     return `<span class="status-badge" style="background: rgba(139, 92, 246, 0.15); color: #8B5CF6; border: 1px solid rgba(139, 92, 246, 0.3);">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-      Devam Ediyor (In Progress)
+      In Progress
     </span>`;
   }
   if (status === 'Görüntülendi' || status === 'Viewed') {
     return `<span class="status-badge" style="background: rgba(6, 182, 212, 0.15); color: #0891B2; border: 1px solid rgba(6, 182, 212, 0.3);">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-      Görüntülendi (Viewed)
+      Viewed
     </span>`;
   }
   if (status === 'Gecikmiş' || status === 'Overdue') {
     return `<span class="status-badge" style="background: rgba(244, 63, 94, 0.15); color: var(--accent-rose); border: 1px solid rgba(244, 63, 94, 0.3);">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-      Gecikmiş (Overdue)
+      Overdue
     </span>`;
   }
-  if (status === 'Reddedildi') {
+  if (status === 'Rejected') {
     return `<span class="status-badge" style="background: rgba(244, 63, 94, 0.15); color: var(--accent-rose); border: 1px solid rgba(244, 63, 94, 0.3);">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-      Reddedildi
+      Rejected
     </span>`;
   }
   return `<span class="status-badge badge-pending">
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-    Atandı (Assigned)
+    Assigned
   </span>`;
 }
 
@@ -870,11 +870,11 @@ async function handleSaveReview(e) {
   }
 }
 
-let allCachedNotifications = [];
-let currentNotifFilter = 'all';
+let allCachedGradeifications = [];
+let currentGradeifFilter = 'all';
 
-function filterNotifications(filterType) {
-  currentNotifFilter = filterType;
+function filterGradeifications(filterType) {
+  currentGradeifFilter = filterType;
   const btnAll = document.getElementById('notif-filter-all');
   const btnUnread = document.getElementById('notif-filter-unread');
   if (btnAll && btnUnread) {
@@ -890,32 +890,32 @@ function filterNotifications(filterType) {
       btnAll.style.color = 'var(--text-secondary)';
     }
   }
-  renderNotificationsList();
+  renderGradeificationsList();
 }
 
-function renderNotificationsList() {
+function renderGradeificationsList() {
   const list = document.getElementById('notif-dropdown-list');
   if (!list) return;
 
-  let filtered = allCachedNotifications;
-  if (currentNotifFilter === 'unread') {
-    filtered = allCachedNotifications.filter(n => !n.is_read);
+  let filtered = allCachedGradeifications;
+  if (currentGradeifFilter === 'unread') {
+    filtered = allCachedGradeifications.filter(n => !n.is_read);
   }
 
   const totalBadge = document.getElementById('notif-header-total');
   if (totalBadge) {
-    totalBadge.textContent = `${allCachedNotifications.length}`;
+    totalBadge.textContent = `${allCachedGradeifications.length}`;
   }
 
   if (filtered.length === 0) {
     list.innerHTML = `<div style="padding: 24px 16px; text-align: center; color: var(--text-muted); font-size: 13px;">
-      ${currentNotifFilter === 'unread' ? '✨ Okunmamış yeni bildiriminiz yok.' : '📭 Henüz bir bildirim kaydı bulunmuyor.'}
+      ${currentGradeifFilter === 'unread' ? '✨ Okunmamış yeni bildiriminiz yok.' : '📭 Henüz bir bildirim kaydı bulunmuyor.'}
     </div>`;
     return;
   }
 
   list.innerHTML = filtered.map(n => {
-    // 9 Notification Types Icon & Style
+    // 9 Gradeification Types Icon & Style
     let typeIcon = '🔔';
     let typeBg = 'rgba(59, 130, 246, 0.1)';
     let typeColor = 'var(--primary-blue)';
@@ -959,7 +959,7 @@ function renderNotificationsList() {
     }
 
     return `
-      <div class="notif-item ${n.is_read ? 'read' : 'unread'}" onclick="markNotificationRead(${n.id})" style="padding: 12px 14px; border-bottom: 1px solid var(--border-light); cursor: pointer; background: ${n.is_read ? 'transparent' : 'rgba(59, 130, 246, 0.04)'}; display: flex; gap: 10px; align-items: flex-start; transition: background 0.15s ease;">
+      <div class="notif-item ${n.is_read ? 'read' : 'unread'}" onclick="markGradeificationRead(${n.id})" style="padding: 12px 14px; border-bottom: 1px solid var(--border-light); cursor: pointer; background: ${n.is_read ? 'transparent' : 'rgba(59, 130, 246, 0.04)'}; display: flex; gap: 10px; align-items: flex-start; transition: background 0.15s ease;">
         <div style="width: 30px; height: 30px; border-radius: 8px; background: ${typeBg}; color: ${typeColor}; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0;">
           ${typeIcon}
         </div>
@@ -976,12 +976,12 @@ function renderNotificationsList() {
   }).join('');
 }
 
-async function loadNotifications() {
+async function loadGradeifications() {
   if (!AppState.currentUser) return;
   try {
     const res = await apiFetch('/api/notifications');
-    allCachedNotifications = res.notifications || [];
-    const unreadCount = allCachedNotifications.filter(n => !n.is_read).length;
+    allCachedGradeifications = res.notifications || [];
+    const unreadCount = allCachedGradeifications.filter(n => !n.is_read).length;
 
     const badge = document.getElementById('notif-unread-count');
     if (badge) {
@@ -993,31 +993,31 @@ async function loadNotifications() {
       }
     }
 
-    renderNotificationsList();
+    renderGradeificationsList();
   } catch (e) {
     console.warn("Bildirimler yüklenemedi:", e);
   }
 }
 
-async function markNotificationRead(id) {
+async function markGradeificationRead(id) {
   await apiFetch(`/api/notifications/${id}/read`, { method: 'POST' });
-  loadNotifications();
+  loadGradeifications();
 }
 
-async function markAllNotificationsRead() {
+async function markAllGradeificationsRead() {
   await apiFetch('/api/notifications/read-all', { method: 'POST' });
-  showToast("Tüm bildirimler okundu olarak işaretlendi.", "success");
-  loadNotifications();
+  showToast("All notifications marked as read.", "success");
+  loadGradeifications();
 }
 
-function toggleNotificationDropdown() {
+function toggleGradeificationDropdown() {
   const menu = document.getElementById('notif-dropdown-menu');
   if (!menu) return;
   if (menu.style.display === 'flex' || menu.style.display === 'block') {
     menu.style.display = 'none';
   } else {
     menu.style.display = 'flex';
-    loadNotifications();
+    loadGradeifications();
   }
 }
 
@@ -1184,7 +1184,7 @@ function renderTaskComments(comments) {
 // Başlangıçta oturumu kontrol et ve drag-drop olaylarını bağla
 document.addEventListener('DOMContentLoaded', () => {
   checkAuthSession();
-  setInterval(loadNotifications, 15000); // 15 saniyede bir bildirimleri kontrol et
+  setInterval(loadGradeifications, 15000); // 15 saniyede bir bildirimleri kontrol et
 
   document.addEventListener('click', (e) => {
     const container = document.querySelector('.notification-dropdown-container');
@@ -1288,7 +1288,7 @@ const TodayTasksController = {
         </div>
       </div>
 
-      <!-- 6x Top KPI Metric Cards (Total Tasks, Completed, In Progress, Waiting Review, Not Started, Overdue) -->
+      <!-- 6x Top KPI Metric Cards (Total Tasks, Completed, In Progress, Waiting Review, Grade Started, Overdue) -->
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 22px;">
         <!-- Total Tasks -->
         <div class="stat-card" style="padding: 14px 16px; cursor: pointer; ${this.currentFilters.status === 'all' ? 'border: 2px solid var(--primary-blue);' : ''}" onclick="TodayTasksController.setFilter('status', 'all')">
@@ -1304,7 +1304,7 @@ const TodayTasksController = {
           <div class="stat-info">
             <span style="font-size: 11px; font-weight: 700; color: #10B981; text-transform: uppercase;">Completed</span>
             <h3 style="font-size: 24px; font-weight: 800; color: #10B981; margin: 3px 0;">${kpi.completed}</h3>
-            <div class="stat-trend positive"><span style="font-size: 10.5px;">Tamamlandı</span></div>
+            <div class="stat-trend positive"><span style="font-size: 10.5px;">Completed</span></div>
           </div>
         </div>
 
@@ -1322,14 +1322,14 @@ const TodayTasksController = {
           <div class="stat-info">
             <span style="font-size: 11px; font-weight: 700; color: var(--accent-gold); text-transform: uppercase;">Waiting Review</span>
             <h3 style="font-size: 24px; font-weight: 800; color: var(--accent-gold); margin: 3px 0;">${kpi.waiting_review}</h3>
-            <div class="stat-trend" style="color: var(--accent-gold);"><span style="font-size: 10.5px;">İnceleme Bekleyen</span></div>
+            <div class="stat-trend" style="color: var(--accent-gold);"><span style="font-size: 10.5px;">Viewme Bekleyen</span></div>
           </div>
         </div>
 
-        <!-- Not Started -->
+        <!-- Grade Started -->
         <div class="stat-card" style="padding: 14px 16px; border-left: 4px solid #64748B; cursor: pointer; ${this.currentFilters.status === 'not_started' ? 'border: 2px solid #64748B;' : ''}" onclick="TodayTasksController.setFilter('status', 'not_started')">
           <div class="stat-info">
-            <span style="font-size: 11px; font-weight: 700; color: #64748B; text-transform: uppercase;">Not Started</span>
+            <span style="font-size: 11px; font-weight: 700; color: #64748B; text-transform: uppercase;">Grade Started</span>
             <h3 style="font-size: 24px; font-weight: 800; color: #64748B; margin: 3px 0;">${kpi.not_started}</h3>
             <div class="stat-trend neutral"><span style="font-size: 10.5px;">Henüz Başlanmadı</span></div>
           </div>
@@ -1340,7 +1340,7 @@ const TodayTasksController = {
           <div class="stat-info">
             <span style="font-size: 11px; font-weight: 700; color: var(--accent-rose); text-transform: uppercase;">Overdue</span>
             <h3 style="font-size: 24px; font-weight: 800; color: var(--accent-rose); margin: 3px 0;">${kpi.overdue}</h3>
-            <div class="stat-trend" style="color: var(--accent-rose);"><span style="font-size: 10.5px;">Geciken Görev</span></div>
+            <div class="stat-trend" style="color: var(--accent-rose);"><span style="font-size: 10.5px;">Overdue Görev</span></div>
           </div>
         </div>
       </div>
@@ -1391,11 +1391,11 @@ const TodayTasksController = {
           <!-- 5. Status Filter -->
           <div>
             <select id="filter-today-status" class="form-control" onchange="TodayTasksController.setFilter('status', this.value)" style="font-size: 12px; padding: 6px 8px; height: 36px;">
-              <option value="all" ${this.currentFilters.status === 'all' ? 'selected' : ''}>🚦 Durum: Tümü</option>
+              <option value="all" ${this.currentFilters.status === 'all' ? 'selected' : ''}>🚦 Status: Tümü</option>
               <option value="completed" ${this.currentFilters.status === 'completed' ? 'selected' : ''}>✅ Completed</option>
               <option value="in_progress" ${this.currentFilters.status === 'in_progress' ? 'selected' : ''}>🔵 In Progress</option>
               <option value="waiting_review" ${this.currentFilters.status === 'waiting_review' ? 'selected' : ''}>⏳ Waiting Review</option>
-              <option value="not_started" ${this.currentFilters.status === 'not_started' ? 'selected' : ''}>⚪ Not Started</option>
+              <option value="not_started" ${this.currentFilters.status === 'not_started' ? 'selected' : ''}>⚪ Grade Started</option>
               <option value="overdue" ${this.currentFilters.status === 'overdue' ? 'selected' : ''}>🔴 Overdue</option>
             </select>
           </div>
@@ -1427,9 +1427,9 @@ const TodayTasksController = {
                 <th style="padding: 10px 14px;">Görev Bilgisi</th>
                 <th style="padding: 10px 14px;">Grup & Eğitmen</th>
                 <th style="padding: 10px 14px;">Atanan Öğrenci</th>
-                <th style="padding: 10px 14px;">Son Teslim</th>
+                <th style="padding: 10px 14px;">Due Date</th>
                 <th style="padding: 10px 14px;">Öncelik</th>
-                <th style="padding: 10px 14px;">Durum</th>
+                <th style="padding: 10px 14px;">Status</th>
                 <th style="padding: 10px 14px; text-align: right;">İşlem</th>
               </tr>
             </thead>
@@ -1442,7 +1442,7 @@ const TodayTasksController = {
                 else if (t.calculated_status === 'waiting_review') statusBadge = '<span class="status-badge badge-reviewing">Waiting Review</span>';
                 else if (t.calculated_status === 'overdue') statusBadge = `<span class="status-badge badge-late">Overdue (+${t.days_overdue} Gün)</span>`;
                 else if (t.calculated_status === 'in_progress') statusBadge = '<span class="status-badge badge-submitted">In Progress</span>';
-                else statusBadge = '<span class="status-badge" style="background: #F1F5F9; color: #64748B; border: 1px solid #CBD5E1;">Not Started</span>';
+                else statusBadge = '<span class="status-badge" style="background: #F1F5F9; color: #64748B; border: 1px solid #CBD5E1;">Grade Started</span>';
 
                 let prioBadge = '';
                 if (t.priority === 'Acil') prioBadge = '<span class="status-badge badge-late">🔴 Acil</span>';
@@ -1472,7 +1472,7 @@ const TodayTasksController = {
                     <td style="padding: 12px 14px; text-align: right;">
                       <div style="display: flex; gap: 6px; justify-content: flex-end;">
                         ${(t.calculated_status === 'waiting_review' || t.submission_id) && user.role !== 'student' ? `
-                          <button class="btn-action btn-primary btn-sm" style="padding: 3px 8px; font-size: 11px;" onclick="TrainerController.openReviewModal(${t.submission_id})">Notlandır</button>
+                          <button class="btn-action btn-primary btn-sm" style="padding: 3px 8px; font-size: 11px;" onclick="TrainerController.openReviewModal(${t.submission_id})">Gradelandır</button>
                         ` : ''}
                         ${user.role === 'student' && t.calculated_status !== 'completed' ? `
                           <button class="btn-action btn-primary btn-sm" style="padding: 3px 8px; font-size: 11px;" onclick="StudentController.openSubmitModal(${t.task_id}, '${escapeHtml(t.title)}')">Teslim Et</button>
@@ -1892,7 +1892,7 @@ const CalendarController = {
 
   categoryConfig: {
     tasks: { label: 'Tasks (Görevler)', color: '#2563EB', bg: 'rgba(37, 99, 235, 0.12)', border: '#93C5FD', icon: '📋' },
-    deadlines: { label: 'Deadlines (Son Teslimler)', color: '#DC2626', bg: 'rgba(220, 38, 38, 0.12)', border: '#FCA5A5', icon: '⏰' },
+    deadlines: { label: 'Deadlines (Due Dateler)', color: '#DC2626', bg: 'rgba(220, 38, 38, 0.12)', border: '#FCA5A5', icon: '⏰' },
     training_sessions: { label: 'Training Sessions (Oturumlar)', color: '#9333EA', bg: 'rgba(147, 51, 234, 0.12)', border: '#D8B4FE', icon: '🎓' },
     events: { label: 'Events (Etkinlikler)', color: '#059669', bg: 'rgba(5, 150, 105, 0.12)', border: '#6EE7B7', icon: '🎪' },
     exams: { label: 'Exams (Sınavlar)', color: '#EA580C', bg: 'rgba(234, 88, 12, 0.12)', border: '#FDBA74', icon: '📝' },
@@ -2152,7 +2152,7 @@ const CalendarController = {
               <div style="display: flex; align-items: center; gap: 8px;">
                 ${e.task_id ? `
                   <button class="btn-action btn-primary btn-sm" onclick="StudentController.openSubmitModal(${e.task_id}, '${escapeHtml(e.title)}')" style="font-size: 11.5px; padding: 4px 10px;">
-                    Ödevi İncele
+                    Ödevi View
                   </button>
                 ` : ''}
                 ${canDelete ? `
@@ -2262,7 +2262,7 @@ const CalendarController = {
               <option value="events">🎪 Events (Akademik Etkinlik / Seminer)</option>
               <option value="meetings">🤝 Meetings (Toplantı & Görüşme)</option>
               <option value="tasks">📋 Tasks (Görev & Çalışma)</option>
-              <option value="deadlines">⏰ Deadlines (Son Teslim Tarihi)</option>
+              <option value="deadlines">⏰ Deadlines (Due Date Tarihi)</option>
             </select>
           </div>
 
@@ -2308,7 +2308,7 @@ const CalendarController = {
         </div>
 
         <div>
-          <label class="form-label" style="font-weight: 700;">Açıklama ve Notlar</label>
+          <label class="form-label" style="font-weight: 700;">Açıklama ve Gradelar</label>
           <textarea id="cal-description" rows="3" class="form-control" placeholder="Etkinlik yönergeleri, getirilecek materyaller veya toplantı gündemi..."></textarea>
         </div>
 
@@ -2441,7 +2441,7 @@ const ReportsController = {
     { id: 'trainer_performance', title: '2. Eğitmen Performansı', icon: '👨‍🏫', desc: 'Trainer Performance Report' },
     { id: 'group_performance', title: '3. Grup Performansı', icon: '🏢', desc: 'Group Performance Report' },
     { id: 'tasks_report', title: '4. Görevler ve Teslimat', icon: '📋', desc: 'Tasks Report' },
-    { id: 'late_tasks_report', title: '5. Geciken Görevler', icon: '⏰', desc: 'Late Tasks Report' },
+    { id: 'late_tasks_report', title: '5. Overdue Görevler', icon: '⏰', desc: 'Late Tasks Report' },
     { id: 'activity_attendance_report', title: '6. Aktivite & Katılım', icon: '⚡', desc: 'Activity / Attendance Report' }
   ],
 
@@ -2556,7 +2556,7 @@ const ReportsController = {
     if (type === 'student_performance') {
       items = [
         { label: 'Toplam Öğrenci', val: kpis.total_students || 0, icon: '🎓', color: '#2563EB' },
-        { label: 'Sınıf Not Ortalaması', val: `${kpis.class_average_grade || 0} / 100`, icon: '📈', color: '#059669' },
+        { label: 'Sınıf Grade Ortalaması', val: `${kpis.class_average_grade || 0} / 100`, icon: '📈', color: '#059669' },
         { label: 'Ortalama Başarı Oranı', val: `%${kpis.average_completion_rate || 0}`, icon: '🎯', color: '#7C3AED' },
         { label: 'Yüksek Başarılı (>85)', val: kpis.high_achievers_count || 0, icon: '⭐', color: '#D97706' }
       ];
@@ -2564,26 +2564,26 @@ const ReportsController = {
       items = [
         { label: 'Aktif Eğitmen Sayısı', val: kpis.total_trainers || 0, icon: '👨‍🏫', color: '#2563EB' },
         { label: 'Alınan Toplam Teslim', val: kpis.total_submissions_received || 0, icon: '📥', color: '#059669' },
-        { label: 'Tamamlanan İncelemeler', val: kpis.total_reviews_completed || 0, icon: '✅', color: '#7C3AED' },
-        { label: 'Ortalama İnceleme Oranı', val: `%${kpis.average_review_rate || 0}`, icon: '⚡', color: '#D97706' }
+        { label: 'Tamamlanan Viewmeler', val: kpis.total_reviews_completed || 0, icon: '✅', color: '#7C3AED' },
+        { label: 'Ortalama Viewme Oranı', val: `%${kpis.average_review_rate || 0}`, icon: '⚡', color: '#D97706' }
       ];
     } else if (type === 'group_performance') {
       items = [
         { label: 'Toplam Eğitim Grubu', val: kpis.total_groups || 0, icon: '🏢', color: '#2563EB' },
         { label: 'Kayıtlı Toplam Kursiyer', val: kpis.total_enrolled_students || 0, icon: '👥', color: '#059669' },
-        { label: 'Genel Not Ortalaması', val: `${kpis.group_overall_average || 0} / 100`, icon: '📊', color: '#7C3AED' },
+        { label: 'Genel Grade Ortalaması', val: `${kpis.group_overall_average || 0} / 100`, icon: '📊', color: '#7C3AED' },
         { label: 'En Başarılı Grup', val: kpis.top_group_name || '-', icon: '🏆', color: '#D97706' }
       ];
     } else if (type === 'tasks_report') {
       items = [
         { label: 'Toplam Görev Sayısı', val: kpis.total_tasks || 0, icon: '📋', color: '#2563EB' },
         { label: 'Ortalama Teslim Oranı', val: `%${kpis.average_turnin_rate || 0}`, icon: '📈', color: '#059669' },
-        { label: 'Ortalama Görev Notu', val: `${kpis.average_task_grade || 0} / 100`, icon: '🎯', color: '#7C3AED' },
+        { label: 'Ortalama Görev Gradeu', val: `${kpis.average_task_grade || 0} / 100`, icon: '🎯', color: '#7C3AED' },
         { label: 'Acil Öncelikli Görevler', val: kpis.urgent_tasks_count || 0, icon: '🚨', color: '#DC2626' }
       ];
     } else if (type === 'late_tasks_report') {
       items = [
-        { label: 'Toplam Geciken Görev', val: kpis.total_late_tasks || 0, icon: '⏰', color: '#DC2626' },
+        { label: 'Toplam Overdue Görev', val: kpis.total_late_tasks || 0, icon: '⏰', color: '#DC2626' },
         { label: 'Kritik Gecikme (>7 Gün)', val: kpis.critical_overdue_count || 0, icon: '🔴', color: '#B91C1C' },
         { label: 'Orta Düzey Gecikme', val: kpis.moderate_overdue_count || 0, icon: '🟠', color: '#EA580C' },
         { label: 'Bekleyen Acil Görevler', val: kpis.pending_urgent_count || 0, icon: '⚠️', color: '#D97706' }
@@ -2633,7 +2633,7 @@ const ReportsController = {
               <th style="padding: 12px 16px; text-align: center;">Toplam Görev</th>
               <th style="padding: 12px 16px; text-align: center;">Tamamlanan</th>
               <th style="padding: 12px 16px;">Başarı Oranı</th>
-              <th style="padding: 12px 16px; text-align: center;">Not Ortalaması</th>
+              <th style="padding: 12px 16px; text-align: center;">Grade Ortalaması</th>
               <th style="padding: 12px 16px; text-align: center;">İşlem</th>
             </tr>
           </thead>
@@ -2691,9 +2691,9 @@ const ReportsController = {
               <th style="padding: 12px 16px; text-align: center;">Bağlı Öğrenci</th>
               <th style="padding: 12px 16px; text-align: center;">Oluşturulan Görev</th>
               <th style="padding: 12px 16px; text-align: center;">Alınan Teslim</th>
-              <th style="padding: 12px 16px; text-align: center;">İncelenen</th>
-              <th style="padding: 12px 16px;">İnceleme Oranı</th>
-              <th style="padding: 12px 16px; text-align: center;">Verilen Ort. Not</th>
+              <th style="padding: 12px 16px; text-align: center;">Viewnen</th>
+              <th style="padding: 12px 16px;">Viewme Oranı</th>
+              <th style="padding: 12px 16px; text-align: center;">Verilen Ort. Grade</th>
             </tr>
           </thead>
           <tbody>
@@ -2748,7 +2748,7 @@ const ReportsController = {
               <th style="padding: 12px 16px; text-align: center;">Kayıtlı Kursiyer</th>
               <th style="padding: 12px 16px; text-align: center;">Grup Görevleri</th>
               <th style="padding: 12px 16px;">Başarı Oranı</th>
-              <th style="padding: 12px 16px; text-align: center;">Grup Not Ortalaması</th>
+              <th style="padding: 12px 16px; text-align: center;">Grup Grade Ortalaması</th>
             </tr>
           </thead>
           <tbody>
@@ -2787,13 +2787,13 @@ const ReportsController = {
         <table class="data-table" style="width: 100%; border-collapse: collapse; font-size: 12.5px;">
           <thead>
             <tr style="background: var(--bg-page); border-bottom: 1px solid var(--border-light); text-align: left;">
-              <th style="padding: 12px 16px;">Görev Başlığı</th>
+              <th style="padding: 12px 16px;">Task Title</th>
               <th style="padding: 12px 16px;">Grup & Eğitmen</th>
-              <th style="padding: 12px 16px;">Son Teslim</th>
+              <th style="padding: 12px 16px;">Due Date</th>
               <th style="padding: 12px 16px; text-align: center;">Atanan Öğrenci</th>
               <th style="padding: 12px 16px; text-align: center;">Teslim Sayısı</th>
               <th style="padding: 12px 16px;">Teslim Oranı</th>
-              <th style="padding: 12px 16px; text-align: center;">Ortalama Not</th>
+              <th style="padding: 12px 16px; text-align: center;">Average Grade</th>
             </tr>
           </thead>
           <tbody>
@@ -2835,12 +2835,12 @@ const ReportsController = {
         <table class="data-table" style="width: 100%; border-collapse: collapse; font-size: 12.5px;">
           <thead>
             <tr style="background: var(--bg-page); border-bottom: 1px solid var(--border-light); text-align: left;">
-              <th style="padding: 12px 16px;">Geciken Görev</th>
+              <th style="padding: 12px 16px;">Overdue Görev</th>
               <th style="padding: 12px 16px;">Öğrenci Bilgisi</th>
               <th style="padding: 12px 16px;">Grup & Eğitmen</th>
-              <th style="padding: 12px 16px;">Son Teslim</th>
+              <th style="padding: 12px 16px;">Due Date</th>
               <th style="padding: 12px 16px; text-align: center;">Gecikme Süresi</th>
-              <th style="padding: 12px 16px; text-align: center;">Durum</th>
+              <th style="padding: 12px 16px; text-align: center;">Status</th>
               <th style="padding: 12px 16px; text-align: center;">İşlem</th>
             </tr>
           </thead>
@@ -3020,7 +3020,7 @@ const AuditLogsController = {
     'users': '👤 Kullanıcı Yönetimi',
     'permissions': '🔑 Yetki & Roller',
     'tasks': '📋 Görev Yönetimi',
-    'submissions': '📝 Teslimat & Notlandırma',
+    'submissions': '📝 Teslimat & Gradelandırma',
     'announcements': '📢 Duyuru Yönetimi',
     'calendar': '📅 Takvim İşlemleri',
     'auth': '🔐 Oturum & Kimlik'
@@ -3744,7 +3744,7 @@ const DatabaseSchemaController = {
                   <th style="padding: 8px 12px;">Kolon Adı</th>
                   <th style="padding: 8px 12px;">Veri Türü</th>
                   <th style="padding: 8px 12px; text-align: center;">PK</th>
-                  <th style="padding: 8px 12px; text-align: center;">Not Null</th>
+                  <th style="padding: 8px 12px; text-align: center;">Grade Null</th>
                   <th style="padding: 8px 12px;">Varsayılan Değer</th>
                 </tr>
               </thead>
@@ -3940,7 +3940,7 @@ const SettingsController = {
           <label style="font-size: 12.5px; font-weight: 600; color: var(--text-dark); margin-bottom: 6px; display: block;">Geç Teslimat Politikası</label>
           <select id="set_allow_late_submission" class="form-control" style="font-size: 13px;">
             <option value="true" selected>İzin Ver (Ceza Puanı ile)</option>
-            <option value="false">Kesinlikle İzin Verme (Son Teslimde Kilitlenir)</option>
+            <option value="false">Kesinlikle İzin Verme (Due Datede Kilitlenir)</option>
           </select>
           <small style="color: var(--text-muted); font-size: 11px;">Son teslim tarihinden sonra öğrencinin ödev yükleyebilme durumu.</small>
         </div>
@@ -3948,7 +3948,7 @@ const SettingsController = {
         <div class="form-group">
           <label style="font-size: 12.5px; font-weight: 600; color: var(--text-dark); margin-bottom: 6px; display: block;">Günlük Geç Teslimat Puan Kesintisi (%)</label>
           <input type="number" id="set_late_penalty_rate" class="form-control" value="5" min="0" max="50" style="font-size: 13px;">
-          <small style="color: var(--text-muted); font-size: 11px;">Geciken her 24 saat için toplam puandan düşülecek yüzde.</small>
+          <small style="color: var(--text-muted); font-size: 11px;">Overdue her 24 saat için toplam puandan düşülecek yüzde.</small>
         </div>
       `;
     } else if (cat === 'notification') {
