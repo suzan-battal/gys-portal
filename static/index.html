@@ -948,71 +948,10 @@
     </div>
   </div>
 
-  <!-- Guaranteed Inline Demo Login Fallback Handler -->
-  <script>
-    var DEMO_USERS = {
-      super_admin: { email: 'superadmin@universite.edu.tr', password: 'SuperAdmin123!' },
-      admin: { email: 'yonetici@universite.edu.tr', password: 'Admin123!' },
-      training_manager: { email: 'egitim.muduru@universite.edu.tr', password: 'Mudur123!' },
-      trainer: { email: 'ahmet.yilmaz@universite.edu.tr', password: 'Egitmen123!' },
-      assistant_trainer: { email: 'asistan.merve@universite.edu.tr', password: 'Asistan123!' },
-      student: { email: 'mehmet.demir@universite.edu.tr', password: 'Ogrenci123!' }
-    };
-
-    window.directLogin = function(roleCode) {
-      var creds = DEMO_USERS[roleCode] || DEMO_USERS['admin'];
-      var eInput = document.getElementById('login-email');
-      var pInput = document.getElementById('login-password');
-      if (eInput) eInput.value = creds.email;
-      if (pInput) pInput.value = creds.password;
-
-      fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(creds)
-      })
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        if (data.success && data.token) {
-          if (window.AppState) {
-            window.AppState.token = data.token;
-            window.AppState.currentUser = data.user;
-          }
-          localStorage.setItem('gys_auth_token', data.token);
-          if (typeof showToast === 'function') showToast("Welcome, " + data.user.name + "!", "success");
-          if (typeof renderAuthenticatedUI === 'function') {
-            renderAuthenticatedUI();
-          } else {
-            window.location.href = '/?token=' + data.token + '&role=' + data.user.role;
-          }
-        } else {
-          alert(data.error || "Login failed");
-        }
-      })
-      .catch(function(err) {
-        console.error("Login fetch error:", err);
-      });
-    };
-
-    window.fillDemo = function(email, password) {
-      for (var k in DEMO_USERS) {
-        if (DEMO_USERS[k].email === email) {
-          window.directLogin(k);
-          return;
-        }
-      }
-      var eInput = document.getElementById('login-email');
-      var pInput = document.getElementById('login-password');
-      if (eInput) eInput.value = email;
-      if (pInput) pInput.value = password;
-      if (typeof handleLogin === 'function') handleLogin();
-    };
-  </script>
-
   <!-- Modular Core Scripts with Cache-Busting -->
-  <script src="/js/admin.js?v=6.0"></script>
-  <script src="/js/trainer.js?v=6.0"></script>
-  <script src="/js/student.js?v=6.0"></script>
-  <script src="/js/app.js?v=6.0"></script>
+  <script src="/js/admin.js?v=7.0"></script>
+  <script src="/js/trainer.js?v=7.0"></script>
+  <script src="/js/student.js?v=7.0"></script>
+  <script src="/js/app.js?v=7.0"></script>
 </body>
 </html>

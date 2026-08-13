@@ -119,7 +119,7 @@ function openConfirmModal(title, message, onConfirm) {
 }
 
 // ==================== DIRECT DEMO LOGIN ====================
-const DEMO_USERS = {
+window.DEMO_USERS = {
   super_admin: { email: 'superadmin@universite.edu.tr', password: 'SuperAdmin123!' },
   admin: { email: 'yonetici@universite.edu.tr', password: 'Admin123!' },
   training_manager: { email: 'egitim.muduru@universite.edu.tr', password: 'Mudur123!' },
@@ -127,6 +127,7 @@ const DEMO_USERS = {
   assistant_trainer: { email: 'asistan.merve@universite.edu.tr', password: 'Asistan123!' },
   student: { email: 'mehmet.demir@universite.edu.tr', password: 'Ogrenci123!' }
 };
+const DEMO_USERS = window.DEMO_USERS;
 
 window.directLogin = async function(roleCode) {
   const creds = DEMO_USERS[roleCode] || DEMO_USERS['admin'];
