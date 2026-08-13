@@ -114,18 +114,21 @@ function openConfirmModal(title, message, onConfirm) {
 
 // ==================== DEMO HESAP GİRİŞİ ====================
 function fillDemo(email, password) {
-  document.getElementById('login-email').value = email;
-  document.getElementById('login-password').value = password;
-  const submitBtn = document.getElementById('btn-submit-login');
-  if (submitBtn) submitBtn.click();
+  const emailInput = document.getElementById('login-email');
+  const passwordInput = document.getElementById('login-password');
+  if (emailInput) emailInput.value = email;
+  if (passwordInput) passwordInput.value = password;
+  handleLogin();
 }
 
 // ==================== AUTH VE GİRİŞ / ÇIKIŞ ====================
 async function handleLogin(e) {
-  if (e) e.preventDefault();
+  if (e && typeof e.preventDefault === 'function') e.preventDefault();
 
-  const email = document.getElementById('login-email').value.trim();
-  const password = document.getElementById('login-password').value.trim();
+  const emailInput = document.getElementById('login-email');
+  const passwordInput = document.getElementById('login-password');
+  const email = emailInput ? emailInput.value.trim() : '';
+  const password = passwordInput ? passwordInput.value.trim() : '';
 
   if (!email || !password) {
     showToast("Please enter your email and password.", "error");
@@ -133,21 +136,25 @@ async function handleLogin(e) {
   }
 
   const btn = document.getElementById('btn-submit-login');
-  btn.disabled = true;
-  btn.innerHTML = '<span>Signing In...</span>';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span>Signing In...</span>';
+  }
 
   const res = await apiFetch('/api/auth/login', {
     method: 'POST',
     body: { email, password }
   });
 
-  btn.disabled = false;
-  btn.innerHTML = `<span>Giriş Yap</span>
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-      <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
-      <polyline points="10 17 15 12 10 7"></polyline>
-      <line x1="15" y1="12" x2="3" y2="12"></line>
-    </svg>`;
+  if (btn) {
+    btn.disabled = false;
+    btn.innerHTML = `<span>Sign In</span>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+        <polyline points="10 17 15 12 10 7"></polyline>
+        <line x1="15" y1="12" x2="3" y2="12"></line>
+      </svg>`;
+  }
 
   if (!res.success) {
     showToast(res.error || "Invalid email or password.", "error");
