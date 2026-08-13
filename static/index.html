@@ -918,10 +918,26 @@
     </div>
   </div>
 
-  <!-- JavaScript Modules -->
-  <script src="/js/app.js"></script>
-  <script src="/js/admin.js"></script>
-  <script src="/js/trainer.js"></script>
-  <script src="/js/student.js"></script>
+  <!-- Guaranteed Inline Demo Login Fallback Handler -->
+  <script>
+    window.fillDemo = function(email, password) {
+      var eInput = document.getElementById('login-email');
+      var pInput = document.getElementById('login-password');
+      if (eInput) eInput.value = email;
+      if (pInput) pInput.value = password;
+      if (typeof handleLogin === 'function') {
+        handleLogin();
+      } else {
+        var form = document.getElementById('form-login');
+        if (form) form.requestSubmit ? form.requestSubmit() : form.submit();
+      }
+    };
+  </script>
+
+  <!-- JavaScript Modules with Cache-Busting -->
+  <script src="/js/app.js?v=3.0"></script>
+  <script src="/js/admin.js?v=3.0"></script>
+  <script src="/js/trainer.js?v=3.0"></script>
+  <script src="/js/student.js?v=3.0"></script>
 </body>
 </html>
