@@ -13,8 +13,8 @@ const AdminController = {
       heading.innerHTML = `<span>Administrator Dashboard - Overview</span>`;
       await this.renderHome(main);
     } else if (tabId === 'roles-permissions') {
-      heading.innerHTML = `<span>Roles & Thumissions Matrix (RBAC Engine)</span>`;
-      await this.renderRolesThumissions(main);
+      heading.innerHTML = `<span>Roles & Permissions Matrix (RBAC Engine)</span>`;
+      await this.renderRolesPermissions(main);
     } else if (tabId === 'groups') {
       heading.innerHTML = `<span>Training Groups & Cohorts Management</span>`;
       await this.renderGroups(main);
@@ -757,7 +757,7 @@ const AdminController = {
                   <td style="font-size:12.5px;">${s.trainer_name}</td>
                   <td style="font-size:12px; white-space:nowrap;">${formatDateTr(s.submitted_at)}</td>
                   <td>
-                    ${s.is_late ? '<span class="status-badge badge-pending" style="font-size:11px;">⚠️ Overdue (Is Late)</span>' : '<span class="status-badge badge-completed" style="font-size:11px;">⏰ Timestamp (When)ında</span>'}
+                    ${s.is_late ? '<span class="status-badge badge-pending" style="font-size:11px;">⚠️ Overdue (Is Late)</span>' : '<span class="status-badge badge-completed" style="font-size:11px;">⏰ Timestampında</span>'}
                   </td>
                   <td>
                     <div style="display:flex; flex-direction:column; gap:4px;">
@@ -1314,7 +1314,7 @@ AdminController.openReviewModal = function(submissionId) {
 
 // ==================== SECTION 12: ROLES & PERMISSIONS (ROLLER VE İZİNLER) ====================
 
-AdminController.renderRolesThumissions = async function(container) {
+AdminController.renderRolesPermissions = async function(container) {
   container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Roller ve Yetki Matrisi Loading...</span></div>`;
 
   const res = await apiFetch('/api/roles/permissions');
@@ -1345,11 +1345,11 @@ AdminController.renderRolesThumissions = async function(container) {
   container.innerHTML = `
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
       <div>
-        <h2 style="font-size: 20px; color: var(--primary-navy); margin: 0 0 4px 0;">12. Roles & Thumissions (Roller ve Yetkiler Matrisi)</h2>
+        <h2 style="font-size: 20px; color: var(--primary-navy); margin: 0 0 4px 0;">12. Roles & Permissions (Roles and Permissions Matrix (RBAC))</h2>
         <p style="font-size: 13px; color: var(--text-secondary); margin: 0;">Sistemdeki 6 rol ve 26 modüler iznin canlı kontrol ve denetim tablosu.</p>
       </div>
       <div style="display: flex; gap: 10px;">
-        <button class="btn-action btn-primary" onclick="AdminController.saveAllRoleThumissions()" style="display: flex; align-items: center; gap: 6px; padding: 10px 20px; font-size: 13px; font-weight: 600;">
+        <button class="btn-action btn-primary" onclick="AdminController.saveAllRolePermissions()" style="display: flex; align-items: center; gap: 6px; padding: 10px 20px; font-size: 13px; font-weight: 600;">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
           <span>Yetki Değişikliklerini Save (Save)</span>
         </button>
@@ -1380,7 +1380,7 @@ AdminController.renderRolesThumissions = async function(container) {
         <table class="custom-table" style="margin: 0; width: 100%;">
           <thead>
             <tr style="background: var(--bg-page); border-bottom: 2px solid var(--border-light);">
-              <th style="padding: 14px 18px; text-align: left; width: 340px; font-size: 13px;">İzin Kodu & Descriptionsı (Thumission Code)</th>
+              <th style="padding: 14px 18px; text-align: left; width: 340px; font-size: 13px;">Permission Code & Scope Description</th>
               ${roles.map(r => `
                 <th style="padding: 14px 8px; text-align: center; font-size: 12px; font-weight: 700; color: var(--primary-navy);">
                   <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
@@ -1415,7 +1415,7 @@ AdminController.renderRolesThumissions = async function(container) {
                           id="perm_${r.code}_${p.code.replace('.', '_')}" 
                           ${isChecked ? 'checked' : ''} 
                           ${isSuperAdmin ? 'disabled title="Super Admin tüm izinlere kalıcı sahiptir."' : ''} 
-                          onchange="AdminController.toggleThumission('${r.code}', '${p.code}', this.checked)"
+                          onchange="AdminController.togglePermission('${r.code}', '${p.code}', this.checked)"
                           style="width: 18px; height: 18px; cursor: ${isSuperAdmin ? 'not-allowed' : 'pointer'}; accent-color: var(--primary-blue);"
                         />
                       </td>
@@ -1431,7 +1431,7 @@ AdminController.renderRolesThumissions = async function(container) {
   `;
 };
 
-AdminController.toggleThumission = function(roleCode, permCode, isChecked) {
+AdminController.togglePermission = function(roleCode, permCode, isChecked) {
   if (!window._cachedRolesMatrix) return;
   if (!window._cachedRolesMatrix[roleCode]) window._cachedRolesMatrix[roleCode] = [];
   
@@ -1449,7 +1449,7 @@ AdminController.toggleThumission = function(roleCode, permCode, isChecked) {
   }
 };
 
-AdminController.saveAllRoleThumissions = async function() {
+AdminController.saveAllRolePermissions = async function() {
   if (!window._cachedRolesMatrix) return;
   try {
     const roles = Object.keys(window._cachedRolesMatrix);
@@ -2046,7 +2046,7 @@ const TrainerController = {
                   </td>
                   <td style="font-size:12px; white-space:nowrap;">${formatDateTr(s.submitted_at)}</td>
                   <td>
-                    ${s.is_late ? '<span class="status-badge badge-pending" style="font-size:11px;">⚠️ Overdue (Is Late)</span>' : '<span class="status-badge badge-completed" style="font-size:11px;">⏰ Timestamp (When)ında</span>'}
+                    ${s.is_late ? '<span class="status-badge badge-pending" style="font-size:11px;">⚠️ Overdue (Is Late)</span>' : '<span class="status-badge badge-completed" style="font-size:11px;">⏰ Timestampında</span>'}
                   </td>
                   <td>${getStatusBadgeHtml(s.status)}</td>
                   <td>${s.grade !== null && s.grade !== undefined ? `<span class="grade-badge">${s.grade} / 100</span>` : '<span style="color:var(--text-muted);">-</span>'}</td>
@@ -3354,7 +3354,7 @@ function buildSidebarMenu(role) {
       { id: 'calendar', title: 'Academic Calendar', icon: 'calendar' },
       { id: 'reports', title: 'Reports & Analytics', icon: 'bar-chart-2' },
       { id: 'audit-logs', title: 'Audit Logs', icon: 'shield' },
-      { id: 'roles-permissions', title: 'Roles & Thumissions', icon: 'key' },
+      { id: 'roles-permissions', title: 'Roles & Permissions', icon: 'key' },
       { id: 'settings', title: 'System Settings', icon: 'settings' },
       { id: 'groups', title: 'Training Groups', icon: 'layers' },
       { id: 'students', title: 'Students', icon: 'users' },
@@ -4890,7 +4890,7 @@ const AnnouncementsController = {
         </div>
 
         <div>
-          <label class="form-label" style="font-weight: 700;">Priority Düzeyi</label>
+          <label class="form-label" style="font-weight: 700;">Priority Severityi</label>
           <select id="ann-priority" class="form-control">
             <option value="Normal">🔵 Normal</option>
             <option value="Önemli">🟠 Önemli</option>
@@ -4899,7 +4899,7 @@ const AnnouncementsController = {
         </div>
 
         <div>
-          <label class="form-label" style="font-weight: 700;">Announcement Content ve Enabledlama <span style="color: var(--accent-rose);">*</span></label>
+          <label class="form-label" style="font-weight: 700;">Announcement Content ve Description <span style="color: var(--accent-rose);">*</span></label>
           <textarea id="ann-message" rows="5" class="form-control" placeholder="Announcement detaylarını, talimatları ve gerekli bağlantıları buraya yazınız..." required></textarea>
         </div>
 
@@ -5427,7 +5427,7 @@ const CalendarController = {
         </div>
 
         <div>
-          <label class="form-label" style="font-weight: 700;">Enabledlama ve Gradelar</label>
+          <label class="form-label" style="font-weight: 700;">Description ve Gradelar</label>
           <textarea id="cal-description" rows="3" class="form-control" placeholder="Etkinlik yönergeleri, getirilecek materyaller veya toplantı gündemi..."></textarea>
         </div>
 
@@ -5655,7 +5655,7 @@ const ReportsController = {
           <div style="display: flex; align-items: center; gap: 8px;">
             <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Toplam ${records.length} Kayıt</span>
             <button class="btn-action btn-secondary btn-sm" onclick="ReportsController.resetFilters()" style="padding: 4px 10px; font-size: 11.5px;">
-              Filterri Sıfırla
+              Reset Filters
             </button>
           </div>
         </div>
@@ -5704,7 +5704,7 @@ const ReportsController = {
       items = [
         { label: 'Toplam Overdue Task', val: kpis.total_late_tasks || 0, icon: '⏰', color: '#DC2626' },
         { label: 'Kritik Gecikme (>7 Gün)', val: kpis.critical_overdue_count || 0, icon: '🔴', color: '#B91C1C' },
-        { label: 'Medium Düzey Gecikme', val: kpis.moderate_overdue_count || 0, icon: '🟠', color: '#EA580C' },
+        { label: 'Medium Severity Gecikme', val: kpis.moderate_overdue_count || 0, icon: '🟠', color: '#EA580C' },
         { label: 'Pending Urgent Tasks', val: kpis.pending_urgent_count || 0, icon: '⚠️', color: '#D97706' }
       ];
     } else if (type === 'activity_attendance_report') {
@@ -5736,7 +5736,7 @@ const ReportsController = {
       return `
         <div style="text-align: center; padding: 48px 20px; color: var(--text-muted);">
           <div style="font-size: 36px; margin-bottom: 10px;">📭</div>
-          <strong style="font-size: 14px; color: var(--primary-navy); display: block; margin-bottom: 4px;">Kayıt Bulunamadı</strong>
+          <strong style="font-size: 14px; color: var(--primary-navy); display: block; margin-bottom: 4px;">No Audit Logs Found</strong>
           <p style="font-size: 12.5px; margin: 0;">Selectilen arama veya filtre kriterlerine uygun rapor verisi bulunmamaktadır.</p>
         </div>
       `;
@@ -6012,7 +6012,7 @@ const ReportsController = {
               <th style="padding: 12px 16px; text-align: center;">Comment & Mesajlar</th>
               <th style="padding: 12px 16px; text-align: center;">Alınan Bildirimler</th>
               <th style="padding: 12px 16px; text-align: center;">Aktivite Skoru</th>
-              <th style="padding: 12px 16px; text-align: center;">Katılım Düzeyi</th>
+              <th style="padding: 12px 16px; text-align: center;">Katılım Severityi</th>
             </tr>
           </thead>
           <tbody>
@@ -6135,7 +6135,7 @@ const AuditLogsController = {
   cachedLogs: [],
 
   categoryLabels: {
-    'all': 'Tüm Categoryler',
+    'all': '📂 All Event Categories',
     'users': '👤 User Management',
     'permissions': '🔑 Yetki & Roller',
     'tasks': '📋 Task Management',
@@ -6146,7 +6146,7 @@ const AuditLogsController = {
   },
 
   async renderAuditLogs(container) {
-    container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Denetim kayıtları yükleniyor...</span></div>`;
+    container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Loading audit log registry...</span></div>`;
 
     const queryParams = new URLSearchParams({
       category: this.filters.category,
@@ -6168,11 +6168,11 @@ const AuditLogsController = {
           <div>
             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
               <span style="font-size: 24px;">🛡️</span>
-              <h2 style="font-size: 19px; font-weight: 800; color: #FFFFFF; margin: 0;">22. Audit Logs (Güvenlik & Denetim Günlüğü)</h2>
-              <span class="status-badge" style="background: rgba(16, 185, 129, 0.2); color: #34D399; border: 1px solid rgba(52, 211, 153, 0.3);">Who / What / When / IP Kayıtlı</span>
+              <h2 style="font-size: 19px; font-weight: 800; color: #FFFFFF; margin: 0;">22. Audit Logs & System Security Monitor</h2>
+              <span class="status-badge" style="background: rgba(16, 185, 129, 0.2); color: #34D399; border: 1px solid rgba(52, 211, 153, 0.3);">Who • What • When • IP Address Tracked</span>
             </div>
             <p style="color: #94A3B8; font-size: 12.5px; margin: 0; max-width: 750px;">
-              User oluşturma, yetki değişimi, teslimat ve notlandırma, tarih güncellemeleri ve silme gibi tüm kritik işlemler anlık olarak denetlenir.
+              Comprehensive audit trail for user provisioning, role permission modifications, assignments, submissions, grading, and security events.
             </p>
           </div>
           <div style="display: flex; align-items: center; gap: 10px;">
@@ -6198,7 +6198,7 @@ const AuditLogsController = {
 
         <div class="panel-card" style="padding: 16px 18px; border-radius: 10px; background: var(--bg-card); border: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between;">
           <div>
-            <div style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px;">Bugünkü Actions</div>
+            <div style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px;">Today's Actions</div>
             <div style="font-size: 20px; font-weight: 800; color: #059669;">${auditData.today_count}</div>
           </div>
           <div style="font-size: 24px; padding: 8px; background: var(--bg-page); border-radius: 8px;">⚡</div>
@@ -6206,7 +6206,7 @@ const AuditLogsController = {
 
         <div class="panel-card" style="padding: 16px 18px; border-radius: 10px; background: var(--bg-card); border: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between;">
           <div>
-            <div style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px;">Kritik & Warninglar</div>
+            <div style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px;">Critical & Warnings</div>
             <div style="font-size: 20px; font-weight: 800; color: #DC2626;">${auditData.critical_count}</div>
           </div>
           <div style="font-size: 24px; padding: 8px; background: var(--bg-page); border-radius: 8px;">🚨</div>
@@ -6214,7 +6214,7 @@ const AuditLogsController = {
 
         <div class="panel-card" style="padding: 16px 18px; border-radius: 10px; background: var(--bg-card); border: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between;">
           <div>
-            <div style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px;">Action Yapan User</div>
+            <div style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px;">Active Users</div>
             <div style="font-size: 20px; font-weight: 800; color: #7C3AED;">${auditData.active_users_count}</div>
           </div>
           <div style="font-size: 24px; padding: 8px; background: var(--bg-page); border-radius: 8px;">👥</div>
@@ -6234,10 +6234,10 @@ const AuditLogsController = {
 
             <!-- Severity Filter -->
             <select class="form-control" style="font-size: 12px; padding: 5px 10px; height: 34px; width: 150px;" onchange="AuditLogsController.setFilter('severity', this.value)">
-              <option value="all" ${this.filters.severity === 'all' ? 'selected' : ''}>🛡️ Tüm Düzeyler</option>
-              <option value="info" ${this.filters.severity === 'info' ? 'selected' : ''}>🟢 Information (Info)</option>
+              <option value="all" ${this.filters.severity === 'all' ? 'selected' : ''}>🛡️ Tüm Severityler</option>
+              <option value="info" ${this.filters.severity === 'info' ? 'selected' : ''}>🟢 Info (Info)</option>
               <option value="warning" ${this.filters.severity === 'warning' ? 'selected' : ''}>🟡 Warning (Warning)</option>
-              <option value="critical" ${this.filters.severity === 'critical' ? 'selected' : ''}>🔴 Kritik (Critical)</option>
+              <option value="critical" ${this.filters.severity === 'critical' ? 'selected' : ''}>🔴 Critical (Critical)</option>
             </select>
 
             <!-- Date Range Filter -->
@@ -6249,13 +6249,13 @@ const AuditLogsController = {
             </select>
 
             <!-- Search Input -->
-            <input type="text" placeholder="🔍 Log, User veya IP ara..." value="${escapeHtml(this.filters.search)}" oninput="AuditLogsController.handleSearch(this.value)" class="form-control" style="font-size: 12px; padding: 5px 10px; height: 34px; width: 210px;">
+            <input type="text" placeholder="🔍 Search logs, actors, or IP addresses..." value="${escapeHtml(this.filters.search)}" oninput="AuditLogsController.handleSearch(this.value)" class="form-control" style="font-size: 12px; padding: 5px 10px; height: 34px; width: 210px;">
           </div>
 
           <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">${this.cachedLogs.length} Kayıt Gösteriliyor</span>
+            <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">${this.cachedLogs.length} Records Displayed</span>
             <button class="btn-action btn-secondary btn-sm" onclick="AuditLogsController.resetFilters()" style="padding: 4px 10px; font-size: 11.5px;">
-              Filterri Sıfırla
+              Reset Filters
             </button>
           </div>
         </div>
@@ -6275,8 +6275,8 @@ const AuditLogsController = {
       return `
         <div style="text-align: center; padding: 48px 20px; color: var(--text-muted);">
           <div style="font-size: 36px; margin-bottom: 10px;">🛡️</div>
-          <strong style="font-size: 14px; color: var(--primary-navy); display: block; margin-bottom: 4px;">Kayıt Bulunamadı</strong>
-          <p style="font-size: 12.5px; margin: 0;">Selectilen kriterlere uygun denetim günlüğü kaydı bulunmamaktadır.</p>
+          <strong style="font-size: 14px; color: var(--primary-navy); display: block; margin-bottom: 4px;">No Audit Logs Found</strong>
+          <p style="font-size: 12.5px; margin: 0;">No audit log entries match the selected filters.</p>
         </div>
       `;
     }
@@ -6285,20 +6285,20 @@ const AuditLogsController = {
       <table class="data-table" style="width: 100%; border-collapse: collapse; font-size: 12px;">
         <thead>
           <tr style="background: var(--bg-page); border-bottom: 1px solid var(--border-light); text-align: left;">
-            <th style="padding: 12px 14px; width: 145px;">⏰ Timestamp (When) (When)</th>
-            <th style="padding: 12px 14px;">👤 User (Who)</th>
-            <th style="padding: 12px 14px;">⚡ Action (What)</th>
-            <th style="padding: 12px 14px;">📝 Detailslı Enabledlama</th>
+            <th style="padding: 12px 14px; width: 145px;">⏰ Timestamp</th>
+            <th style="padding: 12px 14px;">👤 User (Actor)</th>
+            <th style="padding: 12px 14px;">⚡ Action & Event Type</th>
+            <th style="padding: 12px 14px;">📝 Event Description & Payload Details</th>
             <th style="padding: 12px 14px; text-align: center;">🌐 IP Address</th>
-            <th style="padding: 12px 14px; text-align: center;">🛡️ Düzey</th>
+            <th style="padding: 12px 14px; text-align: center;">🛡️ Severity</th>
             <th style="padding: 12px 14px; text-align: center;">Action</th>
           </tr>
         </thead>
         <tbody>
           ${logs.map(log => {
-            let sevBadge = '<span class="status-badge" style="background: rgba(16,185,129,0.1); color: #059669; border: 1px solid rgba(16,185,129,0.2);">🟢 Information</span>';
+            let sevBadge = '<span class="status-badge" style="background: rgba(16,185,129,0.1); color: #059669; border: 1px solid rgba(16,185,129,0.2);">🟢 Info</span>';
             if (log.severity === 'warning') sevBadge = '<span class="status-badge" style="background: rgba(245,158,11,0.1); color: #D97706; border: 1px solid rgba(245,158,11,0.2);">🟡 Warning</span>';
-            else if (log.severity === 'critical') sevBadge = '<span class="status-badge" style="background: rgba(239,68,68,0.1); color: #DC2626; border: 1px solid rgba(239,68,68,0.2);">🔴 Kritik</span>';
+            else if (log.severity === 'critical') sevBadge = '<span class="status-badge" style="background: rgba(239,68,68,0.1); color: #DC2626; border: 1px solid rgba(239,68,68,0.2);">🔴 Critical</span>';
 
             return `
               <tr style="border-bottom: 1px solid var(--border-light);">
@@ -6457,7 +6457,7 @@ const AuditLogsController = {
       return;
     }
 
-    const headers = ['ID', 'Timestamp (When)', 'Kullanici_ID', 'Kullanici_Adi', 'Rol', 'Eposta', 'Islem', 'Category', 'Aciklama', 'IP_Adresi', 'Guvenlik_Duzeyi'];
+    const headers = ['ID', 'Timestamp', 'Kullanici_ID', 'Kullanici_Adi', 'Rol', 'Eposta', 'Islem', 'Category', 'Aciklama', 'IP_Adresi', 'Guvenlik_Duzeyi'];
     let csv = headers.join(',') + '\n';
 
     this.cachedLogs.forEach(l => {
@@ -7090,7 +7090,7 @@ const SettingsController = {
     } else if (cat === 'security') {
       return `
         <div class="form-group">
-          <label style="font-size: 12.5px; font-weight: 600; color: var(--text-dark); margin-bottom: 6px; display: block;">Oturum Timestamp (When) Aşımı (Dakika)</label>
+          <label style="font-size: 12.5px; font-weight: 600; color: var(--text-dark); margin-bottom: 6px; display: block;">Oturum Timestamp Aşımı (Dakika)</label>
           <input type="number" id="set_session_timeout_minutes" class="form-control" value="120" min="15" max="1440" style="font-size: 13px;">
           <small style="color: var(--text-muted); font-size: 11px;">Hareketsiz kalan kullanıcı oturumunun otomatik kapatılma süresi.</small>
         </div>

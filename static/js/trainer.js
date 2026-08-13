@@ -577,7 +577,7 @@ const TrainerController = {
                   </td>
                   <td style="font-size:12px; white-space:nowrap;">${formatDateTr(s.submitted_at)}</td>
                   <td>
-                    ${s.is_late ? '<span class="status-badge badge-pending" style="font-size:11px;">⚠️ Overdue (Is Late)</span>' : '<span class="status-badge badge-completed" style="font-size:11px;">⏰ Timestamp (When)ında</span>'}
+                    ${s.is_late ? '<span class="status-badge badge-pending" style="font-size:11px;">⚠️ Overdue (Is Late)</span>' : '<span class="status-badge badge-completed" style="font-size:11px;">⏰ Timestampında</span>'}
                   </td>
                   <td>${getStatusBadgeHtml(s.status)}</td>
                   <td>${s.grade !== null && s.grade !== undefined ? `<span class="grade-badge">${s.grade} / 100</span>` : '<span style="color:var(--text-muted);">-</span>'}</td>

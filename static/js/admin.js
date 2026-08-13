@@ -13,8 +13,8 @@ const AdminController = {
       heading.innerHTML = `<span>Administrator Dashboard - Overview</span>`;
       await this.renderHome(main);
     } else if (tabId === 'roles-permissions') {
-      heading.innerHTML = `<span>Roles & Thumissions Matrix (RBAC Engine)</span>`;
-      await this.renderRolesThumissions(main);
+      heading.innerHTML = `<span>Roles & Permissions Matrix (RBAC Engine)</span>`;
+      await this.renderRolesPermissions(main);
     } else if (tabId === 'groups') {
       heading.innerHTML = `<span>Training Groups & Cohorts Management</span>`;
       await this.renderGroups(main);
@@ -757,7 +757,7 @@ const AdminController = {
                   <td style="font-size:12.5px;">${s.trainer_name}</td>
                   <td style="font-size:12px; white-space:nowrap;">${formatDateTr(s.submitted_at)}</td>
                   <td>
-                    ${s.is_late ? '<span class="status-badge badge-pending" style="font-size:11px;">⚠️ Overdue (Is Late)</span>' : '<span class="status-badge badge-completed" style="font-size:11px;">⏰ Timestamp (When)ında</span>'}
+                    ${s.is_late ? '<span class="status-badge badge-pending" style="font-size:11px;">⚠️ Overdue (Is Late)</span>' : '<span class="status-badge badge-completed" style="font-size:11px;">⏰ Timestampında</span>'}
                   </td>
                   <td>
                     <div style="display:flex; flex-direction:column; gap:4px;">
@@ -1314,7 +1314,7 @@ AdminController.openReviewModal = function(submissionId) {
 
 // ==================== SECTION 12: ROLES & PERMISSIONS (ROLLER VE İZİNLER) ====================
 
-AdminController.renderRolesThumissions = async function(container) {
+AdminController.renderRolesPermissions = async function(container) {
   container.innerHTML = `<div style="text-align:center; padding:40px;"><span style="color:var(--text-muted);">Roller ve Yetki Matrisi Loading...</span></div>`;
 
   const res = await apiFetch('/api/roles/permissions');
@@ -1345,11 +1345,11 @@ AdminController.renderRolesThumissions = async function(container) {
   container.innerHTML = `
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
       <div>
-        <h2 style="font-size: 20px; color: var(--primary-navy); margin: 0 0 4px 0;">12. Roles & Thumissions (Roller ve Yetkiler Matrisi)</h2>
+        <h2 style="font-size: 20px; color: var(--primary-navy); margin: 0 0 4px 0;">12. Roles & Permissions (Roles and Permissions Matrix (RBAC))</h2>
         <p style="font-size: 13px; color: var(--text-secondary); margin: 0;">Sistemdeki 6 rol ve 26 modüler iznin canlı kontrol ve denetim tablosu.</p>
       </div>
       <div style="display: flex; gap: 10px;">
-        <button class="btn-action btn-primary" onclick="AdminController.saveAllRoleThumissions()" style="display: flex; align-items: center; gap: 6px; padding: 10px 20px; font-size: 13px; font-weight: 600;">
+        <button class="btn-action btn-primary" onclick="AdminController.saveAllRolePermissions()" style="display: flex; align-items: center; gap: 6px; padding: 10px 20px; font-size: 13px; font-weight: 600;">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
           <span>Yetki Değişikliklerini Save (Save)</span>
         </button>
@@ -1380,7 +1380,7 @@ AdminController.renderRolesThumissions = async function(container) {
         <table class="custom-table" style="margin: 0; width: 100%;">
           <thead>
             <tr style="background: var(--bg-page); border-bottom: 2px solid var(--border-light);">
-              <th style="padding: 14px 18px; text-align: left; width: 340px; font-size: 13px;">İzin Kodu & Descriptionsı (Thumission Code)</th>
+              <th style="padding: 14px 18px; text-align: left; width: 340px; font-size: 13px;">Permission Code & Scope Description</th>
               ${roles.map(r => `
                 <th style="padding: 14px 8px; text-align: center; font-size: 12px; font-weight: 700; color: var(--primary-navy);">
                   <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
@@ -1415,7 +1415,7 @@ AdminController.renderRolesThumissions = async function(container) {
                           id="perm_${r.code}_${p.code.replace('.', '_')}" 
                           ${isChecked ? 'checked' : ''} 
                           ${isSuperAdmin ? 'disabled title="Super Admin tüm izinlere kalıcı sahiptir."' : ''} 
-                          onchange="AdminController.toggleThumission('${r.code}', '${p.code}', this.checked)"
+                          onchange="AdminController.togglePermission('${r.code}', '${p.code}', this.checked)"
                           style="width: 18px; height: 18px; cursor: ${isSuperAdmin ? 'not-allowed' : 'pointer'}; accent-color: var(--primary-blue);"
                         />
                       </td>
@@ -1431,7 +1431,7 @@ AdminController.renderRolesThumissions = async function(container) {
   `;
 };
 
-AdminController.toggleThumission = function(roleCode, permCode, isChecked) {
+AdminController.togglePermission = function(roleCode, permCode, isChecked) {
   if (!window._cachedRolesMatrix) return;
   if (!window._cachedRolesMatrix[roleCode]) window._cachedRolesMatrix[roleCode] = [];
   
@@ -1449,7 +1449,7 @@ AdminController.toggleThumission = function(roleCode, permCode, isChecked) {
   }
 };
 
-AdminController.saveAllRoleThumissions = async function() {
+AdminController.saveAllRolePermissions = async function() {
   if (!window._cachedRolesMatrix) return;
   try {
     const roles = Object.keys(window._cachedRolesMatrix);
