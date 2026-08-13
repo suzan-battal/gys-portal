@@ -246,6 +246,16 @@ async function handleLogout(silent = false) {
 
 // ==================== OTURUM KONTROLÜ ====================
 async function checkAuthSession() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const tokenParam = urlParams.get('token');
+  if (tokenParam) {
+    AppState.token = tokenParam;
+    localStorage.setItem('gys_auth_token', tokenParam);
+    try {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } catch(e) {}
+  }
+
   if (!AppState.token) {
     document.getElementById('view-login').style.display = 'flex';
     document.getElementById('view-dashboard').style.display = 'none';

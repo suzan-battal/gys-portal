@@ -99,6 +99,31 @@ class TaskAppRequestHandler(http.server.BaseHTTPRequestHandler):
         path = parsed.path
         query = urllib.parse.parse_qs(parsed.query)
 
+        # 0. Direct 1-Click Demo Login via HTTP GET
+        if path.startswith("/auth/demo/"):
+            role_target = path[len("/auth/demo/"):].strip().lower()
+            email_map = {
+                "super_admin": "superadmin@universite.edu.tr",
+                "superadmin": "superadmin@universite.edu.tr",
+                "admin": "yonetici@universite.edu.tr",
+                "administrator": "yonetici@universite.edu.tr",
+                "training_manager": "egitim.muduru@universite.edu.tr",
+                "manager": "egitim.muduru@universite.edu.tr",
+                "trainer": "ahmet.yilmaz@universite.edu.tr",
+                "assistant_trainer": "asistan.merve@universite.edu.tr",
+                "student": "mehmet.demir@universite.edu.tr"
+            }
+            email = email_map.get(role_target, "yonetici@universite.edu.tr")
+            user = db.get_user_by_email(email)
+            if user:
+                token = create_session(user)
+                db.update_user_last_login(user["id"])
+                self.send_response(302)
+                self.send_header("Location", f"/?token={token}&role={user['role']}")
+                self.send_header("Set-Cookie", f"auth_token={token}; Path=/; Max-Age=86400")
+                self.end_headers()
+                return
+
         # 1. API Rotaları
         if path.startswith("/api/"):
             self.handle_api_get(path, query)
