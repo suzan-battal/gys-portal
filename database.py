@@ -1961,7 +1961,7 @@ def get_calendar_events_for_user(user_id: int, role: str, year: int, month: int,
                 "event_date": d_date,
                 "start_time": "23:59",
                 "end_time": None,
-                "location": f"Grup: {t['group_name'] or 'Bireysel'}",
+                "location": f"Group: {t['group_name'] or 'Individual'}",
                 "organizer_id": t['trainer_id'],
                 "organizer_name": t['trainer_name'],
                 "organizer_role": "trainer",
@@ -3044,7 +3044,7 @@ def get_admin_dashboard_full_data():
         cursor.execute("""
             SELECT t.id as task_id, t.title as task_title, t.deadline, t.priority,
                    u.id as student_id, u.name as student_name, u.email as student_email,
-                   COALESCE(g.name, 'Bireysel') as group_name,
+                   COALESCE(g.name, 'Individual') as group_name,
                    tr.name as trainer_name,
                    COALESCE(s.status, 'Teslim Edilmedi') as submission_status,
                    ROUND((julianday('now', 'localtime') - julianday(t.deadline))) as days_overdue

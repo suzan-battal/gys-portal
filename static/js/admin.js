@@ -1,5 +1,5 @@
 /**
- * Üniversite Tasks Yönetim Sistemi - Yönetici Paneli Denetleyicisi (admin.js)
+ * Üniversite Task Management System - Yönetici Paneli Denetleyicisi (admin.js)
  * İstatistikler, Student/Trainer/Kullanıcı CRUD, Eğitim Groupları (Training Groups) ve Tasks Yönetimi.
  */
 
@@ -241,16 +241,16 @@ const AdminController = {
           <div style="padding: 14px 18px; background: var(--bg-page); border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center;">
             <div style="display: flex; align-items: center; gap: 8px;">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent-rose);"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
-              <strong style="font-size: 14px; color: var(--primary-navy);">10. Late Submissions (Overdue Tasksler)</strong>
+              <strong style="font-size: 14px; color: var(--primary-navy);">Overdue & Late Submissions</strong>
             </div>
-            <button class="btn-action btn-secondary btn-sm" onclick="switchTab('tasks')">Tüm Tasksler</button>
+            <button class="btn-action btn-secondary btn-sm" onclick="switchTab('tasks')">All Tasks</button>
           </div>
           <div class="table-responsive" style="margin: 0;">
             <table class="custom-table" style="margin: 0; width: 100%;">
               <thead>
                 <tr style="background: var(--bg-page); font-size: 11px;">
                   <th style="padding: 8px 12px;">Student</th>
-                  <th style="padding: 8px 12px;">Tasks Başlığı</th>
+                  <th style="padding: 8px 12px;">Task Title</th>
                   <th style="padding: 8px 12px;">Group</th>
                   <th style="padding: 8px 12px;">Deadline</th>
                   <th style="padding: 8px 12px;">Overdue</th>
@@ -655,7 +655,7 @@ const AdminController = {
       <div class="panel-card">
         <div class="panel-header">
           <div class="panel-header-left">
-            <h3>Tanımlı Tasksler ve Ödevler (${tasks.length})</h3>
+            <h3>Tanımlı Tasks ve Ödevler (${tasks.length})</h3>
           </div>
           <div style="display:flex; gap:10px;">
             <button class="btn-action btn-primary" onclick="AdminController.openAddTaskModal()" style="width: auto;">
@@ -668,7 +668,7 @@ const AdminController = {
           <table class="custom-table">
             <thead>
               <tr>
-                <th>Tasks Başlığı</th>
+                <th>Task Title</th>
                 <th>Priority</th>
                 <th>Sorumlu Trainer</th>
                 <th>Atanan Student</th>

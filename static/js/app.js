@@ -752,16 +752,18 @@ function getStatusBadgeHtml(status) {
 function formatDateTr(dateStr) {
   if (!dateStr) return '-';
   try {
-    const d = new Date(dateStr);
+    const d = new Date(dateStr.replace(' ', 'T'));
     if (isNaN(d.getTime())) return dateStr;
-    return d.toLocaleDateString('tr-TR', {
+    return d.toLocaleDateString('en-US', {
+      month: 'short',
       day: '2-digit',
-      month: 'long',
       year: 'numeric'
     });
   } catch {
     return dateStr;
   }
+}
+}
 }
 
 function escapeHtml(str) {
@@ -2249,7 +2251,7 @@ const CalendarController = {
     modalBody.innerHTML = `
       <form id="create-calendar-event-form" onsubmit="CalendarController.handleCreateSubmit(event)" style="display: flex; flex-direction: column; gap: 14px;">
         <div>
-          <label class="form-label" style="font-weight: 700;">Etkinlik / Öğe Başlığı <span style="color: var(--accent-rose);">*</span></label>
+          <label class="form-label" style="font-weight: 700;">Event / Item Title <span style="color: var(--accent-rose);">*</span></label>
           <input type="text" id="cal-title" class="form-control" placeholder="Örn: Ara Sınav (Vize) - Veri Tabanı Yönetimi" required>
         </div>
 
@@ -2650,7 +2652,7 @@ const ReportsController = {
                   </div>
                 </td>
                 <td style="padding: 12px 16px;">
-                  <span class="status-badge badge-submitted" style="font-size: 11px;">🏢 ${escapeHtml(r.group_name || 'Bireysel')}</span>
+                  <span class="status-badge badge-submitted" style="font-size: 11px;">🏢 ${escapeHtml(r.group_name || 'Individual')}</span>
                   <div style="font-size: 11px; color: var(--text-muted); margin-top: 3px;">👨‍🏫 ${escapeHtml(r.trainer_name || 'Atanmadı')}</div>
                 </td>
                 <td style="padding: 12px 16px; text-align: center; font-weight: 700;">${r.total_tasks}</td>
@@ -2804,7 +2806,7 @@ const ReportsController = {
                   <span class="status-badge" style="font-size: 10px; margin-top: 3px; ${r.priority === 'Acil' ? 'background: #FEE2E2; color: #DC2626;' : 'background: #EFF6FF; color: #2563EB;'}">${r.priority}</span>
                 </td>
                 <td style="padding: 12px 16px;">
-                  <span class="status-badge badge-submitted" style="font-size: 11px;">🏢 ${escapeHtml(r.group_name || 'Bireysel')}</span>
+                  <span class="status-badge badge-submitted" style="font-size: 11px;">🏢 ${escapeHtml(r.group_name || 'Individual')}</span>
                   <div style="font-size: 11px; color: var(--text-muted); margin-top: 3px;">👨‍🏫 ${escapeHtml(r.trainer_name || '-')}</div>
                 </td>
                 <td style="padding: 12px 16px; font-size: 11.5px;">📅 ${formatDateTr(r.deadline)}</td>
@@ -2856,7 +2858,7 @@ const ReportsController = {
                   <div style="font-size: 11px; color: var(--text-muted);">${escapeHtml(r.student_email)}</div>
                 </td>
                 <td style="padding: 12px 16px;">
-                  <span class="status-badge badge-submitted" style="font-size: 11px;">🏢 ${escapeHtml(r.group_name || 'Bireysel')}</span>
+                  <span class="status-badge badge-submitted" style="font-size: 11px;">🏢 ${escapeHtml(r.group_name || 'Individual')}</span>
                   <div style="font-size: 11px; color: var(--text-muted); margin-top: 3px;">👨‍🏫 ${escapeHtml(r.trainer_name || '-')}</div>
                 </td>
                 <td style="padding: 12px 16px; font-size: 11.5px; color: var(--accent-rose); font-weight: 600;">
