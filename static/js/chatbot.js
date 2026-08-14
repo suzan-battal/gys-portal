@@ -596,12 +596,31 @@
       // Show typing
       this.showTyping();
 
-      // Generate AI response
-      setTimeout(() => {
+      try {
+        let responseHTML = null;
+        if (window.apiFetch) {
+          const apiRes = await window.apiFetch('/api/chatbot/query', {
+            method: 'POST',
+            body: { query: query }
+          });
+          if (apiRes && apiRes.handled && apiRes.response) {
+            responseHTML = apiRes.response;
+          }
+        }
+
+        if (!responseHTML) {
+          responseHTML = this.generateResponse(query);
+        }
+
+        setTimeout(() => {
+          this.hideTyping();
+          this.appendMessage('bot', responseHTML);
+        }, 300);
+      } catch (err) {
         this.hideTyping();
-        const responseHTML = this.generateResponse(query);
-        this.appendMessage('bot', responseHTML);
-      }, 550);
+        const fallbackHTML = this.generateResponse(query);
+        this.appendMessage('bot', fallbackHTML);
+      }
     },
 
     generateResponse(rawQuery) {

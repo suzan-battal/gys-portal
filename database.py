@@ -3825,15 +3825,144 @@ def seed_database():
     t_ai = create_tag("Artificial Intelligence & Deep Learning", "#7C3AED", "ai")
     t_mobile = create_tag("Mobile App (Flutter)", "#0284C7", "mobile")
 
-    add_tag_to_task(task1, t_python)
-    add_tag_to_task(task1, t_db)
-    add_tag_to_task(task2, t_web)
-    add_tag_to_task(task2, t_db)
-    add_tag_to_task(task3, t_ai)
-    add_tag_to_task(task4, t_db)
-    add_tag_to_task(task5, t_mobile)
+# ==================== LIVE DATABASE-CONNECTED AI CHATBOT ENGINE ====================
 
-    print("Database seeded successfully with English Demo Records!")
+def get_chatbot_ai_response(user_id: int, role: str, query: str):
+    """
+    Intelligently inspects user query and queries the live SQLite database
+    to return dynamic, real-time statistics, assignments, grades, groups and status.
+    """
+    q = (query or "").lower().strip()
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        
+        # 1. Active Tasks / Assignments query
+        if any(k in q for k in ["task", "assignment", "homework", "ödev", "görev", "job", "my job", "todo", "due"]):
+            if role in ["student", "employee"]:
+                cursor.execute("""
+                    SELECT t.id, t.title, t.deadline, t.priority, g.name as group_name
+                    FROM tasks t
+                    LEFT JOIN groups g ON t.group_id = g.id
+                    WHERE t.student_id = ? OR t.group_id IN (SELECT group_id FROM group_members WHERE student_id = ?)
+                    ORDER BY t.deadline ASC LIMIT 5;
+                """, (user_id, user_id))
+                tasks = cursor.fetchall()
+                if tasks:
+                    task_items = "".join([f"<li><strong>{t['title']}</strong> ({t['group_name'] or 'General'}) - Due: <code>{t['deadline']}</code> [{t['priority']}]</li>" for t in tasks])
+                    return f"""
+                        <p>📋 <strong>Your Active Assignments (Live Database Query):</strong></p>
+                        <p>You currently have <strong>{len(tasks)}</strong> assigned tasks in the database:</p>
+                        <ul>{task_items}</ul>
+                        <div class="ai-action-link" onclick="window.AIChatbot.closeChat(); switchTab('my-tasks');">👉 Open My Tasks</div>
+                    """
+                else:
+                    return "<p>🎉 You have no pending assignments in the database! Great job!</p>"
+            elif role in ["trainer", "assistant_trainer"]:
+                cursor.execute("SELECT COUNT(*) FROM tasks WHERE trainer_id = ?;", (user_id,))
+                total = cursor.fetchone()[0]
+                cursor.execute("""
+                    SELECT COUNT(*) FROM submissions s 
+                    JOIN tasks t ON s.task_id = t.id 
+                    WHERE t.trainer_id = ? AND (s.status LIKE '%Teslim%' OR s.status LIKE '%Review%' OR s.status LIKE '%Submitted%');
+                """, (user_id,))
+                pending = cursor.fetchone()[0]
+                return f"""
+                    <p>👨‍🏫 <strong>Trainer Tasks & Reviews (Live Database Query):</strong></p>
+                    <ul>
+                        <li>Total tasks created: <strong>{total}</strong></li>
+                        <li>Submissions awaiting your evaluation: <strong>{pending}</strong></li>
+                    </ul>
+                    <div class="ai-action-link" onclick="window.AIChatbot.closeChat(); switchTab('submissions');">👉 Review Submissions</div>
+                """
+            else:
+                cursor.execute("SELECT COUNT(*) FROM tasks;")
+                total = cursor.fetchone()[0]
+                cursor.execute("SELECT COUNT(*) FROM submissions WHERE grade IS NOT NULL OR status IN ('Tamamlandı', 'Completed');")
+                completed = cursor.fetchone()[0]
+                return f"""
+                    <p>🏛️ <strong>Institution Task Overview (Live Database Query):</strong></p>
+                    <ul>
+                        <li>Total assignments created across all departments: <strong>{total}</strong></li>
+                        <li>Total completed submissions: <strong>{completed}</strong></li>
+                    </ul>
+                    <div class="ai-action-link" onclick="window.AIChatbot.closeChat(); switchTab('tasks');">👉 Manage All Tasks</div>
+                """
+
+        # 2. Grade / GPA / Evaluation Query
+        if any(k in q for k in ["grade", "score", "gpa", "not", "rubric", "evaluation", "result", "average"]):
+            if role in ["student", "employee"]:
+                cursor.execute("""
+                    SELECT AVG(grade) as avg_grade, COUNT(grade) as graded_count, COUNT(*) as total_subs
+                    FROM submissions WHERE student_id = ?;
+                """, (user_id,))
+                stats = cursor.fetchone()
+                avg = stats["avg_grade"]
+                avg_str = f"{round(avg, 1)} / 100" if avg else "No graded submissions yet"
+                return f"""
+                    <p>📊 <strong>Your Live Academic Performance (Live Database):</strong></p>
+                    <ul>
+                        <li>Average GPA Score: <strong>{avg_str}</strong></li>
+                        <li>Graded Submissions: <strong>{stats['graded_count']}</strong> of <strong>{stats['total_subs']}</strong></li>
+                    </ul>
+                    <p>All assignments are evaluated based on the official <strong>100-Point Rubric</strong>.</p>
+                    <div class="ai-action-link" onclick="window.AIChatbot.closeChat(); switchTab('my-tasks');">👉 View My Grades</div>
+                """
+
+        # 3. Groups / Sections Query
+        if any(k in q for k in ["group", "section", "class", "grup", "kurs"]):
+            if role in ["student", "employee"]:
+                cursor.execute("""
+                    SELECT g.name, g.department, u.name as trainer_name
+                    FROM groups g
+                    JOIN group_members gm ON g.id = gm.group_id
+                    LEFT JOIN users u ON g.trainer_id = u.id
+                    WHERE gm.student_id = ?;
+                """, (user_id,))
+                groups = cursor.fetchall()
+                if groups:
+                    g_items = "".join([f"<li>🏢 <strong>{g['name']}</strong> ({g['department']}) - Instructor: <em>{g['trainer_name']}</em></li>" for g in groups])
+                    return f"""
+                        <p>🎓 <strong>Your Enrolled Training Groups (Live DB):</strong></p>
+                        <ul>{g_items}</ul>
+                    """
+            else:
+                cursor.execute("SELECT id, name, department, status, (SELECT COUNT(*) FROM group_members WHERE group_id = groups.id) as s_count FROM groups LIMIT 5;")
+                groups = cursor.fetchall()
+                g_items = "".join([f"<li>🏢 <strong>{g['name']}</strong> ({g['department']}) - <strong>{g['s_count']}</strong> Students [{g['status']}]</li>" for g in groups])
+                return f"""
+                    <p>🏢 <strong>University Training Groups (Live Database Query):</strong></p>
+                    <ul>{g_items}</ul>
+                    <div class="ai-action-link" onclick="window.AIChatbot.closeChat(); switchTab('groups');">👉 Manage Training Groups</div>
+                """
+
+        # 4. Announcements Query
+        if any(k in q for k in ["announcement", "news", "duyuru", "notice"]):
+            cursor.execute("SELECT title, priority, created_at FROM announcements ORDER BY id DESC LIMIT 3;")
+            anns = cursor.fetchall()
+            if anns:
+                ann_items = "".join([f"<li>📢 <strong>{a['title']}</strong> [{a['priority']}]</li>" for a in anns])
+                return f"""
+                    <p>📢 <strong>Latest University Announcements (Live DB):</strong></p>
+                    <ul>{ann_items}</ul>
+                    <div class="ai-action-link" onclick="window.AIChatbot.closeChat(); switchTab('announcements');">👉 View All Announcements</div>
+                """
+
+        # 5. User / Directory Stats (for Admin)
+        if any(k in q for k in ["user", "student", "trainer", "kullanıcı", "öğrenci", "admin", "count", "how many"]):
+            cursor.execute("SELECT role, COUNT(*) as count FROM users GROUP BY role;")
+            counts = {r['role']: r['count'] for r in cursor.fetchall()}
+            return f"""
+                <p>👥 <strong>Live User Directory Count (Live Database):</strong></p>
+                <ul>
+                    <li>👑 Super Admins: <strong>{counts.get('super_admin', 0)}</strong></li>
+                    <li>🛡️ Administrators: <strong>{counts.get('admin', 0)}</strong></li>
+                    <li>👨‍🏫 Trainers & Faculty: <strong>{counts.get('trainer', 0)}</strong></li>
+                    <li>🎒 Students & Employees: <strong>{counts.get('student', 0)}</strong></li>
+                </ul>
+                <div class="ai-action-link" onclick="window.AIChatbot.closeChat(); switchTab('all-users');">👉 Open User Management</div>
+            """
+
+        return None
 
 
 if __name__ == "__main__":

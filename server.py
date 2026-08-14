@@ -506,6 +506,20 @@ class TaskAppRequestHandler(http.server.BaseHTTPRequestHandler):
         if not user:
             return self.send_error_json(401, "Bu işlem için giriş yapmalısınız.")
 
+        # Live Database AI Chatbot Query: /api/chatbot/query
+        if path == "/api/chatbot/query":
+            try:
+                data = self.parse_json_body()
+                query_text = data.get("query", "").strip()
+                ai_html = db.get_chatbot_ai_response(user["id"], user["role"], query_text)
+                return self.send_json(200, {
+                    "success": True,
+                    "handled": bool(ai_html),
+                    "response": ai_html
+                })
+            except Exception as e:
+                return self.send_error_json(500, f"Chatbot query error: {str(e)}")
+
         # 3. Dosya Yükleme & Görevi Teslim Et: /api/submissions/upload (Multipart Form)
         if path == "/api/submissions/upload":
             return self.handle_multipart_upload(user)
