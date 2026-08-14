@@ -3022,31 +3022,13 @@ def get_admin_dashboard_full_data():
                    ) as pending_reviews,
                    (
                        SELECT COUNT(*) FROM submissions s
-                       JOIN tasks t ON s.task_id = t.id
-                       WHERE t.trainer_id = u.id AND s.status IN ('Tamamlandı', 'Kabul Edildi')
-                   ) as completed_reviews,
-                   (
-                       SELECT AVG(s.grade) FROM submissions s
-                       JOIN tasks t ON s.task_id = t.id
-                       WHERE t.trainer_id = u.id AND s.grade IS NOT NULL
-                   ) as avg_grade_given
-            FROM users u
-            WHERE u.role IN ('trainer', 'assistant_trainer')
-            ORDER BY total_tasks_created DESC, completed_reviews DESC;
-        """)
-        trainer_activity = []
-        for r in cursor.fetchall():
-            d = dict(r)
-            d["avg_grade_given"] = round(float(d["avg_grade_given"]), 1) if d["avg_grade_given"] is not None else 0.0
-            trainer_activity.append(d)
-
-        # 10. Late Submissions (Overdue Tasks needing attention)
+                       JOIN tas        # 10. Late Submissions (Overdue Tasks needing attention)
         cursor.execute("""
             SELECT t.id as task_id, t.title as task_title, t.deadline, t.priority,
                    u.id as student_id, u.name as student_name, u.email as student_email,
-                   COALESCE(g.name, 'Individual') as group_name,
+                   COALESCE(g.name, 'Individual Assignment') as group_name,
                    tr.name as trainer_name,
-                   COALESCE(s.status, 'Teslim Edilmedi') as submission_status,
+                   COALESCE(s.status, 'Not Submitted') as submission_status,
                    ROUND((julianday('now', 'localtime') - julianday(t.deadline))) as days_overdue
             FROM tasks t
             LEFT JOIN submissions s ON t.id = s.task_id
@@ -3054,7 +3036,7 @@ def get_admin_dashboard_full_data():
             LEFT JOIN groups g ON t.group_id = g.id
             LEFT JOIN users tr ON t.trainer_id = tr.id
             WHERE datetime(t.deadline) < datetime('now', 'localtime')
-              AND (s.status IS NULL OR s.status NOT IN ('Tamamlandı', 'Kabul Edildi'))
+              AND (s.status IS NULL OR s.status NOT IN ('Completed', 'Approved', 'Tamamlandı', 'Kabul Edildi'))
             ORDER BY t.deadline ASC
             LIMIT 10;
         """)
@@ -3071,7 +3053,7 @@ def get_admin_dashboard_full_data():
                    (
                        SELECT COUNT(*) FROM tasks t 
                        JOIN submissions s ON t.id = s.task_id
-                       WHERE t.group_id = g.id AND s.status IN ('Tamamlandı', 'Kabul Edildi')
+                       WHERE t.group_id = g.id AND s.status IN ('Completed', 'Approved', 'Tamamlandı', 'Kabul Edildi')
                    ) as completed_tasks,
                    (
                        SELECT AVG(s.grade) FROM tasks t
@@ -3110,10 +3092,9 @@ def get_admin_dashboard_full_data():
         }
 
 
-# ==================== SECTION 17: TODAY'S TASKS (GÜNLÜK GÖREV YÖNETİMİ & TAKİP) ====================
+# ==================== SECTION 17: TODAY'S TASKS ====================
 
 def get_today_tasks_overview(user_id: int, role: str, filters: dict = None):
-    """Section 17: Bugünün Görevleri merkezi izleme sayfası verileri ve 5 filtreli sorgulama."""
     filters = filters or {}
     with get_db_connection() as conn:
         cursor = conn.cursor()
@@ -3124,15 +3105,15 @@ def get_today_tasks_overview(user_id: int, role: str, filters: dict = None):
                    t.trainer_id, t.student_id, t.group_id,
                    u_st.name as student_name, u_st.email as student_email,
                    u_tr.name as trainer_name, u_tr.email as trainer_email,
-                   COALESCE(g.name, 'Bireysel Görev') as group_name,
-                   COALESCE(g.department, 'Genel') as group_department,
+                   COALESCE(g.name, 'Individual Assignment') as group_name,
+                   COALESCE(g.department, 'General') as group_department,
                    s.id as submission_id, s.status as submission_status, s.grade, s.submitted_at, s.feedback,
                    s.original_filename, s.file_path,
                    CASE 
-                     WHEN s.status IN ('Tamamlandı', 'Kabul Edildi') THEN 'completed'
-                     WHEN s.status IN ('Teslim Edildi', 'İnceleniyor') THEN 'waiting_review'
-                     WHEN datetime(t.deadline) < datetime('now', 'localtime') AND (s.status IS NULL OR s.status NOT IN ('Tamamlandı', 'Kabul Edildi')) THEN 'overdue'
-                     WHEN s.status = 'Devam Ediyor' OR s.id IS NOT NULL THEN 'in_progress'
+                     WHEN s.status IN ('Completed', 'Approved', 'Tamamlandı', 'Kabul Edildi') THEN 'completed'
+                     WHEN s.status IN ('Submitted', 'Under Review', 'Teslim Edildi', 'İnceleniyor') THEN 'waiting_review'
+                     WHEN datetime(t.deadline) < datetime('now', 'localtime') AND (s.status IS NULL OR s.status NOT IN ('Completed', 'Approved', 'Tamamlandı', 'Kabul Edildi')) THEN 'overdue'
+                     WHEN s.status IN ('In Progress', 'Devam Ediyor') OR s.id IS NOT NULL THEN 'in_progress'
                      ELSE 'not_started'
                    END as calculated_status,
                    ROUND((julianday('now', 'localtime') - julianday(t.deadline))) as days_overdue
@@ -3223,14 +3204,14 @@ def get_trainer_stats(trainer_id: int):
         cursor.execute("""
             SELECT COUNT(*) FROM submissions s
             JOIN tasks t ON s.task_id = t.id
-            WHERE t.trainer_id = ? AND s.status IN ('Teslim Edildi', 'İnceleniyor');
+            WHERE t.trainer_id = ? AND s.status IN ('Submitted', 'Under Review', 'Teslim Edildi', 'İnceleniyor');
         """, (trainer_id,))
         pending_reviews = cursor.fetchone()[0]
         
         cursor.execute("""
             SELECT COUNT(*) FROM submissions s
             JOIN tasks t ON s.task_id = t.id
-            WHERE t.trainer_id = ? AND s.status = 'Tamamlandı';
+            WHERE t.trainer_id = ? AND s.status IN ('Completed', 'Approved', 'Tamamlandı');
         """, (trainer_id,))
         completed_reviews = cursor.fetchone()[0]
 
@@ -3243,14 +3224,13 @@ def get_trainer_stats(trainer_id: int):
         }
 
 
-# ==================== SECTION 15: TRAINER DASHBOARD (EĞİTMEN KONTROL PANELİ) ====================
+# ==================== SECTION 15: TRAINER DASHBOARD ====================
 
 def get_trainer_dashboard_data(trainer_id: int):
-    """Section 15: Eğitmen Kontrol Panelinin 8 temel gereksinimini hesaplar."""
     with get_db_connection() as conn:
         cursor = conn.cursor()
         
-        # 1. My Students (Bağlı Öğrenciler)
+        # 1. My Students
         cursor.execute("""
             SELECT COUNT(DISTINCT student_id) FROM (
                 SELECT gm.student_id FROM group_members gm
@@ -3262,43 +3242,43 @@ def get_trainer_dashboard_data(trainer_id: int):
         """, (trainer_id, trainer_id))
         my_students_count = cursor.fetchone()[0]
 
-        # 2. Active Tasks (Aktif ve Devam Eden Görevler)
+        # 2. Active Tasks
         cursor.execute("""
             SELECT COUNT(*) FROM tasks t
             LEFT JOIN submissions s ON t.id = s.task_id
-            WHERE t.trainer_id = ? AND (s.status IS NULL OR s.status NOT IN ('Tamamlandı', 'Kabul Edildi'));
+            WHERE t.trainer_id = ? AND (s.status IS NULL OR s.status NOT IN ('Completed', 'Approved', 'Tamamlandı', 'Kabul Edildi'));
         """, (trainer_id,))
         active_tasks_count = cursor.fetchone()[0]
 
-        # 3. Waiting Review (İnceleme ve Notlandırma Bekleyenler)
+        # 3. Waiting Review
         cursor.execute("""
             SELECT COUNT(*) FROM submissions s
             JOIN tasks t ON s.task_id = t.id
-            WHERE t.trainer_id = ? AND s.status IN ('Teslim Edildi', 'İnceleniyor');
+            WHERE t.trainer_id = ? AND s.status IN ('Submitted', 'Under Review', 'Teslim Edildi', 'İnceleniyor');
         """, (trainer_id,))
         waiting_review_count = cursor.fetchone()[0]
 
-        # 4. Late Tasks (Geciken / Süresi Dolan Görevler)
+        # 4. Late Tasks
         cursor.execute("""
             SELECT COUNT(*) FROM tasks t
             LEFT JOIN submissions s ON t.id = s.task_id
             WHERE t.trainer_id = ? 
               AND datetime(t.deadline) < datetime('now', 'localtime')
-              AND (s.status IS NULL OR s.status NOT IN ('Tamamlandı', 'Kabul Edildi'));
+              AND (s.status IS NULL OR s.status NOT IN ('Completed', 'Approved', 'Tamamlandı', 'Kabul Edildi'));
         """, (trainer_id,))
         late_tasks_count = cursor.fetchone()[0]
 
-        # 5. Completed Today (Bugün Tamamlanan / İncelenenler)
+        # 5. Completed Today
         cursor.execute("""
             SELECT COUNT(*) FROM submissions s
             JOIN tasks t ON s.task_id = t.id
             WHERE t.trainer_id = ? 
-              AND s.status IN ('Tamamlandı', 'Kabul Edildi')
+              AND s.status IN ('Completed', 'Approved', 'Tamamlandı', 'Kabul Edildi')
               AND date(s.submitted_at) = date('now', 'localtime');
         """, (trainer_id,))
         completed_today_count = cursor.fetchone()[0]
 
-        # 6. Tasks Waiting for Review (İnceleme Bekleyen Ödevler Listesi)
+        # 6. Tasks Waiting for Review
         cursor.execute("""
             SELECT s.id as submission_id, s.task_id, s.student_id, s.submitted_at, s.status as submission_status,
                    s.original_filename, s.file_path, s.student_notes, s.student_link,
@@ -3307,12 +3287,12 @@ def get_trainer_dashboard_data(trainer_id: int):
             FROM submissions s
             JOIN tasks t ON s.task_id = t.id
             JOIN users u ON s.student_id = u.id
-            WHERE t.trainer_id = ? AND s.status IN ('Teslim Edildi', 'İnceleniyor')
+            WHERE t.trainer_id = ? AND s.status IN ('Submitted', 'Under Review', 'Teslim Edildi', 'İnceleniyor')
             ORDER BY s.submitted_at DESC;
         """, (trainer_id,))
         tasks_waiting_for_review = [dict(r) for r in cursor.fetchall()]
 
-        # 7. Recent Student Submissions (Son Öğrenci Teslimleri)
+        # 7. Recent Student Submissions
         cursor.execute("""
             SELECT s.id as submission_id, s.task_id, s.student_id, s.submitted_at, s.status as submission_status,
                    s.grade, s.original_filename,
@@ -3327,7 +3307,7 @@ def get_trainer_dashboard_data(trainer_id: int):
         """, (trainer_id,))
         recent_student_submissions = [dict(r) for r in cursor.fetchall()]
 
-        # 8. Group Progress (Grup İlerleme ve Başarı Oranları)
+        # 8. Group Progress
         cursor.execute("""
             SELECT g.id, g.name, g.department, g.status,
                    COUNT(DISTINCT gm.student_id) as student_count,
@@ -3337,7 +3317,7 @@ def get_trainer_dashboard_data(trainer_id: int):
                    (
                        SELECT COUNT(*) FROM tasks t 
                        JOIN submissions s ON t.id = s.task_id
-                       WHERE t.group_id = g.id AND s.status IN ('Tamamlandı', 'Kabul Edildi')
+                       WHERE t.group_id = g.id AND s.status IN ('Completed', 'Approved', 'Tamamlandı', 'Kabul Edildi')
                    ) as completed_group_tasks,
                    (
                        SELECT AVG(s.grade) FROM tasks t
@@ -3381,20 +3361,20 @@ def get_student_stats(student_id: int):
         cursor.execute("""
             SELECT COUNT(*) FROM tasks t
             LEFT JOIN submissions s ON t.id = s.task_id
-            WHERE t.student_id = ? AND (s.id IS NULL OR s.status = 'Bekliyor');
+            WHERE t.student_id = ? AND (s.id IS NULL OR s.status IN ('Pending', 'Bekliyor'));
         """, (student_id,))
         pending_tasks = cursor.fetchone()[0]
         
         cursor.execute("""
-            SELECT COUNT(*) FROM submissions WHERE student_id = ? AND status = 'Teslim Edildi';
+            SELECT COUNT(*) FROM submissions WHERE student_id = ? AND status IN ('Submitted', 'Teslim Edildi');
         """, (student_id,))
         submitted_tasks = cursor.fetchone()[0]
         
         cursor.execute("""
-            SELECT COUNT(*) FROM submissions WHERE student_id = ? AND status IN ('İnceleniyor', 'Tamamlandı');
+            SELECT COUNT(*) FROM submissions WHERE student_id = ? AND status IN ('Under Review', 'Completed', 'Approved', 'İnceleniyor', 'Tamamlandı');
         """, (student_id,))
         reviewed_tasks = cursor.fetchone()[0]
-        
+
         return {
             "total_tasks": total_tasks,
             "pending_tasks": pending_tasks,
@@ -3403,10 +3383,9 @@ def get_student_stats(student_id: int):
         }
 
 
-# ==================== SECTION 14: STUDENT PROFILE (ÖĞRENCİ PROFİLİ) ====================
+# ==================== SECTION 14: STUDENT PROFILE ====================
 
 def get_student_full_profile(student_id: int):
-    """Section 14: Öğrenci profilinin 8 temel bileşenini eksiksiz hesaplar ve döndürür."""
     with get_db_connection() as conn:
         cursor = conn.cursor()
         
@@ -3434,16 +3413,16 @@ def get_student_full_profile(student_id: int):
         group_row = cursor.fetchone()
         group_info = dict(group_row) if group_row else {
             "group_id": None,
-            "group_name": "Eğitim Grubu Atanmamış",
-            "department": "Genel Program",
+            "group_name": "No Training Group Assigned",
+            "department": "General Studies",
             "group_desc": "",
-            "trainer_name": "Atanmamış",
+            "trainer_name": "Unassigned",
             "trainer_email": "-",
             "assistant_trainers": "-",
             "joined_at": None
         }
 
-        # Yardımcı Eğitmen ID girilmişse ismini çözümle
+        # Assistant Trainers
         if group_row and group_row['assistant_trainers']:
             raw_ast = str(group_row['assistant_trainers']).strip()
             id_parts = [p.strip() for p in raw_ast.split(',') if p.strip().isdigit()]
@@ -3458,11 +3437,11 @@ def get_student_full_profile(student_id: int):
         cursor.execute("""
             SELECT t.id as task_id, t.title, t.description, t.deadline, t.priority, 
                    COALESCE(t.estimated_time, '-') as estimated_time,
-                   s.id as submission_id, COALESCE(s.status, 'Bekliyor') as submission_status, s.grade, s.submitted_at, s.feedback,
+                   s.id as submission_id, COALESCE(s.status, 'Pending') as submission_status, s.grade, s.submitted_at, s.feedback,
                    s.rubric_completion, s.rubric_quality, s.rubric_accuracy, s.rubric_deadline, s.rubric_communication,
                    s.original_filename as file_name,
                    CASE 
-                     WHEN datetime(t.deadline) < datetime('now', 'localtime') AND (s.status IS NULL OR s.status NOT IN ('Tamamlandı', 'Kabul Edildi')) THEN 1 
+                     WHEN datetime(t.deadline) < datetime('now', 'localtime') AND (s.status IS NULL OR s.status NOT IN ('Completed', 'Approved', 'Tamamlandı', 'Kabul Edildi')) THEN 1 
                      ELSE 0 
                    END as is_late
             FROM tasks t

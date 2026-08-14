@@ -4535,17 +4535,17 @@ const TodayTasksController = {
       <!-- Tasks List Table -->
       <div class="panel-card" style="padding: 0; overflow: hidden; border: 1px solid var(--border-light); border-radius: 12px;">
         <div style="padding: 14px 20px; background: var(--bg-page); border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center;">
-          <strong style="font-size: 14px; color: var(--primary-navy);">Task Listesi (${tasks.length} Task Listeleniyor)</strong>
-          <span style="font-size: 12px; color: var(--text-muted);">Datee göre sıralı</span>
+          <strong style="font-size: 14px; color: var(--primary-navy);">Task Directory (${tasks.length} Tasks Listed)</strong>
+          <span style="font-size: 12px; color: var(--text-muted);">Sorted chronologically by deadline</span>
         </div>
 
         <div class="table-responsive" style="margin: 0;">
           <table class="custom-table" style="margin: 0; width: 100%;">
             <thead>
               <tr style="background: var(--bg-page); font-size: 11.5px;">
-                <th style="padding: 10px 14px;">Task Informationsi</th>
+                <th style="padding: 10px 14px;">Task Title & Details</th>
                 <th style="padding: 10px 14px;">Group & Trainer</th>
-                <th style="padding: 10px 14px;">Atanan Student</th>
+                <th style="padding: 10px 14px;">Assigned Student</th>
                 <th style="padding: 10px 14px;">Due Date</th>
                 <th style="padding: 10px 14px;">Priority</th>
                 <th style="padding: 10px 14px;">Status</th>
@@ -4554,14 +4554,14 @@ const TodayTasksController = {
             </thead>
             <tbody>
               ${tasks.length === 0 ? `
-                <tr><td colspan="7" style="text-align: center; padding: 32px; color: var(--text-muted); font-size: 13px;">Selectilen filtrelere uygun görev bulunamadı.</td></tr>
+                <tr><td colspan="7" style="text-align: center; padding: 32px; color: var(--text-muted); font-size: 13px;">No tasks match the selected filters.</td></tr>
               ` : tasks.map(t => {
                 let statusBadge = '';
                 if (t.calculated_status === 'completed') statusBadge = '<span class="status-badge badge-completed">Completed</span>';
                 else if (t.calculated_status === 'waiting_review') statusBadge = '<span class="status-badge badge-reviewing">Waiting Review</span>';
-                else if (t.calculated_status === 'overdue') statusBadge = `<span class="status-badge badge-late">Overdue (+${t.days_overdue} Gün)</span>`;
+                else if (t.calculated_status === 'overdue') statusBadge = `<span class="status-badge badge-late">Overdue (+${t.days_overdue} days)</span>`;
                 else if (t.calculated_status === 'in_progress') statusBadge = '<span class="status-badge badge-submitted">In Progress</span>';
-                else statusBadge = '<span class="status-badge" style="background: #F1F5F9; color: #64748B; border: 1px solid #CBD5E1;">Grade Started</span>';
+                else statusBadge = '<span class="status-badge" style="background: #F1F5F9; color: #64748B; border: 1px solid #CBD5E1;">Not Started</span>';
 
                 let prioBadge = '';
                 if (t.priority === 'Urgent') prioBadge = '<span class="status-badge badge-late">🔴 Urgent</span>';
@@ -4576,7 +4576,7 @@ const TodayTasksController = {
                       <div style="font-size: 11px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${t.description}</div>
                     </td>
                     <td style="padding: 12px 14px;">
-                      <strong style="color: var(--primary-navy); display: block;">${t.group_name}</strong>
+                      <strong style="color: var(--primary-navy); display: block;">${t.group_name === 'Bireysel Görev' ? 'Individual Assignment' : t.group_name}</strong>
                       <div style="font-size: 11px; color: var(--text-muted);">${t.trainer_name}</div>
                     </td>
                     <td style="padding: 12px 14px;">
