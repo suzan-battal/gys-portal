@@ -839,6 +839,65 @@
         `;
       }
 
+      // Role-specific Duties / "My Job" / Responsibilities
+      if (q.includes('job') || q.includes('my job') || q.includes('duties') || q.includes('responsibility') || q.includes('what should i do') || q.includes('my role')) {
+        if (role === 'super_admin') {
+          return `
+            <p>👑 <strong>Super Administrator Responsibilities & Workflow:</strong></p>
+            <p>As the <strong>Super Admin</strong>, you hold master administrative privileges across the entire university portal:</p>
+            <ul>
+              <li>🛡️ <strong>Security & Audit Logs:</strong> Monitor authentication events, user operations, and IP activity logs.</li>
+              <li>🔑 <strong>RBAC Permissions:</strong> Configure the 26 granular permissions across all 5 user roles.</li>
+              <li>👥 <strong>University Directory:</strong> Manage all faculty, trainers, students, and departmental accounts.</li>
+              <li>🏢 <strong>Academic Groups:</strong> Oversee all training groups, quotas, and assigned professors.</li>
+              <li>⚙️ <strong>System Architecture:</strong> Adjust upload policies, backup data, and inspect database schema.</li>
+            </ul>
+            <p>Quick shortcuts for your primary duties:</p>
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <div class="ai-action-link" onclick="window.AIChatbot.closeChat(); switchTab('audit-logs');">🛡️ View Security Audit Logs</div>
+              <div class="ai-action-link" onclick="window.AIChatbot.closeChat(); switchTab('roles-permissions');">🔑 Configure RBAC Matrix</div>
+              <div class="ai-action-link" onclick="window.AIChatbot.closeChat(); switchTab('users');">👥 Manage User Directory</div>
+            </div>
+          `;
+        } else if (role === 'admin' || role === 'training_manager') {
+          return `
+            <p>🏛️ <strong>Administrator Responsibilities & Workflow:</strong></p>
+            <p>As an <strong>Administrator</strong>, you coordinate university training operations:</p>
+            <ul>
+              <li>👥 <strong>User Management:</strong> Provision new student and trainer accounts.</li>
+              <li>🏢 <strong>Training Groups:</strong> Create groups, assign trainers, and enroll students.</li>
+              <li>📢 <strong>Campus Announcements:</strong> Publish priority announcements to departments.</li>
+              <li>📊 <strong>Analytics & Reports:</strong> Export performance summaries and grade statistics.</li>
+            </ul>
+            <div class="ai-action-link" onclick="window.AIChatbot.closeChat(); switchTab('users');">👥 Open User Management</div>
+          `;
+        } else if (role === 'trainer' || role === 'assistant_trainer') {
+          return `
+            <p>👨‍🏫 <strong>Trainer Responsibilities & Workflow:</strong></p>
+            <p>As a <strong>Faculty Trainer</strong>, your main academic tasks are:</p>
+            <ul>
+              <li>➕ <strong>Create Tasks:</strong> Define assignments with deadlines and guidelines.</li>
+              <li>📝 <strong>Grade Submissions:</strong> Evaluate student submissions with the 100-point rubric.</li>
+              <li>💬 <strong>Feedback & Mentoring:</strong> Provide written guidance and request revisions.</li>
+              <li>📈 <strong>Track Progress:</strong> Monitor student completion rates and overdue work.</li>
+            </ul>
+            <div class="ai-action-link" onclick="window.AIChatbot.closeChat(); switchTab('submissions');">📝 Review Pending Submissions</div>
+          `;
+        } else {
+          return `
+            <p>🎒 <strong>Student Responsibilities & Workflow:</strong></p>
+            <p>As an enrolled <strong>Student</strong>, your academic routine includes:</p>
+            <ul>
+              <li>📋 <strong>Check Assignments:</strong> View active tasks and deadline countdowns in My Tasks.</li>
+              <li>📤 <strong>Submit Coursework:</strong> Upload solution files (PDF, ZIP, Python) or GitHub repo links.</li>
+              <li>📊 <strong>Review Feedback & Grades:</strong> Check rubric scores and trainer notes.</li>
+              <li>📅 <strong>Follow Academic Schedule:</strong> Track exam and submission milestones on the Calendar.</li>
+            </ul>
+            <div class="ai-action-link" onclick="window.AIChatbot.closeChat(); switchTab('my-tasks');">📋 View My Tasks</div>
+          `;
+        }
+      }
+
       // 9. Audit Logs
       if (q.includes('audit') || q.includes('log') || q.includes('security') || q.includes('ip')) {
         return `
