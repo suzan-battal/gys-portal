@@ -50,94 +50,47 @@
         <p>Task & Training Management System (TTMS)</p>
       </div>
 
-      <!-- Big 1-Click Direct Entry Buttons (Guaranteed Instant Auth) -->
-      <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px;">
-        <a href="/auth/demo/admin" onclick="event.preventDefault(); window.directLogin('admin');" class="btn-primary" style="display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; padding: 14px; font-size: 15px; font-weight: 700; border-radius: 10px; background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%); color: #ffffff; box-shadow: 0 4px 14px rgba(37,99,235,0.35); cursor: pointer;">
-          <span>🏛️ Direct Sign In as Administrator</span>
-        </a>
-        <a href="/auth/demo/student" onclick="event.preventDefault(); window.directLogin('student');" class="btn-primary" style="display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; padding: 14px; font-size: 15px; font-weight: 700; border-radius: 10px; background: linear-gradient(135deg, #059669 0%, #10B981 100%); color: #ffffff; box-shadow: 0 4px 14px rgba(16,185,129,0.35); cursor: pointer;">
-          <span>🎒 Direct Sign In as Student (Mehmet)</span>
-        </a>
-        <a href="/auth/demo/trainer" onclick="event.preventDefault(); window.directLogin('trainer');" class="btn-primary" style="display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; padding: 14px; font-size: 15px; font-weight: 700; border-radius: 10px; background: linear-gradient(135deg, #D97706 0%, #F59E0B 100%); color: #ffffff; box-shadow: 0 4px 14px rgba(217,119,6,0.35); cursor: pointer;">
-          <span>👨‍🏫 Direct Sign In as Trainer (Prof. Ahmet)</span>
-        </a>
-        <a href="/auth/demo/superadmin" onclick="event.preventDefault(); window.directLogin('super_admin');" class="btn-primary" style="display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; padding: 14px; font-size: 15px; font-weight: 700; border-radius: 10px; background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%); color: #ffffff; box-shadow: 0 4px 14px rgba(220,38,38,0.35); cursor: pointer;">
-          <span>👑 Direct Sign In as Super Admin</span>
-        </a>
-      </div>
-
-      <details style="margin-top: 12px; font-size: 13px; color: var(--text-secondary);">
-        <summary style="cursor: pointer; padding: 8px; text-align: center; color: var(--text-muted); font-weight: 600;">Or sign in manually with email & password ▾</summary>
-        <form id="form-login" onsubmit="handleLogin(event)" style="margin-top: 12px;">
-          <div class="form-group">
-            <label for="login-email">Institutional Email Address</label>
-            <input type="text" id="login-email" placeholder="user@university.edu" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      <!-- Secure Standard Email & Password Authentication Form -->
+      <form id="form-login" onsubmit="handleLogin(event)" style="margin-top: 8px;">
+        <div class="form-group" style="margin-bottom: 20px;">
+          <label for="login-email" style="display: flex; align-items: center; justify-content: space-between; font-weight: 600; font-size: 13px; margin-bottom: 8px; color: var(--text-main);">
+            <span>Institutional Email Address</span>
+            <span style="font-size: 11px; color: var(--text-muted); font-weight: 400;">@universite.edu.tr</span>
+          </label>
+          <div style="position: relative;">
+            <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; color: var(--text-muted); pointer-events: none;">✉️</span>
+            <input type="email" id="login-email" required placeholder="e.g. mehmet.demir@universite.edu.tr" autocomplete="username" style="padding-left: 42px; height: 46px; border-radius: 10px; border: 1.5px solid var(--border-light); font-size: 14px; width: 100%;">
           </div>
+        </div>
 
-          <div class="form-group">
-            <label for="login-password">Password</label>
-            <input type="password" id="login-password" placeholder="••••••••" autocomplete="new-password">
+        <div class="form-group" style="margin-bottom: 24px;">
+          <label for="login-password" style="display: flex; align-items: center; justify-content: space-between; font-weight: 600; font-size: 13px; margin-bottom: 8px; color: var(--text-main);">
+            <span>Password</span>
+            <span style="font-size: 11px; color: var(--primary-blue); font-weight: 500; cursor: pointer;" onclick="showToast('Please contact system administrator to reset password.', 'info')">Forgot Password?</span>
+          </label>
+          <div style="position: relative;">
+            <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; color: var(--text-muted); pointer-events: none;">🔒</span>
+            <input type="password" id="login-password" required placeholder="••••••••" autocomplete="current-password" style="padding-left: 42px; height: 46px; border-radius: 10px; border: 1.5px solid var(--border-light); font-size: 14px; width: 100%;">
           </div>
+        </div>
 
-          <button type="submit" id="btn-submit-login" class="btn-primary" style="margin-top: 8px;">
-            <span>Sign In</span>
-          </button>
-        </form>
+        <button type="submit" id="btn-submit-login" class="btn-primary" style="height: 48px; font-size: 15px; font-weight: 700; border-radius: 10px; box-shadow: 0 6px 18px rgba(30, 58, 138, 0.28); display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;">
+          <span>🔒 Sign In to Portal</span>
+        </button>
+      </form>
+
+      <!-- Discreet Demo Accounts Reference Credentials for Testing -->
+      <details style="margin-top: 24px; padding-top: 16px; border-top: 1px dashed var(--border-light); font-size: 12px; color: var(--text-secondary);">
+        <summary style="cursor: pointer; padding: 4px; text-align: center; color: var(--text-muted); font-weight: 600; user-select: none;">
+          📋 Demo Accounts Credentials (Click to view login details)
+        </summary>
+        <div style="margin-top: 12px; background: #F8FAFC; border: 1px solid var(--border-light); border-radius: 8px; padding: 12px; font-size: 11.5px; line-height: 1.6;">
+          <div style="margin-bottom: 6px;"><strong>👑 Super Admin:</strong> <code style="background: #E2E8F0; padding: 2px 5px; border-radius: 4px;">superadmin@universite.edu.tr</code> / <code style="background: #E2E8F0; padding: 2px 5px; border-radius: 4px;">SuperAdmin123!</code></div>
+          <div style="margin-bottom: 6px;"><strong>🏛️ Administrator:</strong> <code style="background: #E2E8F0; padding: 2px 5px; border-radius: 4px;">yonetici@universite.edu.tr</code> / <code style="background: #E2E8F0; padding: 2px 5px; border-radius: 4px;">Admin123!</code></div>
+          <div style="margin-bottom: 6px;"><strong>👨‍🏫 Trainer (Faculty):</strong> <code style="background: #E2E8F0; padding: 2px 5px; border-radius: 4px;">ahmet.yilmaz@universite.edu.tr</code> / <code style="background: #E2E8F0; padding: 2px 5px; border-radius: 4px;">Egitmen123!</code></div>
+          <div><strong>🎒 Student:</strong> <code style="background: #E2E8F0; padding: 2px 5px; border-radius: 4px;">mehmet.demir@universite.edu.tr</code> / <code style="background: #E2E8F0; padding: 2px 5px; border-radius: 4px;">Ogrenci123!</code></div>
+        </div>
       </details>
-
-      <!-- Quick Test Demo Accounts -->
-      <div class="demo-accounts-box">
-        <div class="demo-title">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-          </svg>
-          Quick Demo Sign In (1-Click)
-        </div>
-        <div class="demo-grid" style="grid-template-columns: repeat(3, 1fr);">
-          <a href="/auth/demo/superadmin" onclick="event.preventDefault(); window.directLogin('super_admin');" class="btn-demo" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px; cursor: pointer;">
-            <span class="role-dot" style="background: #DC2626;"></span>
-            <div>
-              <strong style="display: block; color: var(--primary-navy);">Super Admin</strong>
-              <div style="font-size:10px; color:var(--text-muted);">26/26 Full Permissions</div>
-            </div>
-          </a>
-          <a href="/auth/demo/admin" onclick="event.preventDefault(); window.directLogin('admin');" class="btn-demo" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px; cursor: pointer;">
-            <span class="role-dot dot-admin"></span>
-            <div>
-              <strong style="display: block; color: var(--primary-navy);">Administrator</strong>
-              <div style="font-size:10px; color:var(--text-muted);">System Management</div>
-            </div>
-          </a>
-          <a href="/auth/demo/training_manager" onclick="event.preventDefault(); window.directLogin('training_manager');" class="btn-demo" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px; cursor: pointer;">
-            <span class="role-dot" style="background: #9333EA;"></span>
-            <div>
-              <strong style="display: block; color: var(--primary-navy);">Training Manager</strong>
-              <div style="font-size:10px; color:var(--text-muted);">Academic Coordinator</div>
-            </div>
-          </a>
-          <a href="/auth/demo/trainer" onclick="event.preventDefault(); window.directLogin('trainer');" class="btn-demo" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px; cursor: pointer;">
-            <span class="role-dot dot-trainer"></span>
-            <div>
-              <strong style="display: block; color: var(--primary-navy);">Prof. Ahmet Yilmaz</strong>
-              <div style="font-size:10px; color:var(--text-muted);">Faculty Trainer</div>
-            </div>
-          </a>
-          <a href="/auth/demo/assistant_trainer" onclick="event.preventDefault(); window.directLogin('assistant_trainer');" class="btn-demo" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px; cursor: pointer;">
-            <span class="role-dot" style="background: #D97706;"></span>
-            <div>
-              <strong style="display: block; color: var(--primary-navy);">TA Merve Kaya</strong>
-              <div style="font-size:10px; color:var(--text-muted);">Assistant Trainer</div>
-            </div>
-          </a>
-          <a href="/auth/demo/student" onclick="event.preventDefault(); window.directLogin('student');" class="btn-demo" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 10px; cursor: pointer;">
-            <span class="role-dot dot-student"></span>
-            <div>
-              <strong style="display: block; color: var(--primary-navy);">Mehmet Demir</strong>
-              <div style="font-size:10px; color:var(--text-muted);">Enrolled Student</div>
-            </div>
-          </a>
-        </div>
-      </div>
     </div>
   </div>
 

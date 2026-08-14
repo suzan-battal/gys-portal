@@ -3274,6 +3274,9 @@ async function handleLogout(silent = false) {
 
   document.getElementById('view-dashboard').style.display = 'none';
   document.getElementById('view-login').style.display = 'flex';
+  if (window.AIChatbot) {
+    window.AIChatbot.hide();
+  }
   if (!silent) {
     showToast("Successfully signed out.", "info");
   }

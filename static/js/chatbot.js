@@ -31,7 +31,7 @@
           bottom: 24px;
           right: 24px;
           z-index: 9999;
-          display: flex;
+          display: none;
           align-items: center;
           gap: 10px;
           cursor: pointer;
@@ -557,14 +557,16 @@
       if (win) win.classList.remove('active');
     },
 
-    clearChat() {
-      this.messages = [];
-      const body = document.getElementById('ai-chat-body');
-      if (body) body.innerHTML = '';
-      this.loadInitialGreeting();
+    hide() {
+      this.closeChat();
+      const launcher = document.getElementById('ttms-ai-launcher');
+      if (launcher) launcher.style.display = 'none';
     },
 
     updateSuggestionsForRole() {
+      const launcher = document.getElementById('ttms-ai-launcher');
+      if (launcher) launcher.style.display = 'flex';
+
       const bar = document.getElementById('ai-suggestions-bar');
       if (!bar) return;
 
