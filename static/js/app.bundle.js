@@ -559,17 +559,17 @@ const AdminController = {
     }
 
     return users.map(u => {
-      let roleBadgeHtml = '<span class="status-badge badge-pending">🎒 Student</span>';
+      let roleBadgeHtml = '<span class="status-badge badge-pending">🎒 Employee / Student</span>';
       if (u.role === 'super_admin') roleBadgeHtml = '<span class="status-badge" style="background: rgba(220, 38, 38, 0.1); color: #DC2626; border: 1px solid rgba(220, 38, 38, 0.2);">👑 Super Admin</span>';
       else if (u.role === 'admin') roleBadgeHtml = '<span class="status-badge badge-reviewing">🛡️ Admin</span>';
-      else if (u.role === 'training_manager') roleBadgeHtml = '<span class="status-badge" style="background: rgba(147, 51, 234, 0.1); color: #9333EA; border: 1px solid rgba(147, 51, 234, 0.2);">🎓 Training Manager</span>';
+      else if (u.role === 'training_manager') roleBadgeHtml = '<span class="status-badge" style="background: rgba(147, 51, 234, 0.1); color: #9333EA; border: 1px solid rgba(147, 51, 234, 0.2);">🎓 Manager</span>';
       else if (u.role === 'trainer') roleBadgeHtml = '<span class="status-badge badge-submitted">👨‍🏫 Trainer</span>';
       else if (u.role === 'assistant_trainer') roleBadgeHtml = '<span class="status-badge" style="background: rgba(217, 119, 6, 0.1); color: #D97706; border: 1px solid rgba(217, 119, 6, 0.2);">🧑‍💼 Assistant Trainer</span>';
 
       const isActive = (u.status || 'Active') === 'Active';
       const statusBadge = isActive 
-        ? `<span class="status-badge badge-completed" style="font-size: 11px; padding: 3px 10px;">Active</span>` 
-        : `<span class="status-badge badge-pending" style="font-size: 11px; padding: 3px 10px; background: rgba(100,116,139,0.1); color: #64748B;">Inactive</span>`;
+        ? `<button onclick="AdminController.toggleUserStatus(${u.id}, 'Active')" title="Click to toggle Active/Passive" class="status-badge badge-completed" style="font-size: 11px; padding: 4px 10px; cursor: pointer; border: none; font-weight: 600;">🟢 Active</button>` 
+        : `<button onclick="AdminController.toggleUserStatus(${u.id}, 'Passive')" title="Click to toggle Active/Passive" class="status-badge badge-late" style="font-size: 11px; padding: 4px 10px; cursor: pointer; border: none; font-weight: 600;">🔴 Passive</button>`;
 
       const groupBadge = (u.group_name && u.group_name !== '-')
         ? `<span class="status-badge" style="background: rgba(59, 130, 246, 0.08); color: var(--primary-blue); font-weight: 600; font-size: 11.5px; border: 1px solid rgba(59, 130, 246, 0.2);">🏢 ${u.group_name}</span>`
@@ -592,10 +592,11 @@ const AdminController = {
           <td style="padding: 12px 14px;">${groupBadge}</td>
           <td style="padding: 12px 14px; text-align: center;">${statusBadge}</td>
           <td style="padding: 12px 14px;">${AdminController.formatLastLogin(u.last_login)}</td>
-          <td style="padding: 12px 18px; text-align: right;">
-            <button class="btn-action btn-secondary btn-sm" onclick="AdminController.openEditUserModal(${u.id})">Edit</button>
+          <td style="padding: 12px 18px; text-align: right; white-space: nowrap;">
+            <button class="btn-action btn-secondary btn-sm" style="padding: 4px 8px; font-size: 11.5px;" onclick="AdminController.openEditUserModal(${u.id})">✏️ Edit</button>
+            <button class="btn-action btn-secondary btn-sm" style="padding: 4px 8px; font-size: 11.5px; margin-left: 4px;" onclick="AdminController.openResetPasswordModal(${u.id}, '${u.name.replace(/'/g, "\\'")}')">🔑 Password</button>
             ${u.id !== AppState.currentUser.id ? `
-              <button class="btn-action btn-danger btn-sm" style="margin-left: 6px;" onclick="AdminController.deleteUser(${u.id}, '${u.name.replace(/'/g, "\\'")}')">Delete</button>
+              <button class="btn-action btn-danger btn-sm" style="padding: 4px 8px; font-size: 11.5px; margin-left: 4px;" onclick="AdminController.deleteUser(${u.id}, '${u.name.replace(/'/g, "\\'")}')">🗑️ Delete</button>
             ` : ''}
           </td>
         </tr>
@@ -1036,11 +1037,14 @@ const AdminController = {
 
   // ==================== KULLANICI MODAL VE CRUD ====================
   openAddUserModal(defaultRole = 'student') {
-    document.getElementById('modal-user-title').textContent = defaultRole === 'trainer' ? 'Trainer Ekle' : (defaultRole === 'admin' ? 'Administrator Ekle' : 'Student Ekle');
+    document.getElementById('modal-user-title').textContent = 'Add New User';
     document.getElementById('user-id').value = '';
     document.getElementById('user-name').value = '';
     document.getElementById('user-email').value = '';
     document.getElementById('user-role').value = defaultRole;
+    if (document.getElementById('user-status')) {
+      document.getElementById('user-status').value = 'Active';
+    }
     document.getElementById('user-password').value = '';
     document.getElementById('user-password').required = true;
     document.getElementById('label-user-password').textContent = 'Password *';
@@ -1052,35 +1056,83 @@ const AdminController = {
   async openEditUserModal(userId) {
     const res = await apiFetch(`/api/users/${userId}`);
     if (!res.success || !res.user) {
-      showToast(res.error || "User bilgileri alınamadı.", "error");
+      showToast(res.error || "User details could not be loaded.", "error");
       return;
     }
 
     const u = res.user;
-    document.getElementById('modal-user-title').textContent = 'User Edit';
+    document.getElementById('modal-user-title').textContent = `Edit User: ${u.name}`;
     document.getElementById('user-id').value = u.id;
     document.getElementById('user-name').value = u.name;
     document.getElementById('user-email').value = u.email;
     document.getElementById('user-role').value = u.role;
+    if (document.getElementById('user-status')) {
+      document.getElementById('user-status').value = u.status || 'Active';
+    }
     document.getElementById('user-password').value = '';
     document.getElementById('user-password').required = false;
-    document.getElementById('label-user-password').textContent = 'Yeni Password (İsteğe bağlı)';
+    document.getElementById('label-user-password').textContent = 'New Password (Optional)';
     document.getElementById('help-user-password').style.display = 'block';
 
     openModal('modal-user');
   },
 
+  async toggleUserStatus(userId, currentStatus) {
+    const newTarget = currentStatus === 'Active' ? 'Passive (Deactivate)' : 'Active (Activate)';
+    const res = await apiFetch(`/api/users/${userId}/toggle-status`, { method: 'POST' });
+    if (res.success) {
+      showToast(res.message || "User status updated successfully.", "success");
+      switchTab(AppState.currentTab);
+    } else {
+      showToast(res.error || "Could not change user status.", "error");
+    }
+  },
+
+  openResetPasswordModal(userId, userName) {
+    document.getElementById('reset-pwd-user-id').value = userId;
+    document.getElementById('reset-pwd-user-name').textContent = userName;
+    document.getElementById('new-reset-password').value = '';
+    openModal('modal-reset-password');
+  },
+
+  async handleSaveResetPassword(e) {
+    e.preventDefault();
+    const userId = document.getElementById('reset-pwd-user-id').value;
+    const password = document.getElementById('new-reset-password').value.trim();
+    if (!password || password.length < 4) {
+      showToast("Password must be at least 4 characters long.", "error");
+      return;
+    }
+
+    const btn = document.getElementById('btn-confirm-reset-pwd');
+    if (btn) btn.disabled = true;
+
+    const res = await apiFetch(`/api/users/${userId}/reset-password`, {
+      method: 'POST',
+      body: { password }
+    });
+
+    if (btn) btn.disabled = false;
+
+    if (res.success) {
+      closeModal('modal-reset-password');
+      showToast(res.message || "Password reset successfully.", "success");
+    } else {
+      showToast(res.error || "Could not reset password.", "error");
+    }
+  },
+
   deleteUser(userId, userName) {
     openConfirmModal(
-      'Useryı Delete',
-      `"${userName}" adlı kullanıcıyı silmek istediğinizden emin misiniz?`,
+      'Delete User',
+      `Are you sure you want to permanently delete "${userName}" from the portal?`,
       async () => {
         const res = await apiFetch(`/api/users/${userId}`, { method: 'DELETE' });
         if (res.success) {
           showToast("User deleted successfully.", "success");
           switchTab(AppState.currentTab);
         } else {
-          showToast(res.error || "User silinirken bir hata oluştu.", "error");
+          showToast(res.error || "An error occurred while deleting user.", "error");
         }
       }
     );
@@ -1224,32 +1276,33 @@ async function handleSaveUser(e) {
   const name = document.getElementById('user-name').value.trim();
   const email = document.getElementById('user-email').value.trim();
   const role = document.getElementById('user-role').value;
+  const status = document.getElementById('user-status') ? document.getElementById('user-status').value : 'Active';
   const password = document.getElementById('user-password').value;
 
   const btn = document.getElementById('btn-save-user');
-  btn.disabled = true;
+  if (btn) btn.disabled = true;
 
   let res;
   if (userId) {
     res = await apiFetch(`/api/users/${userId}`, {
       method: 'PUT',
-      body: { name, email, role, password }
+      body: { name, email, role, password, status }
     });
   } else {
     res = await apiFetch('/api/users', {
       method: 'POST',
-      body: { name, email, role, password }
+      body: { name, email, role, password, status }
     });
   }
 
-  btn.disabled = false;
+  if (btn) btn.disabled = false;
 
   if (res.success) {
     closeModal('modal-user');
-    showToast(res.message || "User başarıyla kaydedildi.", "success");
+    showToast(res.message || "User saved successfully.", "success");
     switchTab(AppState.currentTab);
   } else {
-    showToast(res.error || "Action sırasında bir hata oluştu.", "error");
+    showToast(res.error || "An error occurred while saving user.", "error");
   }
 }
 

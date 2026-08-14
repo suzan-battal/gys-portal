@@ -1053,7 +1053,7 @@ def get_user_by_email(email: str):
 def get_user_by_id(user_id: int):
     with get_db_connection() as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT id, name, email, role, created_at FROM users WHERE id = ?;", (user_id,))
+        cursor.execute("SELECT id, name, email, role, COALESCE(status, 'Active') as status, last_login, created_at FROM users WHERE id = ?;", (user_id,))
         row = cursor.fetchone()
         return dict(row) if row else None
 
@@ -1149,6 +1149,29 @@ def delete_user(user_id: int):
     with get_db_connection() as conn:
         cursor = conn.cursor()
         cursor.execute("DELETE FROM users WHERE id = ?;", (user_id,))
+        conn.commit()
+        return cursor.rowcount > 0
+
+
+def toggle_user_status(user_id: int):
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT status FROM users WHERE id = ?;", (user_id,))
+        row = cursor.fetchone()
+        if not row:
+            return None
+        current_status = row[0] or 'Active'
+        new_status = 'Passive' if current_status == 'Active' else 'Active'
+        cursor.execute("UPDATE users SET status = ? WHERE id = ?;", (new_status, user_id))
+        conn.commit()
+        return new_status
+
+
+def reset_user_password(user_id: int, new_password: str):
+    hashed_pwd = hash_password(new_password.strip())
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("UPDATE users SET password = ? WHERE id = ?;", (hashed_pwd, user_id))
         conn.commit()
         return cursor.rowcount > 0
 

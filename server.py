@@ -453,11 +453,15 @@ class TaskAppRequestHandler(http.server.BaseHTTPRequestHandler):
                 password = data.get("password", "").strip()
 
                 if not email or not password:
-                    return self.send_error_json(400, "Lütfen e-posta ve şifrenizi giriniz.")
+                    return self.send_error_json(400, "Please enter both institutional email and password.")
 
                 user = db.get_user_by_email(email)
                 if not user or not db.verify_password(password, user["password"]):
-                    return self.send_error_json(401, "Geçersiz e-posta veya şifre.")
+                    return self.send_error_json(401, "Invalid email address or password.")
+
+                user_status = (user.get("status") or "Active").strip()
+                if user_status.lower() in ["passive", "pasif", "inactive", "disabled"]:
+                    return self.send_error_json(403, "Your account is currently deactivated (Passive). Please contact the system administrator.")
 
                 token = create_session(user)
                 db.update_user_last_login(user["id"])
@@ -465,7 +469,7 @@ class TaskAppRequestHandler(http.server.BaseHTTPRequestHandler):
                 db.log_audit_event(
                     action="AUTH_LOGIN",
                     category="auth",
-                    description=f"Kullanıcı başarıyla oturum açtı: {user['name']} ({user['role']})",
+                    description=f"User signed in successfully: {user['name']} ({user['role']})",
                     user_id=user["id"],
                     user_name=user["name"],
                     user_role=user["role"],
@@ -478,16 +482,17 @@ class TaskAppRequestHandler(http.server.BaseHTTPRequestHandler):
                     "id": user["id"],
                     "name": user["name"],
                     "email": user["email"],
-                    "role": user["role"]
+                    "role": user["role"],
+                    "status": user_status
                 }
                 return self.send_json(200, {
                     "success": True,
-                    "message": "Giriş başarılı.",
+                    "message": "Login successful.",
                     "token": token,
                     "user": user_info
                 })
             except Exception as e:
-                return self.send_error_json(500, f"Giriş sırasında bir hata oluştu: {str(e)}")
+                return self.send_error_json(500, f"Login error: {str(e)}")
 
         # 2. Çıkış Yap (Logout): /api/auth/logout
         if path == "/api/auth/logout":
@@ -742,29 +747,113 @@ class TaskAppRequestHandler(http.server.BaseHTTPRequestHandler):
         # 5. Kullanıcı Ekle (Admin / Super Admin / Training Manager): /api/users
         if path == "/api/users":
             if user["role"] not in ["super_admin", "admin", "training_manager"]:
-                return self.send_error_json(403, "Bu işlem için yönetici yetkisi gereklidir.")
+                return self.send_error_json(403, "Administrator privileges required to create users.")
             
             data = self.parse_json_body()
             name = data.get("name", "").strip()
             email = data.get("email", "").strip()
             password = data.get("password", "").strip()
             role = data.get("role", "").strip().lower()
+            status = data.get("status", "Active").strip()
 
             if not name or not email or not password or not role:
-                return self.send_error_json(400, "Tüm alanlar zorunludur.")
+                return self.send_error_json(400, "All fields (Full Name, Institutional Email, Role, and Password) are required.")
+
+            # Support aliases: manager -> training_manager, employee/personnel -> student
+            if role in ["manager", "yonetici", "yönetici"]:
+                role = "training_manager"
+            elif role in ["employee", "personel", "staff"]:
+                role = "student"
+            elif role in ["egitmen", "eğitmen"]:
+                role = "trainer"
+            elif role in ["ogrenci", "öğrenci"]:
+                role = "student"
 
             VALID_ROLES = ["super_admin", "admin", "training_manager", "trainer", "assistant_trainer", "student"]
             if role not in VALID_ROLES:
-                return self.send_error_json(400, "Geçersiz kullanıcı rolü. Desteklenen roller: Super Admin, Admin, Training Manager, Trainer, Assistant Trainer, Student.")
+                return self.send_error_json(400, "Invalid role. Supported: Super Admin, Admin, Manager, Trainer, Assistant Trainer, Student/Employee.")
 
             if db.get_user_by_email(email):
-                return self.send_error_json(400, "Bu e-posta adresi zaten kullanımda.")
+                return self.send_error_json(400, "This institutional email address is already registered.")
 
-            new_user_id = db.create_user(name, email, password, role)
+            new_user_id = db.create_user(name, email, password, role, status)
+            db.log_audit_event(
+                action="USER_CREATED",
+                category="user_management",
+                description=f"Created user {name} ({email}) with role {role} and status {status}",
+                user_id=user["id"],
+                user_name=user["name"],
+                user_role=user["role"],
+                user_email=user["email"],
+                severity="info"
+            )
             return self.send_json(201, {
                 "success": True,
-                "message": "Kullanıcı başarıyla oluşturuldu.",
+                "message": "User created successfully.",
                 "user": db.get_user_by_id(new_user_id)
+            })
+
+        # 5b. Kullanıcı Durumunu Değiştir (Active / Passive Toggle): /api/users/<id>/toggle-status
+        toggle_status_match = re.match(r"^/api/users/(\d+)/toggle-status$", path)
+        if toggle_status_match:
+            if user["role"] not in ["super_admin", "admin", "training_manager"]:
+                return self.send_error_json(403, "Administrator privileges required to change user status.")
+            
+            target_id = int(toggle_status_match.group(1))
+            if target_id == user["id"]:
+                return self.send_error_json(400, "You cannot deactivate your own administrative account.")
+            
+            new_status = db.toggle_user_status(target_id)
+            if not new_status:
+                return self.send_error_json(404, "User not found.")
+            
+            updated_user = db.get_user_by_id(target_id)
+            db.log_audit_event(
+                action="USER_STATUS_TOGGLED",
+                category="user_management",
+                description=f"User status for {updated_user['name']} set to {new_status}",
+                user_id=user["id"],
+                user_name=user["name"],
+                user_role=user["role"],
+                user_email=user["email"],
+                severity="warning" if new_status == 'Passive' else "info"
+            )
+            return self.send_json(200, {
+                "success": True,
+                "message": f"User status updated to {new_status}.",
+                "user": updated_user
+            })
+
+        # 5c. Kullanıcı Şifresini Sıfırla (Reset Password): /api/users/<id>/reset-password
+        reset_pwd_match = re.match(r"^/api/users/(\d+)/reset-password$", path)
+        if reset_pwd_match:
+            if user["role"] not in ["super_admin", "admin", "training_manager"]:
+                return self.send_error_json(403, "Administrator privileges required to reset passwords.")
+            
+            target_id = int(reset_pwd_match.group(1))
+            target_user = db.get_user_by_id(target_id)
+            if not target_user:
+                return self.send_error_json(404, "User not found.")
+            
+            data = self.parse_json_body()
+            new_password = data.get("password", "").strip()
+            if not new_password or len(new_password) < 4:
+                return self.send_error_json(400, "Password must be at least 4 characters long.")
+            
+            db.reset_user_password(target_id, new_password)
+            db.log_audit_event(
+                action="USER_PASSWORD_RESET",
+                category="security",
+                description=f"Password was reset for user {target_user['name']} ({target_user['email']})",
+                user_id=user["id"],
+                user_name=user["name"],
+                user_role=user["role"],
+                user_email=user["email"],
+                severity="warning"
+            )
+            return self.send_json(200, {
+                "success": True,
+                "message": f"Password for {target_user['name']} has been reset successfully."
             })
 
         # 6. Eğitim Grubu Ekle (Admin veya Trainer): /api/groups
@@ -920,31 +1009,52 @@ class TaskAppRequestHandler(http.server.BaseHTTPRequestHandler):
         user_match = re.match(r"^/api/users/(\d+)$", path)
         if user_match:
             if user["role"] not in ["super_admin", "admin", "training_manager"]:
-                return self.send_error_json(403, "Bu işlem için yönetici yetkisi gereklidir.")
+                return self.send_error_json(403, "Administrator privileges required to edit users.")
             
             target_id = int(user_match.group(1))
             existing_user = db.get_user_by_id(target_id)
             if not existing_user:
-                return self.send_error_json(404, "Kullanıcı bulunamadı.")
+                return self.send_error_json(404, "User not found.")
 
             data = self.parse_json_body()
-            name = data.get("name", "").strip()
-            email = data.get("email", "").strip()
-            role = data.get("role", "").strip().lower()
+            name = data.get("name", existing_user["name"]).strip()
+            email = data.get("email", existing_user["email"]).strip()
+            role = data.get("role", existing_user["role"]).strip().lower()
+            status = data.get("status", existing_user.get("status", "Active")).strip()
             password = data.get("password")
+
+            # Support aliases
+            if role in ["manager", "yonetici", "yönetici"]:
+                role = "training_manager"
+            elif role in ["employee", "personel", "staff"]:
+                role = "student"
+            elif role in ["egitmen", "eğitmen"]:
+                role = "trainer"
+            elif role in ["ogrenci", "öğrenci"]:
+                role = "student"
 
             VALID_ROLES = ["super_admin", "admin", "training_manager", "trainer", "assistant_trainer", "student"]
             if role not in VALID_ROLES:
-                return self.send_error_json(400, "Geçersiz kullanıcı rolü.")
+                return self.send_error_json(400, "Invalid role. Supported: Super Admin, Admin, Manager, Trainer, Assistant Trainer, Student/Employee.")
 
             user_by_email = db.get_user_by_email(email)
             if user_by_email and user_by_email["id"] != target_id:
-                return self.send_error_json(400, "Bu e-posta adresi başka bir kullanıcı tarafından kullanılıyor.")
+                return self.send_error_json(400, "This institutional email address is already registered to another user.")
 
-            db.update_user(target_id, name, email, role, password)
+            db.update_user(target_id, name, email, role, password, status)
+            db.log_audit_event(
+                action="USER_UPDATED",
+                category="user_management",
+                description=f"Updated user {name} ({email}) - Role: {role}, Status: {status}",
+                user_id=user["id"],
+                user_name=user["name"],
+                user_role=user["role"],
+                user_email=user["email"],
+                severity="info"
+            )
             return self.send_json(200, {
                 "success": True,
-                "message": "Kullanıcı bilgileri başarıyla güncellendi.",
+                "message": "User details updated successfully.",
                 "user": db.get_user_by_id(target_id)
             })
 

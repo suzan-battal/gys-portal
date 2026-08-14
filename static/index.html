@@ -272,26 +272,35 @@
         <div class="modal-body">
           <input type="hidden" id="user-id">
           <div class="form-group">
-            <label for="user-name">Full Name</label>
-            <input type="text" id="user-name" required placeholder="e.g. John Doe">
+            <label for="user-name">Full Name *</label>
+            <input type="text" id="user-name" required placeholder="e.g. Suzan Battal">
           </div>
           <div class="form-group">
-            <label for="user-email">Institutional Email</label>
-            <input type="email" id="user-email" required placeholder="user@university.edu">
+            <label for="user-email">Institutional Email Address *</label>
+            <input type="email" id="user-email" required placeholder="user@universite.edu.tr">
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="form-group">
+              <label for="user-role">Role / Authority *</label>
+              <select id="user-role" required>
+                <option value="super_admin">👑 Super Admin</option>
+                <option value="admin">🛡️ Administrator</option>
+                <option value="training_manager">🎓 Manager / Yönetici</option>
+                <option value="trainer">👨‍🏫 Trainer / Eğitmen</option>
+                <option value="assistant_trainer">🧑‍💼 Assistant Trainer</option>
+                <option value="student">🎒 Employee / Student / Personel</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="user-status">Account Status (Aktif / Pasif) *</label>
+              <select id="user-status" required>
+                <option value="Active">🟢 Active (Aktif)</option>
+                <option value="Passive">🔴 Passive (Pasif / Deactivated)</option>
+              </select>
+            </div>
           </div>
           <div class="form-group">
-            <label for="user-role">Role / Authority (6 Roles)</label>
-            <select id="user-role" required>
-              <option value="super_admin">👑 Super Admin (Full Permissions)</option>
-              <option value="admin">🛡️ Administrator (System Admin)</option>
-              <option value="training_manager">🎓 Training Manager (Academic Coordinator)</option>
-              <option value="trainer">👨‍🏫 Trainer (Faculty Instructor)</option>
-              <option value="assistant_trainer">🧑‍💼 Assistant Trainer (Teaching Assistant)</option>
-              <option value="student">🎒 Student (Enrolled Student)</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="user-password" id="label-user-password">Password</label>
+            <label for="user-password" id="label-user-password">Password *</label>
             <input type="password" id="user-password" placeholder="••••••••">
             <small style="color:var(--text-muted); font-size:11px;" id="help-user-password">Leave blank when editing to keep current password.</small>
           </div>
@@ -299,6 +308,33 @@
         <div class="modal-footer">
           <button type="button" class="btn-action btn-secondary" onclick="closeModal('modal-user')">Cancel</button>
           <button type="submit" class="btn-action btn-primary" id="btn-save-user">Save User</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Admin Password Reset -->
+  <div id="modal-reset-password" class="modal-overlay">
+    <div class="modal-box" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3 id="modal-reset-pwd-title">Reset User Password</h3>
+        <button class="modal-close-btn" onclick="closeModal('modal-reset-password')">&times;</button>
+      </div>
+      <form id="form-reset-password" onsubmit="AdminController.handleSaveResetPassword(event)">
+        <div class="modal-body">
+          <input type="hidden" id="reset-pwd-user-id">
+          <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">
+            Set a new secure password for <strong id="reset-pwd-user-name" style="color: var(--primary-navy);"></strong>:
+          </p>
+          <div class="form-group">
+            <label for="new-reset-password">New Password *</label>
+            <input type="password" id="new-reset-password" required minlength="4" placeholder="Enter new password" autocomplete="new-password">
+            <small style="color: var(--text-muted); font-size: 11px;">Password must be at least 4 characters long and will be securely hashed with PBKDF2/SHA256.</small>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-action btn-secondary" onclick="closeModal('modal-reset-password')">Cancel</button>
+          <button type="submit" class="btn-action btn-primary" id="btn-confirm-reset-pwd">Update Password</button>
         </div>
       </form>
     </div>
