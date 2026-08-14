@@ -3338,6 +3338,11 @@ function renderAuthenticatedUI() {
 
   // Open First Tab (Home Dashboard)
   switchTab('home');
+
+  // Update AI Chatbot suggestions for authenticated role
+  if (window.AIChatbot) {
+    window.AIChatbot.updateSuggestionsForRole();
+  }
 }
 
 function buildSidebarMenu(role) {
