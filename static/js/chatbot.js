@@ -17,7 +17,7 @@
       this.injectStyles();
       this.injectWidgetHTML();
       this.bindEvents();
-      this.loadInitialGreeting();
+      this.loadChatHistory();
     },
 
     injectStyles() {
@@ -494,6 +494,57 @@
       }
     },
 
+    getStorageKey() {
+      const user = window.AppState ? window.AppState.currentUser : null;
+      return user ? `ttms_ai_chat_${user.id}` : 'ttms_ai_chat_guest';
+    },
+
+    saveHistory() {
+      try {
+        localStorage.setItem(this.getStorageKey(), JSON.stringify(this.messages || []));
+      } catch (e) {}
+    },
+
+    loadChatHistory() {
+      const body = document.getElementById('ai-chat-body');
+      if (!body) return;
+      body.innerHTML = '';
+      try {
+        const saved = localStorage.getItem(this.getStorageKey());
+        if (saved) {
+          this.messages = JSON.parse(saved);
+        } else {
+          this.messages = [];
+        }
+      } catch (e) {
+        this.messages = [];
+      }
+
+      if (this.messages && this.messages.length > 0) {
+        this.messages.forEach(m => {
+          this.renderBubble(m.sender, m.content, m.time);
+        });
+      } else {
+        this.loadInitialGreeting();
+      }
+    },
+
+    renderBubble(sender, htmlContent, timeStr) {
+      const body = document.getElementById('ai-chat-body');
+      if (!body) return;
+      const time = timeStr || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const msgDiv = document.createElement('div');
+      msgDiv.className = `ai-msg ${sender}`;
+      msgDiv.innerHTML = `
+        <div class="ai-bubble">
+          ${htmlContent}
+        </div>
+        <div class="ai-time">${time}</div>
+      `;
+      body.appendChild(msgDiv);
+      body.scrollTop = body.scrollHeight;
+    },
+
     closeChat(e) {
       if (e && e.stopPropagation) e.stopPropagation();
       this.isOpen = false;
@@ -504,6 +555,9 @@
     clearChat(e) {
       if (e && e.stopPropagation) e.stopPropagation();
       this.messages = [];
+      try {
+        localStorage.removeItem(this.getStorageKey());
+      } catch (err) {}
       const body = document.getElementById('ai-chat-body');
       if (body) body.innerHTML = '';
       this.loadInitialGreeting();
@@ -518,6 +572,7 @@
     updateSuggestionsForRole() {
       const launcher = document.getElementById('ttms-ai-launcher');
       if (launcher) launcher.style.display = 'flex';
+      this.loadChatHistory();
     },
 
     loadInitialGreeting() {
@@ -535,21 +590,11 @@
     },
 
     appendMessage(sender, htmlContent) {
-      const body = document.getElementById('ai-chat-body');
-      if (!body) return;
-
       const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      const msgDiv = document.createElement('div');
-      msgDiv.className = `ai-msg ${sender}`;
-      msgDiv.innerHTML = `
-        <div class="ai-bubble">
-          ${htmlContent}
-        </div>
-        <div class="ai-time">${timeStr}</div>
-      `;
-
-      body.appendChild(msgDiv);
-      body.scrollTop = body.scrollHeight;
+      this.messages = this.messages || [];
+      this.messages.push({ sender, content: htmlContent, time: timeStr });
+      this.saveHistory();
+      this.renderBubble(sender, htmlContent, timeStr);
     },
 
     showTyping() {
