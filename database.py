@@ -3018,11 +3018,29 @@ def get_admin_dashboard_full_data():
                    (
                        SELECT COUNT(*) FROM submissions s
                        JOIN tasks t ON s.task_id = t.id
-                       WHERE t.trainer_id = u.id AND s.status IN ('Teslim Edildi', 'İnceleniyor')
+                       WHERE t.trainer_id = u.id AND s.status IN ('Submitted', 'Under Review', 'Teslim Edildi', 'İnceleniyor')
                    ) as pending_reviews,
                    (
                        SELECT COUNT(*) FROM submissions s
-                       JOIN tas        # 10. Late Submissions (Overdue Tasks needing attention)
+                       JOIN tasks t ON s.task_id = t.id
+                       WHERE t.trainer_id = u.id AND s.status IN ('Completed', 'Approved', 'Tamamlandı', 'Kabul Edildi')
+                   ) as completed_reviews,
+                   (
+                       SELECT AVG(s.grade) FROM submissions s
+                       JOIN tasks t ON s.task_id = t.id
+                       WHERE t.trainer_id = u.id AND s.grade IS NOT NULL
+                   ) as avg_grade_given
+            FROM users u
+            WHERE u.role IN ('trainer', 'assistant_trainer')
+            ORDER BY total_tasks_created DESC, completed_reviews DESC;
+        """)
+        trainer_activity = []
+        for r in cursor.fetchall():
+            d = dict(r)
+            d["avg_grade_given"] = round(float(d["avg_grade_given"]), 1) if d["avg_grade_given"] is not None else 0.0
+            trainer_activity.append(d)
+
+        # 10. Late Submissions (Overdue Tasks needing attention)
         cursor.execute("""
             SELECT t.id as task_id, t.title as task_title, t.deadline, t.priority,
                    u.id as student_id, u.name as student_name, u.email as student_email,
@@ -3434,21 +3452,17 @@ def get_student_full_profile(student_id: int):
                     group_info["assistant_trainers"] = ', '.join(names)
 
         # 3, 4, 7. Tasks & Task History
-        cursor.execute("""
-            SELECT t.id as task_id, t.title, t.description, t.deadline, t.priority, 
-                   COALESCE(t.estimated_time, '-') as estimated_time,
-                   s.id as submission_id, COALESCE(s.status, 'Pending') as submission_status, s.grade, s.submitted_at, s.feedback,
-                   s.rubric_completion, s.rubric_quality, s.rubric_accuracy, s.rubric_deadline, s.rubric_communication,
-                   s.original_filename as file_name,
-                   CASE 
-                     WHEN datetime(t.deadline) < datetime('now', 'localtime') AND (s.status IS NULL OR s.status NOT IN ('Completed', 'Approved', 'Tamamlandı', 'Kabul Edildi')) THEN 1 
-                     ELSE 0 
-                   END as is_late
-            FROM tasks t
-            LEFT JOIN submissions s ON t.id = s.task_id AND s.student_id = t.student_id
-            WHERE t.student_id = ?
-            ORDER BY t.deadline DESC, t.id DESC;
-        """, (student_id,))
+        stu_tasks_sql = (
+            "SELECT t.id as task_id, t.title, t.description, t.deadline, t.priority, "
+            "COALESCE(t.estimated_time, '-') as estimated_time, "
+            "s.id as submission_id, COALESCE(s.status, 'Pending') as submission_status, s.grade, s.submitted_at, s.feedback, "
+            "s.rubric_completion, s.rubric_quality, s.rubric_accuracy, s.rubric_deadline, s.rubric_communication, "
+            "s.original_filename as file_name, "
+            "CASE WHEN datetime(t.deadline) < datetime('now', 'localtime') AND (s.status IS NULL OR s.status NOT IN ('Completed', 'Approved', 'Tamamlandı', 'Kabul Edildi')) THEN 1 ELSE 0 END as is_late "
+            "FROM tasks t LEFT JOIN submissions s ON t.id = s.task_id AND s.student_id = t.student_id "
+            "WHERE t.student_id = ? ORDER BY t.deadline DESC, t.id DESC;"
+        )
+        cursor.execute(stu_tasks_sql, (student_id,))
         tasks_rows = cursor.fetchall()
         
         task_history = []
@@ -3484,14 +3498,8 @@ def get_student_full_profile(student_id: int):
         # 6. Average Score (Not Ortalaması)
         avg_score = round(sum(total_grades) / len(total_grades), 1) if len(total_grades) > 0 else 0.0
 
-        # 8. Recent Activity (Son Aktiviteler & Bildirimler)
-        cursor.execute("""
-            SELECT id, title, message, type, is_read, created_at
-            FROM notifications
-            WHERE user_id = ?
-            ORDER BY created_at DESC, id DESC
-            LIMIT 8;
-        """, (student_id,))
+        # 8. Recent Activity
+        cursor.execute("SELECT id, title, message, type, is_read, created_at FROM notifications WHERE user_id = ? ORDER BY created_at DESC, id DESC LIMIT 8;", (student_id,))
         recent_activity = [dict(r) for r in cursor.fetchall()]
 
         return {
@@ -3510,11 +3518,175 @@ def get_student_full_profile(student_id: int):
             "recent_activity": recent_activity
         }
 
+# ==================== SECTION 24: EXTENSION FUNCTIONS ====================
 
-# ==================== TOHUMLAMA (SEED DATA) ====================
+def create_project(name: str, code: str, description: str = None, group_id: int = None,
+                   manager_id: int = None, start_date: str = None, end_date: str = None,
+                   budget: float = 0.0, status: str = 'Active'):
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT id FROM projects WHERE code = ?;", (code,))
+        existing = cursor.fetchone()
+        if existing:
+            return existing[0]
+        cursor.execute("INSERT INTO projects (name, code, description, group_id, manager_id, start_date, end_date, budget, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);", (name, code, description, group_id, manager_id, start_date, end_date, budget, status))
+        conn.commit()
+        return cursor.lastrowid
+
+
+def get_all_projects(group_id: int = None, status: str = None, search: str = None):
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        query = "SELECT p.*, g.name as group_name, u.name as manager_name, (SELECT COUNT(*) FROM project_members pm WHERE pm.project_id = p.id) as members_count, (SELECT COUNT(*) FROM project_tasks pt WHERE pt.project_id = p.id) as tasks_count FROM projects p LEFT JOIN training_groups g ON p.group_id = g.id LEFT JOIN users u ON p.manager_id = u.id WHERE 1=1"
+        params = []
+        if group_id and str(group_id) != 'all':
+            query += " AND p.group_id = ?"
+            params.append(int(group_id))
+        if status and status != 'all':
+            query += " AND p.status = ?"
+            params.append(status)
+        if search:
+            query += " AND (p.name LIKE ? OR p.code LIKE ? OR p.description LIKE ?)"
+            params.extend([f"%{search}%", f"%{search}%", f"%{search}%"])
+
+        query += " ORDER BY p.id DESC;"
+        cursor.execute(query, tuple(params))
+        return [dict(r) for r in cursor.fetchall()]
+
+
+def get_project_by_id(project_id: int):
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT p.*, g.name as group_name, u.name as manager_name FROM projects p LEFT JOIN training_groups g ON p.group_id = g.id LEFT JOIN users u ON p.manager_id = u.id WHERE p.id = ?;", (project_id,))
+        proj_row = cursor.fetchone()
+        if not proj_row:
+            return None
+        project = dict(proj_row)
+
+        cursor.execute("SELECT pm.*, u.name as user_name, u.email as user_email, u.role as user_role FROM project_members pm JOIN users u ON pm.user_id = u.id WHERE pm.project_id = ? ORDER BY pm.id ASC;", (project_id,))
+        project['members'] = [dict(m) for m in cursor.fetchall()]
+
+        cursor.execute("SELECT pt.*, t.title as task_title, t.deadline as task_deadline, t.priority as task_priority FROM project_tasks pt JOIN tasks t ON pt.task_id = t.id WHERE pt.project_id = ? ORDER BY pt.order_num ASC, pt.id ASC;", (project_id,))
+        project['tasks'] = [dict(t) for t in cursor.fetchall()]
+
+        return project
+
+
+def add_project_member(project_id: int, user_id: int, role_in_project: str = 'Member'):
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("INSERT OR REPLACE INTO project_members (project_id, user_id, role_in_project) VALUES (?, ?, ?);", (project_id, user_id, role_in_project))
+        conn.commit()
+        return cursor.lastrowid
+
+
+def assign_task_to_project(project_id: int, task_id: int, milestone: str = None, weight: float = 1.0, order_num: int = 1):
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("INSERT OR REPLACE INTO project_tasks (project_id, task_id, milestone, weight, order_num) VALUES (?, ?, ?, ?, ?);", (project_id, task_id, milestone, weight, order_num))
+        conn.commit()
+        return cursor.lastrowid
+
+
+def create_tag(name: str, color: str = '#2563EB', category: str = 'general'):
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT id FROM tags WHERE name = ?;", (name.strip(),))
+        row = cursor.fetchone()
+        if row:
+            return row[0]
+        cursor.execute("INSERT INTO tags (name, color, category) VALUES (?, ?, ?);", (name.strip(), color, category))
+        conn.commit()
+        return cursor.lastrowid
+
+
+def get_all_tags():
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT t.*, (SELECT COUNT(*) FROM task_tags tt WHERE tt.tag_id = t.id) as tasks_count FROM tags t ORDER BY t.category ASC, t.name ASC;")
+        return [dict(r) for r in cursor.fetchall()]
+
+
+def add_tag_to_task(task_id: int, tag_id: int):
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("INSERT OR IGNORE INTO task_tags (task_id, tag_id) VALUES (?, ?);", (task_id, tag_id))
+        conn.commit()
+
+
+def get_task_tags(task_id: int):
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT t.* FROM tags t JOIN task_tags tt ON t.id = tt.tag_id WHERE tt.task_id = ? ORDER BY t.name ASC;", (task_id,))
+        return [dict(r) for r in cursor.fetchall()]
+
+
+def add_task_dependency(task_id: int, depends_on_task_id: int, dependency_type: str = 'FS'):
+    if task_id == depends_on_task_id:
+        return False
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("INSERT OR REPLACE INTO task_dependencies (task_id, depends_on_task_id, dependency_type) VALUES (?, ?, ?);", (task_id, depends_on_task_id, dependency_type))
+        conn.commit()
+        return True
+
+
+def get_task_dependencies(task_id: int):
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT td.*, t.title as depends_on_title, t.deadline as depends_on_deadline, (SELECT s.status FROM submissions s WHERE s.task_id = t.id LIMIT 1) as depends_on_status FROM task_dependencies td JOIN tasks t ON td.depends_on_task_id = t.id WHERE td.task_id = ?;", (task_id,))
+        return [dict(r) for r in cursor.fetchall()]
+
+
+def create_task_checklist(task_id: int, title: str, is_required: bool = False):
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO task_checklists (task_id, title, is_required) VALUES (?, ?, ?);", (task_id, title, 1 if is_required else 0))
+        conn.commit()
+        return cursor.lastrowid
+
+
+def add_checklist_item(checklist_id: int, title: str, order_num: int = 1):
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO task_checklist_items (checklist_id, title, order_num, is_completed) VALUES (?, ?, ?, 0);", (checklist_id, title, order_num))
+        conn.commit()
+        return cursor.lastrowid
+
+
+def toggle_checklist_item(item_id: int, user_id: int):
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT is_completed FROM task_checklist_items WHERE id = ?;", (item_id,))
+        row = cursor.fetchone()
+        if not row:
+            return None
+        new_val = 0 if row[0] == 1 else 1
+        comp_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S") if new_val == 1 else None
+        comp_by = user_id if new_val == 1 else None
+        cursor.execute("UPDATE task_checklist_items SET is_completed = ?, completed_at = ?, completed_by = ? WHERE id = ?;", (new_val, comp_time, comp_by, item_id))
+        conn.commit()
+        return {"id": item_id, "is_completed": bool(new_val)}
+
+
+def get_task_checklists(task_id: int):
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM task_checklists WHERE task_id = ? ORDER BY id ASC;", (task_id,))
+        checklists = [dict(c) for c in cursor.fetchall()]
+        for c in checklists:
+            cursor.execute("SELECT tci.*, u.name as completed_by_name FROM task_checklist_items tci LEFT JOIN users u ON tci.completed_by = u.id WHERE tci.checklist_id = ? ORDER BY tci.order_num ASC, tci.id ASC;", (c['id'],))
+            items = [dict(i) for i in cursor.fetchall()]
+            c['items'] = items
+            c['total_items'] = len(items)
+            c['completed_items'] = sum(1 for i in items if i['is_completed'])
+            c['progress_percentage'] = round((c['completed_items'] / c['total_items'] * 100), 1) if c['total_items'] > 0 else 0.0
+        return checklists
+
+
+# ==================== SEED DATABASE ====================
 
 def seed_database():
-    """Veritabanını sıfırlamadan kontrol eder; boşsa örnek kullanıcılar, gruplar, görevler ve teslimler ekler."""
     init_db()
     with get_db_connection() as conn:
         cursor = conn.cursor()
@@ -3527,10 +3699,8 @@ def seed_database():
 
     # 1. Users
     admin_id = create_user("System Administrator", "yonetici@universite.edu.tr", "Admin123!", "admin")
-    
     t1_id = create_user("Prof. Ahmet Yilmaz", "ahmet.yilmaz@universite.edu.tr", "Egitmen123!", "trainer")
     t2_id = create_user("Assoc. Prof. Ayse Kaya", "ayse.kaya@universite.edu.tr", "Egitmen123!", "trainer")
-    
     s1_id = create_user("Mehmet Demir", "mehmet.demir@universite.edu.tr", "Ogrenci123!", "student")
     s2_id = create_user("Zeynep Celik", "zeynep.celik@universite.edu.tr", "Ogrenci123!", "student")
     s3_id = create_user("Can Ozkan", "can.ozkan@universite.edu.tr", "Ogrenci123!", "student")
@@ -3593,296 +3763,7 @@ def seed_database():
         d5, t1_id, s5_id, 'Urgent', g2_id
     )
 
-
-def create_project(name: str, code: str, description: str = None, group_id: int = None,
-                   manager_id: int = None, start_date: str = None, end_date: str = None,
-                   budget: float = 0.0, status: str = 'Active'):
-    """Section 24.1: Yeni Proje Oluşturma (projects)."""
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute("SELECT id FROM projects WHERE code = ?;", (code,))
-        existing = cursor.fetchone()
-        if existing:
-            return existing[0]
-        cursor.execute("""
-            INSERT INTO projects (name, code, description, group_id, manager_id, start_date, end_date, budget, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
-        """, (name, code, description, group_id, manager_id, start_date, end_date, budget, status))
-        conn.commit()
-        return cursor.lastrowid
-
-
-def get_all_projects(group_id: int = None, status: str = None, search: str = None):
-    """Section 24.1: Tüm Projeleri Listeleme."""
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
-        query = """
-            SELECT p.*, g.name as group_name, u.name as manager_name,
-                   (SELECT COUNT(*) FROM project_members pm WHERE pm.project_id = p.id) as members_count,
-                   (SELECT COUNT(*) FROM project_tasks pt WHERE pt.project_id = p.id) as tasks_count
-            FROM projects p
-            LEFT JOIN training_groups g ON p.group_id = g.id
-            LEFT JOIN users u ON p.manager_id = u.id
-            WHERE 1=1
-        """
-        params = []
-        if group_id and str(group_id) != 'all':
-            query += " AND p.group_id = ?"
-            params.append(int(group_id))
-        if status and status != 'all':
-            query += " AND p.status = ?"
-            params.append(status)
-        if search:
-            query += " AND (p.name LIKE ? OR p.code LIKE ? OR p.description LIKE ?)"
-            params.extend([f"%{search}%", f"%{search}%", f"%{search}%"])
-
-        query += " ORDER BY p.id DESC;"
-        cursor.execute(query, tuple(params))
-        return [dict(r) for r in cursor.fetchall()]
-
-
-def get_project_by_id(project_id: int):
-    """Section 24.1 & 24.2 & 24.3: Tekil Proje Detayı, Üyeleri ve Görevleri."""
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute("""
-            SELECT p.*, g.name as group_name, u.name as manager_name
-            FROM projects p
-            LEFT JOIN training_groups g ON p.group_id = g.id
-            LEFT JOIN users u ON p.manager_id = u.id
-            WHERE p.id = ?;
-        """, (project_id,))
-        proj_row = cursor.fetchone()
-        if not proj_row:
-            return None
-        project = dict(proj_row)
-
-        # Üyeler (project_members)
-        cursor.execute("""
-            SELECT pm.*, u.name as user_name, u.email as user_email, u.role as user_role
-            FROM project_members pm
-            JOIN users u ON pm.user_id = u.id
-            WHERE pm.project_id = ?
-            ORDER BY pm.id ASC;
-        """, (project_id,))
-        project['members'] = [dict(m) for m in cursor.fetchall()]
-
-        # Görevler (project_tasks)
-        cursor.execute("""
-            SELECT pt.*, t.title as task_title, t.deadline as task_deadline, t.priority as task_priority
-            FROM project_tasks pt
-            JOIN tasks t ON pt.task_id = t.id
-            WHERE pt.project_id = ?
-            ORDER BY pt.order_num ASC, pt.id ASC;
-        """, (project_id,))
-        project['tasks'] = [dict(t) for t in cursor.fetchall()]
-
-        return project
-
-
-def add_project_member(project_id: int, user_id: int, role_in_project: str = 'Member'):
-    """Section 24.2: Projeye Üye Ekleme (project_members)."""
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute("""
-            INSERT OR REPLACE INTO project_members (project_id, user_id, role_in_project)
-            VALUES (?, ?, ?);
-        """, (project_id, user_id, role_in_project))
-        conn.commit()
-        return cursor.lastrowid
-
-
-def assign_task_to_project(project_id: int, task_id: int, milestone: str = None, weight: float = 1.0, order_num: int = 1):
-    """Section 24.3: Projeye Görev / Kilometre Taşı Eşleştirme (project_tasks)."""
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute("""
-            INSERT OR REPLACE INTO project_tasks (project_id, task_id, milestone, weight, order_num)
-            VALUES (?, ?, ?, ?, ?);
-        """, (project_id, task_id, milestone, weight, order_num))
-        conn.commit()
-        return cursor.lastrowid
-
-
-# 2. Tags (Etiketler ve Kategorizasyon)
-def create_tag(name: str, color: str = '#2563EB', category: str = 'general'):
-    """Section 24.4: Yeni Etiket Oluşturma (tags)."""
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute("SELECT id FROM tags WHERE name = ?;", (name.strip(),))
-        row = cursor.fetchone()
-        if row:
-            return row[0]
-        cursor.execute("""
-            INSERT INTO tags (name, color, category)
-            VALUES (?, ?, ?);
-        """, (name.strip(), color, category))
-        conn.commit()
-        return cursor.lastrowid
-
-
-def get_all_tags():
-    """Section 24.4: Tüm Etiketleri Getirme (tags)."""
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute("""
-            SELECT t.*, (SELECT COUNT(*) FROM task_tags tt WHERE tt.tag_id = t.id) as tasks_count
-            FROM tags t
-            ORDER BY t.name ASC;
-        """)
-        return [dict(r) for r in cursor.fetchall()]
-
-
-def add_tag_to_task(task_id: int, tag_id: int):
-    """Section 24.5: Göreve Etiket Ekleme (task_tags)."""
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute("INSERT OR IGNORE INTO task_tags (task_id, tag_id) VALUES (?, ?);", (task_id, tag_id))
-        conn.commit()
-        return True
-
-
-def remove_tag_from_task(task_id: int, tag_id: int):
-    """Section 24.5: Görevden Etiket Kaldırma (task_tags)."""
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute("DELETE FROM task_tags WHERE task_id = ? AND tag_id = ?;", (task_id, tag_id))
-        conn.commit()
-        return cursor.rowcount > 0
-
-
-def get_task_tags(task_id: int):
-    """Section 24.5: Görevin Etiketlerini Getirme (task_tags)."""
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute("""
-            SELECT t.* FROM tags t
-            JOIN task_tags tt ON t.id = tt.tag_id
-            WHERE tt.task_id = ?
-            ORDER BY t.name ASC;
-        """, (task_id,))
-        return [dict(r) for r in cursor.fetchall()]
-
-
-# 3. Task Dependencies (Görev Bağımlılıkları & Gantt Ön Koşulları)
-def add_task_dependency(task_id: int, depends_on_task_id: int, dependency_type: str = 'FS'):
-    """Section 24.6: Görev Ön Koşul Bağımlılığı Tanımlama (task_dependencies)."""
-    if task_id == depends_on_task_id:
-        return False
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute("""
-            INSERT OR REPLACE INTO task_dependencies (task_id, depends_on_task_id, dependency_type)
-            VALUES (?, ?, ?);
-        """, (task_id, depends_on_task_id, dependency_type))
-        conn.commit()
-        return cursor.lastrowid
-
-
-def get_task_dependencies(task_id: int):
-    """Section 24.6: Görevin Bağımlı Olduğu Ön Koşul Görevleri Listeleme."""
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute("""
-            SELECT td.*, t.title as prerequisite_task_title, t.deadline as prerequisite_deadline
-            FROM task_dependencies td
-            JOIN tasks t ON td.depends_on_task_id = t.id
-            WHERE td.task_id = ?;
-        """, (task_id,))
-        return [dict(r) for r in cursor.fetchall()]
-
-
-def check_task_dependencies_met(task_id: int, student_id: int):
-    """Section 24.6: Öğrencinin bu göreve başlamadan önce ön koşul görevleri tamamlayıp tamamlamadığını doğrular."""
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute("""
-            SELECT td.depends_on_task_id, t.title
-            FROM task_dependencies td
-            JOIN tasks t ON td.depends_on_task_id = t.id
-            WHERE td.task_id = ?
-            AND NOT EXISTS (
-                SELECT 1 FROM submissions s
-                WHERE s.task_id = td.depends_on_task_id
-                AND s.student_id = ?
-                AND s.status IN ('Tamamlandı', 'Kabul Edildi')
-            );
-        """, (task_id, student_id))
-        unmet = [dict(r) for r in cursor.fetchall()]
-        return {
-            "can_start": len(unmet) == 0,
-            "unmet_prerequisites": unmet
-        }
-
-
-# 4. Task Checklists & Items (Görev Kontrol Listeleri ve Alt Maddeler)
-def create_task_checklist(task_id: int, title: str, is_mandatory: bool = False):
-    """Section 24.7: Göreve Yeni Kontrol Listesi Ekleme (task_checklists)."""
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute("""
-            INSERT INTO task_checklists (task_id, title, is_mandatory)
-            VALUES (?, ?, ?);
-        """, (task_id, title, 1 if is_mandatory else 0))
-        conn.commit()
-        return cursor.lastrowid
-
-
-def add_checklist_item(checklist_id: int, item_text: str, order_num: int = 1):
-    """Section 24.8: Kontrol Listesine Alt Madde Ekleme (task_checklist_items)."""
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute("""
-            INSERT INTO task_checklist_items (checklist_id, item_text, order_num)
-            VALUES (?, ?, ?);
-        """, (checklist_id, item_text, order_num))
-        conn.commit()
-        return cursor.lastrowid
-
-
-def toggle_checklist_item(item_id: int, user_id: int = None):
-    """Section 24.8: Kontrol Listesi Alt Maddesini Tamamlandı / Tamamlanmadı Olarak Değiştirme."""
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute("SELECT is_completed FROM task_checklist_items WHERE id = ?;", (item_id,))
-        row = cursor.fetchone()
-        if not row:
-            return None
-        new_val = 0 if row['is_completed'] else 1
-        completed_at = datetime.now().isoformat() if new_val == 1 else None
-        completed_by = user_id if new_val == 1 else None
-        cursor.execute("""
-            UPDATE task_checklist_items
-            SET is_completed = ?, completed_by = ?, completed_at = ?
-            WHERE id = ?;
-        """, (new_val, completed_by, completed_at, item_id))
-        conn.commit()
-        return {"id": item_id, "is_completed": bool(new_val)}
-
-
-def get_task_checklists(task_id: int):
-    """Section 24.7 & 24.8: Görevin Tüm Kontrol Listelerini ve Alt Maddelerini Getirme."""
-    with get_db_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM task_checklists WHERE task_id = ? ORDER BY id ASC;", (task_id,))
-        checklists = [dict(c) for c in cursor.fetchall()]
-        for c in checklists:
-            cursor.execute("""
-                SELECT tci.*, u.name as completed_by_name
-                FROM task_checklist_items tci
-                LEFT JOIN users u ON tci.completed_by = u.id
-                WHERE tci.checklist_id = ?
-                ORDER BY tci.order_num ASC, tci.id ASC;
-            """, (c['id'],))
-            items = [dict(i) for i in cursor.fetchall()]
-            c['items'] = items
-            c['total_items'] = len(items)
-            c['completed_items'] = sum(1 for i in items if i['is_completed'])
-            c['progress_percentage'] = round((c['completed_items'] / c['total_items'] * 100), 1) if c['total_items'] > 0 else 0.0
-        return checklists
-
-
-# 4. Örnek Teslim Dosyaları
+    # 4. Dummy files & Submissions
     def create_dummy_file(filename: str, content: str):
         filepath = UPLOADS_DIR / filename
         with open(filepath, "w", encoding="utf-8") as f:
@@ -3890,41 +3771,37 @@ def get_task_checklists(task_id: int):
         return str(filepath), os.path.getsize(filepath)
 
     f1_path, f1_size = create_dummy_file(
-        "bst_veri_yapisi_mehmet_demir.py",
-        "# Veri Yapıları Ödevi - Mehmet Demir\nclass BSTNode:\n    def __init__(self, key):\n        self.key = key\n        self.left = None\n        self.right = None\n\n# Başarılı implementasyon tamamlandı."
+        "bst_data_structure_mehmet_demir.py",
+        "# Data Structures Assignment - Mehmet Demir\nclass BSTNode:\n    def __init__(self, key):\n        self.key = key\n        self.left = None\n        self.right = None\n\n# Implementation completed successfully."
     )
     f2_path, f2_size = create_dummy_file(
-        "rest_api_proje_raporu_zeynep_celik.pdf",
-        "%PDF-1.4 REST API ve Kimlik Doğrulama Projesi Raporu - Zeynep Çelik - Başarıyla teslim edildi."
+        "rest_api_project_report_zeynep_celik.pdf",
+        "%PDF-1.4 REST API & JWT Authentication Project Report - Zeynep Celik"
     )
 
-    sub1_id = create_or_update_submission(task1, s1_id, "bst_veri_yapisi_mehmet_demir.py", "bst_veri_yapisi_mehmet_demir.py", f1_size)
+    sub1_id = create_or_update_submission(task1, s1_id, "bst_data_structure_mehmet_demir.py", "bst_data_structure_mehmet_demir.py", f1_size)
     update_submission_evaluation(
         sub1_id, 
         95.0, 
-        "Tebrikler Mehmet! Kod implementasyonun çok temiz ve algoritma karmaşıklık analizlerin eksiksiz. AVL dengeleme rotasyonları kusursuz çalışıyor.", 
-        "Tamamlandı"
+        "Excellent implementation! Clean code structure, proper AVL rotations, and comprehensive time complexity analysis.", 
+        "Completed"
     )
 
-    sub2_id = create_or_update_submission(task2, s2_id, "rest_api_proje_raporu_zeynep_celik.pdf", "rest_api_proje_raporu_zeynep_celik.pdf", f2_size)
+    sub2_id = create_or_update_submission(task2, s2_id, "rest_api_project_report_zeynep_celik.pdf", "rest_api_project_report_zeynep_celik.pdf", f2_size)
     update_submission_evaluation(
         sub2_id,
         None,
-        "Proje teslim alındı, kod ve güvenlik testleri gerçekleştiriliyor.",
-        "İnceleniyor"
+        "Submission received. Security tests and API endpoint validations in progress.",
+        "Under Review"
     )
 
-    # ==================== SECTION 24: EXTENSION SEED DATA ====================
-    # 1. Seed Tags (tags)
-    t_python = create_tag("Python & Veri Analizi", "#3776AB", "programming")
-    t_web = create_tag("Web Geliştirme (Full-Stack)", "#2563EB", "programming")
-    t_db = create_tag("Veritabanı & SQL Mimarisi", "#059669", "database")
-    t_ai = create_tag("Yapay Zeka & Derin Öğrenme", "#7C3AED", "ai")
-    t_mobile = create_tag("Mobil Uygulama (Flutter)", "#0284C7", "mobile")
-    t_capstone = create_tag("Dönem Bitirme Tezi (Capstone)", "#DC2626", "academic")
-    t_urgent = create_tag("Acil & Yüksek Öncelik", "#E11D48", "priority")
+    # 5. Seed Tags
+    t_python = create_tag("Python & Data Analytics", "#3776AB", "programming")
+    t_web = create_tag("Web Development (Full-Stack)", "#2563EB", "programming")
+    t_db = create_tag("Database & SQL Architecture", "#059669", "database")
+    t_ai = create_tag("Artificial Intelligence & Deep Learning", "#7C3AED", "ai")
+    t_mobile = create_tag("Mobile App (Flutter)", "#0284C7", "mobile")
 
-    # 2. Assign Tags to Tasks (task_tags)
     add_tag_to_task(task1, t_python)
     add_tag_to_task(task1, t_db)
     add_tag_to_task(task2, t_web)
@@ -3933,62 +3810,7 @@ def get_task_checklists(task_id: int):
     add_tag_to_task(task4, t_db)
     add_tag_to_task(task5, t_mobile)
 
-    # 3. Seed Projects (projects)
-    p1_id = create_project(
-        name="Üniversite Görev ve Eğitim Yönetim Platformu (TTMS)",
-        code="PRJ-2026-001",
-        description="Öğrenci ödev teslimleri, eğitmen değerlendirmeleri ve rol bazlı yönetim sistemi.",
-        group_id=g1_id,
-        manager_id=t1_id,
-        start_date="2026-02-01",
-        end_date="2026-06-15",
-        budget=15000.0,
-        status="Active"
-    )
-
-    p2_id = create_project(
-        name="Otonom Robotik Navigasyon ve Engel Algılama",
-        code="PRJ-2026-002",
-        description="ROS2 ve LiDAR tabanlı gerçek zamanlı haritalama ve rota planlama algoritması.",
-        group_id=g2_id,
-        manager_id=t2_id,
-        start_date="2026-03-01",
-        end_date="2026-07-01",
-        budget=25000.0,
-        status="Active"
-    )
-
-    # 4. Seed Project Members (project_members)
-    add_project_member(p1_id, s1_id, "Project Leader & Backend Developer")
-    add_project_member(p1_id, s2_id, "Frontend Developer & UI Designer")
-    add_project_member(p1_id, t1_id, "Academic Advisor")
-
-    add_project_member(p2_id, s3_id, "Computer Vision Engineer")
-    add_project_member(p2_id, s4_id, "Embedded Systems Developer")
-    add_project_member(p2_id, t2_id, "Technical Lead")
-
-    # 5. Assign Project Tasks & Milestones (project_tasks)
-    assign_task_to_project(p1_id, task1, "Milestone 1: Temel Veri Mimarisi", 25.0, 1)
-    assign_task_to_project(p1_id, task2, "Milestone 2: REST API & Güvenlik", 35.0, 2)
-    assign_task_to_project(p2_id, task3, "Milestone 1: CNN Görüntü İşleme", 50.0, 1)
-
-    # 6. Seed Task Dependencies (task_dependencies)
-    add_task_dependency(task2, task1, "FS") # Task 2 requires Task 1 to be finished
-    add_task_dependency(task4, task1, "FS") # Task 4 requires Task 1 to be finished
-
-    # 7. Seed Task Checklists & Items (task_checklists & task_checklist_items)
-    cl1_id = create_task_checklist(task1, "Teslimat Öncesi Kod Doğrulama Kontrolü", True)
-    add_checklist_item(cl1_id, "AVL Ağacı dengeli rotasyon algoritmalarını implement et", 1)
-    add_checklist_item(cl1_id, "Birim testleri (Unit Tests) %90+ kapsam ile çalıştır", 2)
-    add_checklist_item(cl1_id, "Bellek sızıntısı (Memory Leak) analizini tamamla", 3)
-    add_checklist_item(cl1_id, "Teknik proje dokümantasyonunu PDF olarak hazırla", 4)
-
-    cl2_id = create_task_checklist(task2, "REST API Güvenlik ve Uyumluluk Listesi", True)
-    add_checklist_item(cl2_id, "Bearer Token yetkilendirme katmanını entegre et", 1)
-    add_checklist_item(cl2_id, "Girdi doğrulama ve SQL Injection korumasını test et", 2)
-    add_checklist_item(cl2_id, "Swagger / OpenAPI endpoint spesifikasyonunu oluştur", 3)
-
-    print("Veritabanı başarıyla tohumlandı!")
+    print("Database seeded successfully with English Demo Records!")
 
 
 if __name__ == "__main__":
