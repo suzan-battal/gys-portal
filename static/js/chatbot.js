@@ -434,8 +434,8 @@
               </div>
             </div>
             <div class="ai-header-actions">
-              <button class="ai-header-btn" id="ai-clear-btn" title="Clear Chat History">🗑️</button>
-              <button class="ai-header-btn" id="ai-close-btn" title="Close">✕</button>
+              <button class="ai-header-btn" id="ai-clear-btn" onclick="window.AIChatbot.clearChat(event)" title="Clear Chat History">🗑️</button>
+              <button class="ai-header-btn" id="ai-close-btn" onclick="window.AIChatbot.closeChat(event)" title="Close Chat">✕</button>
             </div>
           </div>
 
@@ -464,22 +464,10 @@
 
     bindEvents() {
       const launcher = document.getElementById('ttms-ai-launcher');
-      const closeBtn = document.getElementById('ai-close-btn');
-      const clearBtn = document.getElementById('ai-clear-btn');
-
       if (launcher) {
-        launcher.addEventListener('click', () => this.toggleChat());
-      }
-      if (closeBtn) {
-        closeBtn.addEventListener('click', (e) => {
+        launcher.addEventListener('click', (e) => {
           e.stopPropagation();
-          this.closeChat();
-        });
-      }
-      if (clearBtn) {
-        clearBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          this.clearChat();
+          this.toggleChat();
         });
       }
     },
@@ -506,10 +494,19 @@
       }
     },
 
-    closeChat() {
+    closeChat(e) {
+      if (e && e.stopPropagation) e.stopPropagation();
       this.isOpen = false;
       const win = document.getElementById('ttms-ai-window');
       if (win) win.classList.remove('active');
+    },
+
+    clearChat(e) {
+      if (e && e.stopPropagation) e.stopPropagation();
+      this.messages = [];
+      const body = document.getElementById('ai-chat-body');
+      if (body) body.innerHTML = '';
+      this.loadInitialGreeting();
     },
 
     hide() {
@@ -531,7 +528,7 @@
       const greetingText = `
         <p>Hello, <strong>${userName}</strong>! 👋</p>
         <p>I am your <strong>TTMS Academic AI Assistant</strong> tailored for your <strong>${roleName}</strong> workspace.</p>
-        <p>How can I assist your academic workflow today? Choose a quick topic above or type any question below!</p>
+        <p>How can I assist your academic workflow today? Feel free to ask any question below!</p>
       `;
 
       this.appendMessage('bot', greetingText);
