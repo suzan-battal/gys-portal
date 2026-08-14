@@ -218,42 +218,6 @@
           color: #ffffff;
         }
 
-        /* Suggestions Pills Bar */
-        .ai-suggestions-bar {
-          padding: 10px 14px;
-          background: #F8FAFC;
-          border-bottom: 1px solid #E2E8F0;
-          display: flex;
-          gap: 6px;
-          overflow-x: auto;
-          scrollbar-width: none;
-        }
-
-        .ai-suggestions-bar::-webkit-scrollbar {
-          display: none;
-        }
-
-        .ai-pill-btn {
-          background: #ffffff;
-          border: 1px solid #CBD5E1;
-          color: #334155;
-          padding: 5px 11px;
-          border-radius: 14px;
-          font-size: 11.5px;
-          font-weight: 600;
-          white-space: nowrap;
-          cursor: pointer;
-          transition: all 0.2s;
-          flex-shrink: 0;
-        }
-
-        .ai-pill-btn:hover {
-          background: #EFF6FF;
-          border-color: #3B82F6;
-          color: #1E40AF;
-          transform: translateY(-1px);
-        }
-
         /* Messages History Area */
         .ai-chat-body {
           flex: 1;
@@ -475,11 +439,6 @@
             </div>
           </div>
 
-          <!-- Role-Based Quick Suggestions Bar -->
-          <div class="ai-suggestions-bar" id="ai-suggestions-bar">
-            <!-- Populated dynamically per user role -->
-          </div>
-
           <!-- Messages Body -->
           <div class="ai-chat-body" id="ai-chat-body">
             <!-- Messages inserted here -->
@@ -528,17 +487,14 @@
     toggleChat() {
       this.isOpen = !this.isOpen;
       const win = document.getElementById('ttms-ai-window');
-      if (win) {
-        if (this.isOpen) {
-          win.classList.add('active');
-          this.updateSuggestionsForRole();
-          setTimeout(() => {
-            const input = document.getElementById('ai-chat-input');
-            if (input) input.focus();
-          }, 300);
-        } else {
-          win.classList.remove('active');
-        }
+      if (!win) return;
+
+      if (this.isOpen) {
+        win.classList.add('active');
+        const input = document.getElementById('ai-chat-input');
+        if (input) setTimeout(() => input.focus(), 150);
+      } else {
+        win.classList.remove('active');
       }
     },
 
@@ -547,7 +503,6 @@
       const win = document.getElementById('ttms-ai-window');
       if (win) {
         win.classList.add('active');
-        this.updateSuggestionsForRole();
       }
     },
 
@@ -566,53 +521,6 @@
     updateSuggestionsForRole() {
       const launcher = document.getElementById('ttms-ai-launcher');
       if (launcher) launcher.style.display = 'flex';
-
-      const bar = document.getElementById('ai-suggestions-bar');
-      if (!bar) return;
-
-      const user = window.AppState ? window.AppState.currentUser : null;
-      const role = user ? user.role : 'student';
-
-      let suggestions = [];
-
-      if (role === 'student') {
-        suggestions = [
-          { text: "📋 My Active Tasks", query: "What active assignments do I have?" },
-          { text: "⏰ Upcoming Deadlines", query: "When are my upcoming task deadlines?" },
-          { text: "📤 How to Submit?", query: "How do I submit my solution file?" },
-          { text: "📊 Check My GPA", query: "How is my GPA and grade evaluated?" },
-          { text: "💯 100-Point Rubric", query: "Explain the 100-point grading rubric" }
-        ];
-      } else if (role === 'trainer' || role === 'assistant_trainer') {
-        suggestions = [
-          { text: "📝 Pending Submissions", query: "Show me submissions waiting for review" },
-          { text: "💯 100-Pt Rubric Guide", query: "How do I grade using the 100-point rubric?" },
-          { text: "➕ Create New Task", query: "How can I create and assign a new task?" },
-          { text: "🏢 My Training Groups", query: "Which training groups am I assigned to?" },
-          { text: "📈 Student Progress", query: "How to track student completion rates?" }
-        ];
-      } else if (role === 'admin' || role === 'training_manager') {
-        suggestions = [
-          { text: "👤 Manage Users", query: "How do I create or edit users and roles?" },
-          { text: "🏢 Manage Groups", query: "How to configure training groups and sections?" },
-          { text: "📢 Post Announcement", query: "How to publish a new university announcement?" },
-          { text: "📊 Export Reports", query: "How to generate and export academic analytics?" },
-          { text: "⚙️ System Policy", query: "How to change maximum file upload limits?" }
-        ];
-      } else if (role === 'super_admin') {
-        suggestions = [
-          { text: "🛡️ Audit Logs", query: "How to inspect security audit logs?" },
-          { text: "🔑 RBAC Matrix", query: "How to update 26 role permissions?" },
-          { text: "🏢 University Groups", query: "Overview of all training groups" },
-          { text: "⚙️ System Configuration", query: "What system settings are configurable?" }
-        ];
-      }
-
-      bar.innerHTML = suggestions.map(s => `
-        <button class="ai-pill-btn" onclick="window.AIChatbot.sendPresetQuery('${s.query.replace(/'/g, "\\'")}')">
-          ${s.text}
-        </button>
-      `).join('');
     },
 
     loadInitialGreeting() {
