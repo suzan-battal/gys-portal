@@ -6983,19 +6983,19 @@ const SettingsController = {
   async renderSettings(container) {
     container.innerHTML = `
       <div style="display: flex; align-items: center; justify-content: center; min-height: 250px;">
-        <div style="font-size: 14px; color: var(--text-muted);">⚙️ Sistem ayarları yükleniyor...</div>
+        <div style="font-size: 14px; color: var(--text-muted);">⚙️ Loading system settings & policies...</div>
       </div>
     `;
 
     try {
-      const res = await apiRequest('/api/settings');
+      const res = await apiFetch('/api/settings');
       this.settings = (res && res.settings) ? res.settings : [];
       this.renderUI(container);
     } catch (err) {
       container.innerHTML = `
         <div class="card" style="padding: 24px; text-align: center; color: var(--danger);">
-          <p>⚠️ Settings yüklenirken bir hata oluştu: ${escapeHtml(err.message)}</p>
-          <button class="btn-action btn-primary" onclick="SettingsController.renderSettings(document.getElementById('main-content'))">Tekrar Dene</button>
+          <p>⚠️ An error occurred while loading system settings: ${escapeHtml(err.message)}</p>
+          <button class="btn-action btn-primary" onclick="SettingsController.renderSettings(document.getElementById('main-content'))">Retry</button>
         </div>
       `;
     }
@@ -7180,25 +7180,28 @@ const SettingsController = {
   },
 
   async saveSettings() {
-    showToast('Settings kaydediliyor...', 'info');
+    showToast('Saving system settings...', 'info');
     try {
-      await apiRequest('/api/settings', 'POST', {
-        settings: {
-          system_name: 'University Task & Training Management Platform (TTMS)',
-          academic_year: '2025-2026',
-          active_semester: 'Spring Semester',
-          updated_at: new Date().toISOString()
+      await apiFetch('/api/settings', {
+        method: 'POST',
+        body: {
+          settings: {
+            system_name: 'University Task & Training Management Platform (TTMS)',
+            academic_year: '2025-2026',
+            active_semester: 'Spring Semester',
+            updated_at: new Date().toISOString()
+          }
         }
       });
-      showToast('✅ Sistem ayarları başarıyla kaydedildi!', 'success');
+      showToast('System settings saved successfully!', 'success');
     } catch (err) {
-      showToast('Ayar kaydedilirken hata: ' + err.message, 'error');
+      showToast('Error saving settings: ' + err.message, 'error');
     }
   },
 
   resetToDefaults() {
-    if (confirm('Tüm ayarları sistem fabrika varsayılanlarına döndürmek istediğinizden emin misiniz?')) {
-      showToast('Varsayılan ayarlar yüklendi.', 'info');
+    if (confirm('Are you sure you want to restore all system configuration settings to factory defaults?')) {
+      showToast('Default settings restored.', 'info');
       this.renderUI(document.getElementById('main-content'));
     }
   }
